@@ -206,11 +206,10 @@ export function ReviewFlow({ businessId, businessName, industry, brandColor, goo
   }
 
   async function handleCopyAndRedirect() {
+    // Open Google first — must happen synchronously with the user gesture or browsers block it
+    if (googleBusinessUrl) window.open(googleBusinessUrl, '_blank')
     await navigator.clipboard.writeText(draft)
     setCopied(true)
-    setTimeout(() => {
-      if (googleBusinessUrl) window.open(googleBusinessUrl, '_blank')
-    }, 800)
   }
 
   // Progress for the questions step
