@@ -105,7 +105,7 @@ Return ONLY valid JSON:
     if (match) {
       const parsed = JSON.parse(match[0])
       const hookHeadline: string = parsed.hookHeadline ?? ''
-      const hookSubline: string | null = parsed.hookSubline ?? null
+      const hookSubline: string | undefined = parsed.hookSubline ?? undefined
       const ctaText: string = parsed.ctaText ?? ''
       result = {
         script: {

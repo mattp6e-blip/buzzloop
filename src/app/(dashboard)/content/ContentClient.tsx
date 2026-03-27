@@ -63,7 +63,7 @@ function ReelPreviewModal({ script, brandColor, brandSecondaryColor, brandLogoUr
     label: '',
     description: '',
     hookHeadline: hookSlide?.content.headline ?? '',
-    hookSubline:  hookSlide?.content.subline ?? null,
+    hookSubline:  hookSlide?.content.subline ?? undefined,
     ctaText:      ctaSlide?.content.cta ?? '',
     visualStyle:  (script.visualStyle as ReelVariation['visualStyle']) ?? 'cinematic',
   }
