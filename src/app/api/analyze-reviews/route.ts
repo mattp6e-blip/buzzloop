@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
 
   const message = await client.messages.create({
     model: 'claude-haiku-4-5-20251001',
-    max_tokens: 2000,
+    max_tokens: 3000,
     messages: [{
       role: 'user',
       content: `You are a world-class Instagram Reel director. Find 3–5 powerful Reel themes in these reviews. Each theme must be a SHARED EXPERIENCE across multiple reviews — not a detail from just one.
@@ -91,7 +91,7 @@ BUZZ REASON examples:
 - "Same staff member praised by 5 reviewers — personal and trustworthy"
 - "Vivid transformation stories with before/after emotional arc"
 
-Return 3–5 themes ranked by buzzScore descending, strongest first.`
+Return 6–8 themes ranked by buzzScore descending, strongest first.`
     }],
   })
 

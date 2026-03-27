@@ -67,21 +67,21 @@ export function ReelsClient({ reviews, businessId, businessName, industry, brand
   useEffect(() => {
     if (reviews.length < 2) return
 
-    // 1. localStorage first
+    // 1. localStorage first — only use if themes have buzzScore (pre-score cache is stale)
     const key = localCacheKey(businessId, reviews.length)
     try {
       const stored = localStorage.getItem(key)
       if (stored) {
         const parsed: ReelTheme[] = JSON.parse(stored)
-        if (parsed.length > 0) {
+        if (parsed.length > 0 && parsed[0].buzzScore !== undefined) {
           setThemes(parsed)
           return
         }
       }
     } catch {}
 
-    // 2. DB cache fallback
-    if (cachedThemes) {
+    // 2. DB cache fallback — same check
+    if (cachedThemes && cachedThemes[0]?.buzzScore !== undefined) {
       setThemes(cachedThemes)
       return
     }
@@ -313,9 +313,9 @@ function ThemeCard({ theme, brandColor, onClick }: {
   brandColor: string
   onClick: () => void
 }) {
-  const score = theme.buzzScore ?? 70
-  const scoreColor = score >= 80 ? '#16a34a' : score >= 60 ? brandColor : '#92400e'
-  const scoreBg    = score >= 80 ? '#dcfce7' : score >= 60 ? `${brandColor}15` : '#fef3c7'
+  const score = theme.buzzScore
+  const scoreColor = !score ? brandColor : score >= 80 ? '#16a34a' : score >= 60 ? brandColor : '#92400e'
+  const scoreBg    = !score ? `${brandColor}15` : score >= 80 ? '#dcfce7' : score >= 60 ? `${brandColor}15` : '#fef3c7'
 
   return (
     <button
@@ -344,12 +344,14 @@ function ThemeCard({ theme, brandColor, onClick }: {
             </p>
           )}
           <div className="flex items-center gap-2">
-            <span
-              className="text-xs font-bold px-2.5 py-1 rounded-full"
-              style={{ background: scoreBg, color: scoreColor }}
-            >
-              Buzz Score {score}
-            </span>
+            {score !== undefined && (
+              <span
+                className="text-xs font-bold px-2.5 py-1 rounded-full"
+                style={{ background: scoreBg, color: scoreColor }}
+              >
+                Buzz Score {score}
+              </span>
+            )}
             <span className="text-xs" style={{ color: 'var(--ink4)' }}>
               {theme.reviewIds.length} review{theme.reviewIds.length !== 1 ? 's' : ''}
             </span>
