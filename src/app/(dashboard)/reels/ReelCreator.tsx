@@ -79,7 +79,17 @@ export function ReelCreator({ theme, reviews, businessName, industry, brandColor
     const res = await fetch('/api/generate-post', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ businessName, industry, reviewText, brandColor, reelTheme: theme.title }),
+      body: JSON.stringify({
+        businessName,
+        industry,
+        reviewText,
+        reelTheme: theme.title,
+        reelHook: theme.hook,
+        buzzReason: theme.buzzReason,
+        serviceWord,
+        bookingWord,
+        websiteUrl,
+      }),
     })
     const data = await res.json()
     setCaption(data.caption ?? '')
