@@ -328,7 +328,7 @@ function ThemeCard({ theme, brandColor, onClick }: {
           className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 transition-all group-hover:scale-110"
           style={{ background: `${brandColor}15` }}
         >
-          {theme.emoji}
+          {[...theme.emoji][0]}
         </div>
 
         <div className="flex-1 min-w-0">

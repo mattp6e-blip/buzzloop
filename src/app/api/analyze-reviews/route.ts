@@ -72,7 +72,7 @@ Return ONLY a valid JSON array:
     "hook": "5-7 word opener — must be true for ALL reviews in the group, not just one",
     "category": "dish|staff|service|emotion|outcome|general",
     "keyPhrase": "the shared emotional experience connecting all these reviews",
-    "emoji": "single most relevant emoji",
+    "emoji": "exactly ONE emoji character — never more than one",
     "reviewIds": ["id1", "id2", "id3"],
     "buzzScore": 85,
     "buzzReason": "One plain-English sentence (max 12 words) explaining why this will perform well on Instagram"
