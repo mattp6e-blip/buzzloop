@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { QRDisplay } from './QRDisplay'
 import { PrintTemplates } from './PrintTemplates'
 import { CopyButton } from './CopyButton'
+import { GoogleUrlBanner } from './GoogleUrlBanner'
 
 
 export default async function QRPage() {
@@ -20,7 +21,6 @@ export default async function QRPage() {
 
   const reviewUrl = `${process.env.NEXT_PUBLIC_APP_URL}/r/${business.slug}`
   const brandColor = business.brand_color ?? '#6366f1'
-  const gbpConnected = !!business.google_connected && !!business.google_business_url
 
   return (
     <div className="p-8" style={{ maxWidth: 1100 }}>
@@ -31,23 +31,11 @@ export default async function QRPage() {
         </p>
       </div>
 
-      {!gbpConnected && (
-        <div
-          className="mb-6 rounded-2xl border p-4 flex items-start gap-3"
-          style={{ borderColor: '#f59e0b40', background: '#fefce8' }}
-        >
-          <span className="text-xl flex-shrink-0 mt-0.5">⚠️</span>
-          <div>
-            <p className="text-sm font-bold mb-0.5" style={{ color: '#92400e' }}>
-              Connect Google Business Profile before sharing this QR code
-            </p>
-            <p className="text-sm" style={{ color: '#a16207' }}>
-              Without it, customers can write their review but won&apos;t be sent to Google to post it — the most important step.{' '}
-              <a href="/onboarding" className="underline font-semibold hover:opacity-70">Connect now →</a>
-            </p>
-          </div>
-        </div>
-      )}
+      <GoogleUrlBanner
+        businessId={business.id}
+        googleConnected={!!business.google_connected}
+        hasReviewUrl={!!business.google_business_url}
+      />
 
       {/* Top section — QR + templates side by side */}
       <div className="grid grid-cols-2 gap-6 mb-8">
