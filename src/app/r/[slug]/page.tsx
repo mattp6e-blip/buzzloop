@@ -1,10 +1,10 @@
-import { createServiceClient } from '@/lib/supabase/service'
+import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import { ReviewFlow } from './ReviewFlow'
 
 export default async function ReviewPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const supabase = createServiceClient()
+  const supabase = await createClient()
 
   const { data: business } = await supabase
     .from('businesses')
