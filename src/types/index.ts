@@ -47,6 +47,8 @@ export interface ReelTheme {
   keyPhrase: string    // the recurring word/phrase found in reviews
   emoji: string        // representative emoji
   reviewIds: string[]
+  buzzScore?: number   // 1-100 estimated Instagram engagement potential
+  buzzReason?: string  // one-line plain-English explanation of the score
   // Cached after first generation so navigating away doesn't re-generate
   cachedScript?: ReelScript
   cachedVariations?: import('@/remotion/types').ReelVariation[]

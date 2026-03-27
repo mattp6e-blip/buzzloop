@@ -16,11 +16,10 @@ export default async function ReelsPage() {
 
   if (!business) redirect('/onboarding')
 
-  const { data: reviews } = await supabase
-    .from('reviews')
-    .select('*')
-    .eq('business_id', business.id)
-    .gte('star_rating', 4)
+  const [{ data: reviews }, { count: savedPostsCount }] = await Promise.all([
+    supabase.from('reviews').select('*').eq('business_id', business.id).gte('star_rating', 4),
+    supabase.from('social_posts').select('*', { count: 'exact', head: true }).eq('business_id', business.id),
+  ])
 
   const currentReviews = reviews ?? []
 
@@ -32,11 +31,11 @@ export default async function ReelsPage() {
       : null
 
   return (
-    <div className="p-8" style={{ maxWidth: 1400 }}>
+    <div className="p-8" style={{ maxWidth: 900 }}>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--ink)' }}>Reels</h1>
+        <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--ink)' }}>Content</h1>
         <p className="text-sm" style={{ color: 'var(--ink3)' }}>
-          AI finds patterns in your reviews and builds cinematic 9:16 Reels — ready to post on Instagram.
+          AI finds patterns in your reviews and ranks Reel ideas by engagement potential.
         </p>
       </div>
 
@@ -53,6 +52,7 @@ export default async function ReelsPage() {
         websiteUrl={business.website_url ?? null}
         brandExtracted={business.brand_extracted ?? false}
         cachedThemes={cachedThemes}
+        savedPostsCount={savedPostsCount ?? 0}
       />
     </div>
   )

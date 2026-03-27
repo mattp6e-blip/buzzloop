@@ -73,11 +73,25 @@ Return ONLY a valid JSON array:
     "category": "dish|staff|service|emotion|outcome|general",
     "keyPhrase": "the shared emotional experience connecting all these reviews",
     "emoji": "single most relevant emoji",
-    "reviewIds": ["id1", "id2", "id3"]
+    "reviewIds": ["id1", "id2", "id3"],
+    "buzzScore": 85,
+    "buzzReason": "One plain-English sentence (max 12 words) explaining why this will perform well on Instagram"
   }
 ]
 
-Return 3–5 themes ranked by Reel potential, strongest first.`
+BUZZ SCORE RULES (1-100):
+- 80-100: Transformation arcs (fear→relief, anxiety→confidence), extreme loyalty (flew from abroad, drove hours), multiple reviews sharing the same surprising or emotional truth
+- 60-79: Specific staff mentioned by name across reviews, clear before/after outcome, vivid personal stories with specific detail
+- 40-59: Comfort, atmosphere, or value patterns that are positive but not emotionally charged
+- Below 40: Generic praise with no emotional specificity or hook potential
+
+BUZZ REASON examples:
+- "3 customers share a fear→relief arc — stops the scroll immediately"
+- "Customers flew from abroad just to come back — extreme loyalty hook"
+- "Same staff member praised by 5 reviewers — personal and trustworthy"
+- "Vivid transformation stories with before/after emotional arc"
+
+Return 3–5 themes ranked by buzzScore descending, strongest first.`
     }],
   })
 

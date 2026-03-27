@@ -8,9 +8,7 @@ import { cn } from '@/lib/utils'
 const NAV = [
   { href: '/dashboard', label: 'Dashboard', icon: '◼' },
   { href: '/qr', label: 'QR Code', icon: '▦' },
-  { href: '/reviews', label: 'Reviews', icon: '★' },
-  { href: '/reels', label: 'Reels', icon: '▶' },
-  { href: '/content', label: 'Content', icon: '✦' },
+  { href: '/reels', label: 'Content', icon: '✦' },
   { href: '/settings', label: 'Settings', icon: '⚙' },
 ]
 
