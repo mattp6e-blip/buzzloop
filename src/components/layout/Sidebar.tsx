@@ -35,7 +35,7 @@ export function Sidebar({ businessName }: { businessName: string }) {
           <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs" style={{ background: 'var(--accent)' }}>
             ⚡
           </div>
-          <span className="font-bold text-sm" style={{ color: 'var(--ink)' }}>ReviewSpark</span>
+          <span className="font-bold text-sm" style={{ color: 'var(--ink)' }}>Buzzloop</span>
         </div>
       </div>
 

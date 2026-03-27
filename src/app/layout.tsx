@@ -8,7 +8,7 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'ReviewSpark — More Reviews. More Customers. On Autopilot.',
+  title: 'Buzzloop — More Reviews. More Customers. On Autopilot.',
   description: 'Turn your happiest customers into a Google review machine — then transform those reviews into stunning social content.',
 }
 

@@ -153,7 +153,7 @@ function OnboardingInner() {
         {/* Logo */}
         <div className="flex items-center gap-2.5 mb-10 justify-center">
           <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-sm" style={{ background: 'var(--accent)' }}>⚡</div>
-          <span className="font-bold text-lg" style={{ color: 'var(--ink)' }}>ReviewSpark</span>
+          <span className="font-bold text-lg" style={{ color: 'var(--ink)' }}>Buzzloop</span>
         </div>
 
         {/* Progress */}
@@ -291,7 +291,7 @@ function OnboardingInner() {
               <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: 'var(--ink3)' }}>Step 4 of {TOTAL_STEPS}</p>
               <h2 className="text-2xl font-bold mb-1" style={{ color: 'var(--ink)' }}>Connect Google Business</h2>
               <p className="text-sm mb-6" style={{ color: 'var(--ink3)' }}>
-                This is how we import your real reviews and turn them into content. Required to use ReviewSpark.
+                This is how we import your real reviews and turn them into content. Required to use Buzzloop.
               </p>
 
               <div className="flex flex-col gap-4">

@@ -88,7 +88,7 @@ export default async function QRPage() {
       <div>
         <div className="mb-5">
           <h2 className="text-lg font-bold mb-1" style={{ color: 'var(--ink)' }}>
-            Where ReviewSpark customers are placing their QR codes
+            Where Buzzloop customers are placing their QR codes
           </h2>
           <p className="text-sm" style={{ color: 'var(--ink3)' }}>
             Real businesses, real placements. The more visible, the more reviews.
@@ -110,8 +110,8 @@ export default async function QRPage() {
         </div>
 
         <p className="text-xs mt-4 text-center" style={{ color: 'var(--ink4)' }}>
-          Using ReviewSpark in a creative spot? We&apos;d love to feature it —{' '}
-          <a href="mailto:hello@reviewspark.co" className="underline hover:opacity-70" style={{ color: 'var(--ink3)' }}>
+          Using Buzzloop in a creative spot? We&apos;d love to feature it —{' '}
+          <a href="mailto:hello@buzzloop.co" className="underline hover:opacity-70" style={{ color: 'var(--ink3)' }}>
             send us a photo
           </a>
         </p>

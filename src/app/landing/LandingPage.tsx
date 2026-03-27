@@ -108,7 +108,7 @@ export function LandingPage() {
         <div className="flex items-center gap-2.5">
           <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs font-bold"
             style={{ background: 'var(--accent)' }}>⚡</div>
-          <span className="font-bold text-sm" style={{ color: 'var(--ink)' }}>ReviewSpark</span>
+          <span className="font-bold text-sm" style={{ color: 'var(--ink)' }}>Buzzloop</span>
         </div>
         <div className="flex items-center gap-3">
           <a href="/login" className="text-sm font-medium px-4 py-2 rounded-xl transition-all hover:opacity-70"
@@ -262,7 +262,7 @@ export function LandingPage() {
               {
                 step: '03',
                 title: 'AI builds your content',
-                body: 'ReviewSpark reads your reviews, finds what customers love, and creates Reels ready to post.',
+                body: 'Buzzloop reads your reviews, finds what customers love, and creates Reels ready to post.',
                 icon: '▶',
               },
             ].map(s => (
@@ -317,10 +317,10 @@ export function LandingPage() {
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded-lg flex items-center justify-center text-white text-xs"
             style={{ background: 'var(--accent)' }}>⚡</div>
-          <span className="text-sm font-semibold" style={{ color: 'rgba(255,255,255,0.5)' }}>ReviewSpark</span>
+          <span className="text-sm font-semibold" style={{ color: 'rgba(255,255,255,0.5)' }}>Buzzloop</span>
         </div>
         <p className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>
-          © {new Date().getFullYear()} ReviewSpark. All rights reserved.
+          © {new Date().getFullYear()} Buzzloop. All rights reserved.
         </p>
       </footer>
     </div>

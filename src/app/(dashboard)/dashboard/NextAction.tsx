@@ -63,7 +63,7 @@ function pickAction({
     return {
       icon: '📸',
       heading: 'Connect Instagram to publish in one click',
-      body: `You've created ${reelsCreated} Reel${reelsCreated > 1 ? 's' : ''} but they're not reaching anyone yet. Connect Instagram and post directly from ReviewSpark.`,
+      body: `You've created ${reelsCreated} Reel${reelsCreated > 1 ? 's' : ''} but they're not reaching anyone yet. Connect Instagram and post directly from Buzzloop.`,
       cta: 'Connect Instagram →',
       href: '/api/auth/instagram',
     }

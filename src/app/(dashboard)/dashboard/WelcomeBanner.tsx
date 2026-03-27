@@ -47,7 +47,7 @@ export function WelcomeBanner({ businessName, importedCount, brandColor }: Props
         </div>
         <div>
           <p className="font-bold text-sm mb-0.5" style={{ color: 'var(--ink)' }}>
-            Welcome to ReviewSpark, {businessName}!
+            Welcome to Buzzloop, {businessName}!
           </p>
           {importedCount > 0 ? (
             <p className="text-sm" style={{ color: 'var(--ink3)' }}>

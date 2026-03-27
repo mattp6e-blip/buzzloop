@@ -110,10 +110,10 @@ async function downloadCounterCard(businessName: string, brandColor: string, rev
   // Stars
   stars(ctx, 54, tagY + 100, 30, 'rgba(255,255,255,0.9)')
 
-  // ReviewSpark badge bottom left
+  // Buzzloop badge bottom left
   ctx.fillStyle = 'rgba(255,255,255,0.4)'
   ctx.font = '13px system-ui'
-  ctx.fillText('Powered by ReviewSpark', 54, H - 36)
+  ctx.fillText('Powered by Buzzloop', 54, H - 36)
 
   // QR code
   const qrSize = 380
@@ -197,7 +197,7 @@ async function downloadTableTent(businessName: string, brandColor: string, revie
   // Footer strip text
   ctx.fillStyle = 'rgba(255,255,255,0.75)'
   ctx.font = '14px system-ui'
-  ctx.fillText('Powered by ReviewSpark', W / 2, H - 20)
+  ctx.fillText('Powered by Buzzloop', W / 2, H - 20)
 
   triggerDownload(canvas, `${businessName}-table-tent`)
 }
@@ -270,7 +270,7 @@ async function downloadReceiptStrip(businessName: string, brandColor: string, re
 
   ctx.fillStyle = '#bbb'
   ctx.font = '13px system-ui'
-  ctx.fillText('Scan QR →     Powered by ReviewSpark', textX, H - 22)
+  ctx.fillText('Scan QR →     Powered by Buzzloop', textX, H - 22)
 
   triggerDownload(canvas, `${businessName}-receipt-strip`)
 }

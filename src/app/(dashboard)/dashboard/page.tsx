@@ -192,7 +192,7 @@ export default async function DashboardPage() {
             <span className="text-3xl flex-shrink-0">📸</span>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-bold mb-0.5" style={{ color: '#3730a3' }}>Connect Instagram</p>
-              <p className="text-xs" style={{ color: '#6366f1' }}>Post Reels directly from ReviewSpark with one click.</p>
+              <p className="text-xs" style={{ color: '#6366f1' }}>Post Reels directly from Buzzloop with one click.</p>
             </div>
             <a href="/api/auth/instagram" className="flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold text-white" style={{ background: '#6366f1' }}>
               Connect →
@@ -204,7 +204,7 @@ export default async function DashboardPage() {
             <span className="text-3xl flex-shrink-0">📸</span>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-bold mb-0.5" style={{ color: 'var(--green)' }}>Instagram connected</p>
-              <p className="text-xs" style={{ color: 'var(--ink3)' }}>{publishedIG} reel{publishedIG !== 1 ? 's' : ''} published via ReviewSpark</p>
+              <p className="text-xs" style={{ color: 'var(--ink3)' }}>{publishedIG} reel{publishedIG !== 1 ? 's' : ''} published via Buzzloop</p>
             </div>
             <a href="/content" className="flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold border" style={{ borderColor: 'var(--green-border)', color: 'var(--green)' }}>
               View content →
