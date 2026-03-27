@@ -34,50 +34,62 @@ function buildReviewList(reviews: Review[]): string {
 }
 
 function getSocialProofPrompt(reviewList: string, industry: string, businessName: string): string {
-  return `You are a world-class Instagram Reel director. Find powerful Social Proof Reel themes in these reviews for a ${industry} business called "${businessName}". Each theme must be a SHARED EXPERIENCE across multiple reviews — not a detail from just one.
+  return `You are a world-class Instagram Reel director. Find 4–6 powerful Reel themes in these reviews for ${businessName} (${industry}). Each theme must be a SHARED EXPERIENCE across multiple reviews — not a detail from just one.
 
 REVIEWS:
 ${reviewList}
 
 HOW TO BUILD A GOOD THEME:
+
 A theme is a shared emotional truth that multiple customers experienced. Group reviews by what they have in common at the EMOTIONAL level, not just keywords.
 
 Step 1: Read all reviews. Find groups of 3+ that share the same core emotional experience.
 Step 2: Ask: what is the ONE sentence that is true for ALL reviews in this group?
 Step 3: That common truth becomes the hook territory.
 
-THE BEST SOCIAL PROOF THEME TYPES (ranked by Reel potential):
-1. FEAR → RELIEF: Multiple customers mention being scared/nervous/anxious before, but had an amazing outcome. Hook: "She cancelled every appointment for years. Then she found this place."
-2. EXTREME LOYALTY: Multiple customers went out of their way — travelled far, bring their whole family, return again and again. Hook: "He drives 90 minutes. Every time."
-3. TRANSFORMATION: Multiple customers describe how the experience changed something meaningful for them. Hook: "She walked in one way. Left completely different."
-4. STAFF EXCELLENCE: Multiple reviews praise the same person(s) by name. Hook: "Everyone keeps asking for the same person."
-5. EXCEEDED EXPECTATIONS: Multiple customers say it was better than they expected in a very specific way. Hook: "She expected [X]. Got something she didn't expect."
+THE BEST THEME TYPES (ranked by Reel potential):
 
-CRITICAL: Every review in reviewIds must genuinely share the theme. 3 tightly matched reviews beats 6 loose ones.
+1. FEAR → RELIEF: Multiple customers mention being scared/terrified/anxious before, but had a great experience. The shared truth: this is the place that cured their fear. Hook: "She cancelled every appointment for years. Then she found this place."
+
+2. EXTREME LOYALTY: Multiple customers went out of their way — travelled far, bring the whole family, return again and again despite having options closer. The shared truth: worth any effort. Hook: "He drives 90 minutes. Every time."
+
+3. COMPLEX MADE EASY: Multiple customers had something they expected to be hard, painful, or complicated — and it wasn't. The shared truth: the thing they dreaded turned out to be nothing. Hook: "She expected the worst. Was back to normal that afternoon."
+
+4. TRANSFORMATION: Multiple customers describe how the experience changed something meaningful — confidence, health, daily life, how they feel about themselves. Hook: "She hid it for years. Not anymore."
+
+5. STAFF MENTIONED BY NAME: Multiple reviews mention the same person(s) as exceptional. The shared truth: specific people make all the difference. Hook: "Everyone keeps asking for the same person."
+
+CRITICAL: Every review in reviewIds must genuinely share the theme. 3 tightly matched reviews beats 6 loose ones. The hook must be true for ALL the reviews in the group, not just the best one.
 
 Return ONLY a valid JSON array:
 [
   {
     "id": "unique-slug",
     "title": "The shared truth across all these reviews as a scroll-stopping fact (under 10 words)",
-    "hook": "5-7 word opener — must be true for ALL reviews in the group",
+    "hook": "5-7 word opener — must be true for ALL reviews in the group, not just one",
     "category": "emotion|outcome|staff|service|general",
     "reelCategory": "social_proof",
     "keyPhrase": "the shared emotional experience connecting all these reviews",
     "emoji": "exactly ONE emoji character — never more than one",
     "reviewIds": ["id1", "id2", "id3"],
     "buzzScore": 85,
-    "buzzReason": "One plain-English sentence (max 12 words) explaining why this will perform well"
+    "buzzReason": "One plain-English sentence (max 12 words) explaining why this will perform well on Instagram"
   }
 ]
 
 BUZZ SCORE RULES (1-100):
-- 80-100: Transformation arcs (fear→relief), extreme loyalty, multiple reviews sharing the same surprising emotional truth
-- 60-79: Specific staff praised by name, clear before/after outcome, vivid personal stories
-- 40-59: Comfort, atmosphere, or value patterns — positive but not emotionally charged
+- 80-100: Transformation arcs (fear→relief, anxiety→confidence), extreme loyalty (travelled far, came back repeatedly), multiple reviews sharing the same surprising or emotional truth
+- 60-79: Specific staff mentioned by name across reviews, clear before/after outcome, vivid personal stories with specific detail
+- 40-59: Comfort, atmosphere, or value patterns that are positive but not emotionally charged
 - Below 40: Generic praise with no emotional specificity or hook potential
 
-Return 4–6 themes ranked by buzzScore descending. Return empty array [] if reviews lack clear patterns.`
+BUZZ REASON examples:
+- "3 customers share a fear→relief arc — stops the scroll immediately"
+- "Customers travelled far just to come back — extreme loyalty hook"
+- "Same staff member praised by 5 reviewers — personal and trustworthy"
+- "Vivid transformation stories with before/after emotional arc"
+
+Return 4–6 themes ranked by buzzScore descending, strongest first.`
 }
 
 function getEducationalPrompt(reviewList: string, industry: string, businessName: string): string {

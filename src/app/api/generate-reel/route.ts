@@ -18,37 +18,52 @@ ${reviewTexts}
 
 BEFORE YOU WRITE ANYTHING — do this analysis in your head:
 1. Read ALL the reviews. What is the ONE thing they ALL share? Not just one review — all of them.
-2. What is the common emotional experience?
-3. The hook, quotes, and CTA must ALL serve that single common truth.
+2. What is the common emotional experience? (e.g. all went in scared, all mention pain-free, all mention a specific person, all mention a transformation)
+3. The hook, quotes, and CTA must ALL serve that single common truth. If a review doesn't fit the common thread, don't use it.
 4. The hook must be something that ALL the reviews support — not a detail unique to one review.
 
 HOOK — what stops them scrolling (max 8 words):
 The best hooks are SPECIFIC FACTS stated in an unexpected way.
-- "She flew from Norway. For this dentist." ✓
-- "She used to cancel every appointment." ✓
-- "She came in terrified. Left crying — happy tears." ✓
-- "Patients keep coming back" ✗ (vague)
+- "She flew from Norway. For this clinic." ✓  (specific, surprising, human)
+- "20 teeth out. All implants in. 48 hours." ✓  (specific numbers, unexpected)
+- "She used to cancel every single appointment." ✓  (relatable, creates curiosity)
+- "She came in terrified. Left crying — happy tears." ✓  (before/after contrast)
+- "Patients keep coming back" ✗  (vague, means nothing)
+- "Amazing results" ✗  (says nothing specific)
 The hook must be TRUE and directly connected to these real reviews.
 
 QUOTE SLIDES — real words, cinematic trim (max 18 words each):
 Pull the most powerful sentence from each review. Cut filler. Keep the emotional core.
-highlightWords: the exact 1-3 words that carry the most weight.
+- Good: "I'd rather travel two hours than go anywhere else." (raw, specific, unbelievable)
+- Bad: "The service was very good and they are very professional." (no emotional weight)
+highlightWords: the exact 1-3 words that carry the most weight in that sentence.
 
 PROOF SLIDE — one undeniable fact that earns trust:
-Base it directly on what the reviews say. Must logically follow the story.
-- "4.9★ · ${reviews.length} reviews" as a last resort only — prefer something more specific.
+This must be LOGICAL and make complete sense to a viewer who just watched the previous slides.
+Base it directly on what the reviews say. Examples by theme:
+- If the theme is about fear/transformation: "From terrified to: can't wait to come back."
+- If the theme is about travelling far: "4.9★ · ${reviews.length} reviews. Worth every mile."
+- If the theme is about a fast/easy procedure: "Quick. Painless. Life-changing."
+- If nothing specific fits: "4.9★ across ${reviews.length} Google reviews"
+NEVER write something that doesn't logically follow from the story. "Customers flying. Same story." is meaningless — never do this.
 
 CLOSING — the emotional payoff:
-- headline: Short question or statement connecting the story to the viewer's own life
-- ctaText: Specific warm invitation that callbacks to something in the reviews
-
+- headline: A short question or statement that connects the story to the viewer's own life. Make them picture themselves there.
+  - "Still putting it off?" (speaks to procrastination)
+  - "What are you waiting for?" (gentle challenge)
+  - "When did you last actually look forward to this?" (reframes the experience)
+  - "Your turn." (simple, direct)
+- ctaText: One specific, warm invitation. Must logically follow from the story.
+  - "Book your first visit. See what everyone's talking about." ✓
+  - "The team that made her travel two hours is ready for you." ✓  (callbacks to specific hook)
+  - "Book now." ✗  (generic, weak)
 NEVER include any URL, domain, or website address anywhere.
 
 Return ONLY valid JSON:
 {
   "themeTitle": "${theme.title}",
   "totalDuration": 29,
-  "hookHeadline": "The single best hook — specific, surprising, true for ALL reviews (max 8 words)",
+  "hookHeadline": "The single best hook for this story — specific, surprising, true for ALL reviews (max 8 words)",
   "hookSubline": "Optional 5-word subline that adds context, or null",
   "ctaText": "Warm closing CTA that callbacks to something specific in the reviews",
   "slides": [
