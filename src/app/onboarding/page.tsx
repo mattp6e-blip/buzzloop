@@ -289,9 +289,9 @@ function OnboardingInner() {
           {step === 4 && (
             <div>
               <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: 'var(--ink3)' }}>Step 4 of {TOTAL_STEPS}</p>
-              <h2 className="text-2xl font-bold mb-1" style={{ color: 'var(--ink)' }}>Connect Google Business</h2>
+              <h2 className="text-2xl font-bold mb-1" style={{ color: 'var(--ink)' }}>Last step — connect Google</h2>
               <p className="text-sm mb-6" style={{ color: 'var(--ink3)' }}>
-                This is how we import your real reviews and turn them into content. Required to use Buzzloop.
+                We&apos;ll sync your reviews, generate your first Reel, and make sure your QR code sends customers straight to your review page.
               </p>
 
               <div className="flex flex-col gap-4">
@@ -321,7 +321,7 @@ function OnboardingInner() {
                       Connect Google Business Profile
                     </button>
                     <p className="text-xs mt-1.5 text-center" style={{ color: 'var(--ink4)' }}>
-                      Secure OAuth — we never post or modify anything on your behalf
+                      Read-only access — we never post or change anything on your behalf
                     </p>
                   </div>
                 )}
