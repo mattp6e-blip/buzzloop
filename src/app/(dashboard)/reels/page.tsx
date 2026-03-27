@@ -10,7 +10,7 @@ export default async function ReelsPage() {
 
   const { data: business } = await supabase
     .from('businesses')
-    .select('id, name, industry, brand_color, brand_font, brand_logo_url, brand_secondary_color, brand_personality, brand_extracted, website_url, reel_themes, reel_themes_review_count')
+    .select('id, name, industry, city, brand_color, brand_font, brand_logo_url, brand_secondary_color, brand_personality, brand_extracted, website_url, reel_themes, reel_themes_review_count')
     .eq('user_id', user.id)
     .single()
 
@@ -53,6 +53,7 @@ export default async function ReelsPage() {
         brandExtracted={business.brand_extracted ?? false}
         cachedThemes={cachedThemes}
         savedPostsCount={savedPostsCount ?? 0}
+        city={business.city ?? null}
       />
     </div>
   )

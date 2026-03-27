@@ -19,13 +19,14 @@ interface Props {
   brandExtracted: boolean
   cachedThemes: ReelTheme[] | null
   savedPostsCount: number
+  city: string | null
 }
 
 function localCacheKey(businessId: string, reviewCount: number) {
   return `reel_themes_${businessId}_${reviewCount}`
 }
 
-export function ReelsClient({ reviews, businessId, businessName, industry, brandColor, brandFont, brandLogoUrl, brandPersonality, brandSecondaryColor, websiteUrl, brandExtracted, cachedThemes, savedPostsCount }: Props) {
+export function ReelsClient({ reviews, businessId, businessName, industry, brandColor, brandFont, brandLogoUrl, brandPersonality, brandSecondaryColor, websiteUrl, brandExtracted, cachedThemes, savedPostsCount, city }: Props) {
   const [themes, setThemes]               = useState<ReelTheme[] | null>(null)
   const [analyzing, setAnalyzing]         = useState(false)
   const [selectedTheme, setSelectedTheme] = useState<ReelTheme | null>(null)
@@ -162,6 +163,7 @@ export function ReelsClient({ reviews, businessId, businessName, industry, brand
         serviceWord={extractedBrand?.serviceWord}
         bookingWord={extractedBrand?.bookingWord}
         businessId={businessId}
+        city={city}
         onBack={() => setSelectedTheme(null)}
         onScriptCached={handleScriptCached}
       />

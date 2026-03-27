@@ -60,6 +60,7 @@ function OnboardingInner() {
   const searchParams = useSearchParams()
   const [step, setStep] = useState(1)
   const [businessName, setBusinessName] = useState('')
+  const [city, setCity] = useState('')
   const [industry, setIndustry] = useState<Industry | null>(null)
   const [logoFile, setLogoFile] = useState<File | null>(null)
   const [logoPreview, setLogoPreview] = useState<string | null>(null)
@@ -115,6 +116,7 @@ function OnboardingInner() {
     const payload: Record<string, unknown> = {
       name: businessName,
       industry,
+      city: city.trim() || null,
       website_url: websiteUrl || null,
       brand_color: brandColor,
       slug,
@@ -188,6 +190,11 @@ function OnboardingInner() {
               <p className="text-sm mb-7" style={{ color: 'var(--ink3)' }}>This is how it&apos;ll appear to your customers.</p>
               <Input id="name" label="Business name" placeholder="e.g. Harmonia Dental"
                 value={businessName} onChange={e => setBusinessName(e.target.value)} autoFocus />
+              <div className="mt-4">
+                <Input id="city" label="City" placeholder="e.g. London"
+                  value={city} onChange={e => setCity(e.target.value)} />
+                <p className="text-xs mt-1.5" style={{ color: 'var(--ink4)' }}>Used to generate location-specific hashtags for your posts</p>
+              </div>
               <Button className="w-full mt-6" size="lg" disabled={!businessName.trim()} onClick={() => setStep(2)}>
                 Continue →
               </Button>

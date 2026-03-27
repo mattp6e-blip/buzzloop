@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import dynamic from 'next/dynamic'
 import type { ReelScript } from '@/types'
 import type { ReelVariation, ReelCompositionProps } from '@/remotion/types'
@@ -24,6 +24,9 @@ interface Props {
   onCaptionChange: (v: string) => void
   generatingCaption: boolean
   onRegenerateCaption: () => void
+  cityMissing: boolean
+  savingCity: boolean
+  onCitySave: (city: string) => void
   onSave: (script: ReelScript, variation: ReelVariation) => void
   onBack: () => void
   onSwitchVariation: (v: ReelVariation) => void
@@ -49,12 +52,14 @@ const SLIDE_ICONS: Record<string, string> = {
 export function ReelEditor({
   script, variation, variations, brandColor, brandSecondaryColor, logoUrl, businessName,
   industry, websiteUrl, businessId, caption, onCaptionChange, generatingCaption,
-  onRegenerateCaption, onSave, onBack, onSwitchVariation, saving, saved, saveError,
+  onRegenerateCaption, cityMissing, savingCity, onCitySave, onSave, onBack, onSwitchVariation, saving, saved, saveError,
 }: Props) {
   const [editedScript, setEditedScript]     = useState<ReelScript>(() => JSON.parse(JSON.stringify(script)))
   const [editedVariation, setEditedVariation] = useState<ReelVariation>(() => ({ ...variation }))
   const [activeSlide, setActiveSlide]       = useState(0)
   const [uploadingSlot, setUploadingSlot]   = useState<number | null>(null)
+  const [cityInput, setCityInput]           = useState('')
+  const cityInputRef                        = useRef<HTMLInputElement>(null)
 
   function updateSlide(index: number, patch: Partial<ReelScript['slides'][0]['content']>) {
     setEditedScript(prev => ({
@@ -395,14 +400,41 @@ export function ReelEditor({
         <div className="flex flex-col gap-2 pt-3" style={{ borderTop: '1px solid var(--border)', flexShrink: 0 }}>
           <div className="flex items-center justify-between">
             <label className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--ink4)' }}>Instagram caption</label>
-            {!generatingCaption && (
+            {!generatingCaption && !cityMissing && (
               <button onClick={onRegenerateCaption} className="text-xs hover:opacity-70 transition-opacity" style={{ color: brandColor }}>
                 ↺ Regenerate
               </button>
             )}
           </div>
 
-          {generatingCaption ? (
+          {cityMissing ? (
+            <div className="rounded-xl border p-4" style={{ borderColor: `${brandColor}40`, background: `${brandColor}08` }}>
+              <p className="text-sm font-semibold mb-1" style={{ color: 'var(--ink)' }}>Where is {businessName} based?</p>
+              <p className="text-xs mb-3" style={{ color: 'var(--ink3)' }}>Used to generate location hashtags for your post</p>
+              <div className="flex gap-2">
+                <input
+                  ref={cityInputRef}
+                  value={cityInput}
+                  onChange={e => setCityInput(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter' && cityInput.trim()) onCitySave(cityInput.trim()) }}
+                  placeholder="e.g. London"
+                  className="flex-1 px-3 py-2 rounded-xl border text-sm outline-none"
+                  style={{ borderColor: 'var(--border)', color: 'var(--ink)', background: 'white' }}
+                  onFocus={e => e.target.style.borderColor = brandColor}
+                  onBlur={e => e.target.style.borderColor = 'var(--border)'}
+                  autoFocus
+                />
+                <button
+                  onClick={() => { if (cityInput.trim()) onCitySave(cityInput.trim()) }}
+                  disabled={!cityInput.trim() || savingCity}
+                  className="px-4 py-2 rounded-xl text-sm font-bold transition-all"
+                  style={{ background: brandColor, color: 'white', opacity: !cityInput.trim() || savingCity ? 0.5 : 1 }}
+                >
+                  {savingCity ? '...' : 'Save'}
+                </button>
+              </div>
+            </div>
+          ) : generatingCaption ? (
             <div className="flex items-center gap-2 py-4">
               <div className="w-3 h-3 border-2 border-t-transparent rounded-full animate-spin flex-shrink-0" style={{ borderColor: brandColor, borderTopColor: 'transparent' }} />
               <p className="text-sm" style={{ color: 'var(--ink3)' }}>Writing caption...</p>
@@ -421,13 +453,13 @@ export function ReelEditor({
 
           <button
             onClick={() => onSave(editedScript, editedVariation)}
-            disabled={saving || saved || !caption || generatingCaption}
+            disabled={saving || saved || !caption || generatingCaption || cityMissing}
             className="w-full py-3 rounded-xl text-sm font-bold transition-all"
             style={{
               background: saved ? '#16a34a' : brandColor,
               color: 'white',
-              opacity: saving || !caption || generatingCaption ? 0.6 : 1,
-              cursor: saving || saved || !caption || generatingCaption ? 'not-allowed' : 'pointer',
+              opacity: saving || !caption || generatingCaption || cityMissing ? 0.6 : 1,
+              cursor: saving || saved || !caption || generatingCaption || cityMissing ? 'not-allowed' : 'pointer',
             }}
           >
             {saving ? 'Saving...' : saved ? '✓ Saved to content library' : '✦ Save to content library'}

@@ -22,11 +22,12 @@ interface Props {
   serviceWord?: string
   bookingWord?: string
   businessId: string
+  city: string | null
   onBack: () => void
   onScriptCached: (themeId: string, script: ReelScript, variations: ReelVariation[]) => void
 }
 
-export function ReelCreator({ theme, reviews, businessName, industry, brandColor, brandFont, logoUrl, websiteUrl, brandPersonality, brandSecondaryColor, customerWord, serviceWord, bookingWord, businessId, onBack, onScriptCached }: Props) {
+export function ReelCreator({ theme, reviews, businessName, industry, brandColor, brandFont, logoUrl, websiteUrl, brandPersonality, brandSecondaryColor, customerWord, serviceWord, bookingWord, businessId, city, onBack, onScriptCached }: Props) {
   const [script, setScript]               = useState<ReelScript | null>(null)
   const [variations, setVariations]       = useState<ReelVariation[]>([])
   const [selectedVariation, setSelectedVariation] = useState<ReelVariation | null>(null)
@@ -37,6 +38,9 @@ export function ReelCreator({ theme, reviews, businessName, industry, brandColor
   const [saving, setSaving]               = useState(false)
   const [saved, setSaved]                 = useState(false)
   const [saveError, setSaveError]         = useState<string | null>(null)
+  const [cityValue, setCityValue]         = useState(city ?? '')
+  const [cityMissing, setCityMissing]     = useState(false)
+  const [savingCity, setSavingCity]       = useState(false)
 
   useEffect(() => {
     // Use cached script if available — no API call needed
@@ -72,7 +76,13 @@ export function ReelCreator({ theme, reviews, businessName, industry, brandColor
     generateCaption(themeReviews)
   }
 
-  async function generateCaption(themeReviews?: Review[]) {
+  async function generateCaption(themeReviews?: Review[], overrideCity?: string) {
+    const activeCity = overrideCity ?? cityValue
+    if (!activeCity.trim()) {
+      setCityMissing(true)
+      return
+    }
+    setCityMissing(false)
     setGeneratingCaption(true)
     const sourceReviews = themeReviews ?? reviews.filter(r => theme.reviewIds.includes(r.id))
     const reviewText = sourceReviews.map(r => r.what_they_liked).join(' ')
@@ -89,11 +99,21 @@ export function ReelCreator({ theme, reviews, businessName, industry, brandColor
         serviceWord,
         bookingWord,
         websiteUrl,
+        city: activeCity,
       }),
     })
     const data = await res.json()
     setCaption(data.caption ?? '')
     setGeneratingCaption(false)
+  }
+
+  async function handleCitySave(newCity: string) {
+    setSavingCity(true)
+    const supabase = createClient()
+    await supabase.from('businesses').update({ city: newCity }).eq('id', businessId)
+    setCityValue(newCity)
+    setSavingCity(false)
+    generateCaption(undefined, newCity)
   }
 
   async function handleSave(editedScript: ReelScript, editedVariation: ReelVariation) {
@@ -198,6 +218,9 @@ export function ReelCreator({ theme, reviews, businessName, industry, brandColor
           onCaptionChange={v => { setCaption(v); setSaved(false) }}
           generatingCaption={generatingCaption}
           onRegenerateCaption={() => generateCaption()}
+          cityMissing={cityMissing}
+          savingCity={savingCity}
+          onCitySave={handleCitySave}
           onSave={handleSave}
           onBack={() => setEditMode(false)}
           onSwitchVariation={v => { setSelectedVariation(v); setSaved(false) }}

@@ -15,7 +15,7 @@ const INDUSTRY_CTAS: Record<string, string> = {
 }
 
 export async function POST(req: NextRequest) {
-  const { businessName, industry, reviewText, reelTheme, reelHook, buzzReason, serviceWord, bookingWord, websiteUrl } = await req.json()
+  const { businessName, industry, reviewText, reelTheme, reelHook, buzzReason, serviceWord, bookingWord, websiteUrl, city } = await req.json()
 
   // Build CTA from extracted brand words if available, otherwise use industry default
   const ctaAction = bookingWord && serviceWord
@@ -43,7 +43,7 @@ Line 2–3 — One specific thing that makes ${businessName} worth visiting. Pla
 
 CTA line — Use this exactly: "${ctaAction}"
 
-Hashtags — 3 to 5 only, on a new line. Mix of niche industry tags and location-style tags (e.g. #LondonDentist #SmileTransformation). Do not use generic tags like #instagood or #love.
+Hashtags — 3 to 5 only, on a new line. Mix of niche industry tags and location-specific tags using the actual city (e.g. #${city ? city.replace(/\s+/g, '') : 'London'}Dentist #SmileTransformation). Do not use generic tags like #instagood or #love.${city ? `\nThe business is located in ${city} — use this exact city name in at least one location hashtag.` : ''}
 
 RULES:
 - Total caption (excluding hashtags): under 70 words
