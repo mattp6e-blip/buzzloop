@@ -45,10 +45,12 @@ export default function LoginPage() {
       <div className="w-full max-w-[400px]">
         {/* Logo */}
         <div className="flex items-center gap-2.5 mb-10 justify-center">
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-sm font-bold" style={{ background: 'var(--accent)' }}>
-            ⚡
-          </div>
-          <span className="font-bold text-lg" style={{ color: 'var(--ink)' }}>Buzzloop</span>
+          <Link href="/" className="flex items-center gap-2.5 hover:opacity-70 transition-opacity">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-sm font-bold" style={{ background: 'var(--accent)' }}>
+              ⚡
+            </div>
+            <span className="font-bold text-lg" style={{ color: 'var(--ink)' }}>Buzzloop</span>
+          </Link>
         </div>
 
         {/* Card */}
