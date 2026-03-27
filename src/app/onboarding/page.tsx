@@ -289,9 +289,9 @@ function OnboardingInner() {
           {step === 4 && (
             <div>
               <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: 'var(--ink3)' }}>Step 4 of {TOTAL_STEPS}</p>
-              <h2 className="text-2xl font-bold mb-1" style={{ color: 'var(--ink)' }}>Last step — connect Google</h2>
+              <h2 className="text-2xl font-bold mb-1" style={{ color: 'var(--ink)' }}>Connect your Google Business Profile to unlock all features</h2>
               <p className="text-sm mb-6" style={{ color: 'var(--ink3)' }}>
-                We&apos;ll sync your reviews, generate your first Reel, and make sure your QR code sends customers straight to your review page.
+                We&apos;ll sync your reviews, turn them into Instagram Reels and drive more customer reviews.
               </p>
 
               <div className="flex flex-col gap-4">
