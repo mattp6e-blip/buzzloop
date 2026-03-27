@@ -10,48 +10,61 @@ interface Question {
   question: string
   options: string[]
   multi: boolean
+  allowOther?: boolean
 }
 
 const QUESTIONS: Record<string, Question[]> = {
   restaurant: [
-    { id: 'what',      question: 'What did you have?',  options: ['Food', 'Drinks', 'Food & drinks', 'Just coffee / tea'], multi: false },
-    { id: 'highlight', question: 'What stood out?',     options: ['The food quality', 'The service', 'The atmosphere', 'The value', 'Everything!'], multi: true },
-    { id: 'vibe',      question: 'How did it feel?',    options: ['Cosy & intimate', 'Lively & fun', 'Perfect for a date', 'Great for groups', 'A hidden gem'], multi: false },
+    { id: 'what',      question: 'What did you have?',  options: ['Dinner', 'Lunch', 'Brunch', 'Just drinks', 'Coffee & cake', 'Tasting menu'], multi: false },
+    { id: 'highlight', question: 'What stood out?',     options: ['The food quality', 'The service', 'The atmosphere', 'The portion sizes', 'The value', 'Everything!'], multi: true },
+    { id: 'vibe',      question: 'How did it feel?',    options: ['Cosy & intimate', 'Lively & fun', 'Perfect for a date', 'Great for groups', 'A hidden gem', 'Like a local favourite'], multi: false },
   ],
   dental: [
-    { id: 'reason',    question: 'What brought you in?',         options: ['Routine checkup', 'A treatment', 'Something urgent', 'First visit'], multi: false },
-    { id: 'feeling',   question: 'How did the team make you feel?', options: ['Completely at ease', 'Very professional', 'Caring & attentive', 'Safe & looked after'], multi: true },
-    { id: 'highlight', question: 'What impressed you most?',     options: ['Pain-free experience', 'Clear explanations', 'Modern equipment', 'Friendly staff', 'How quick it was'], multi: false },
+    { id: 'reason',    question: 'What brought you in?', options: ['Routine check-up & clean', 'Teeth whitening', 'A treatment or procedure', 'Emergency visit', 'First visit', 'Other...'], multi: false, allowOther: true },
+    { id: 'feeling',   question: 'How did the team make you feel?', options: ['Completely at ease', 'Very professional', 'Caring & attentive', 'Safe & in good hands', 'Reassured throughout'], multi: true },
+    { id: 'highlight', question: 'What impressed you most?',     options: ['Pain-free experience', 'Clear explanations', 'Modern equipment', 'Friendly staff', 'How thorough they were', 'How quick it was'], multi: false },
   ],
   gym: [
-    { id: 'use',       question: 'What do you use most?',        options: ['The gym floor', 'Group classes', 'Personal training', 'The facilities'], multi: true },
-    { id: 'keeps',     question: 'What keeps you coming back?',  options: ['The results', 'The community', 'The equipment', 'The coaches', 'The atmosphere'], multi: true },
-    { id: 'impact',    question: 'How has it changed you?',      options: ['Stronger & fitter', 'More confident', 'Better routine', 'Completely hooked'], multi: false },
+    { id: 'use',       question: 'What do you mainly use?',      options: ['Free weights & lifting', 'Cardio machines', 'Group fitness classes', 'Personal training', 'Functional training area', 'The pool or recovery facilities'], multi: true },
+    { id: 'keeps',     question: 'What keeps you coming back?',  options: ['Seeing real results', 'The community feel', 'Quality of the equipment', 'The coaches & trainers', 'The atmosphere', 'Convenient hours'], multi: true },
+    { id: 'impact',    question: 'How has it changed you?',      options: ['Stronger & fitter', 'More confident', 'Built a proper routine', 'Lost weight', 'Better mental health', 'Completely hooked'], multi: false },
   ],
   salon: [
-    { id: 'service',   question: 'What did you come in for?',    options: ['Haircut', 'Colour', 'Treatment', 'Nails', 'Full makeover'], multi: false },
-    { id: 'result',    question: 'How did it turn out?',         options: ['Exactly what I wanted', 'Even better than expected', 'They understood me perfectly'], multi: false },
-    { id: 'feeling',   question: 'How did you feel leaving?',    options: ['Amazing', 'Like a new person', 'Relaxed & refreshed', 'So confident'], multi: false },
+    { id: 'service',   question: 'What did you come in for?',    options: ['Haircut & style', 'Colour or highlights', 'Hair treatment', 'Blow-dry', 'Nails', 'Other...'], multi: false, allowOther: true },
+    { id: 'result',    question: 'How did it turn out?',         options: ['Exactly what I wanted', 'Even better than expected', 'They nailed my reference photos', 'Totally transformed'], multi: false },
+    { id: 'feeling',   question: 'How did you feel leaving?',    options: ['Like a new person', 'Really confident', 'Relaxed & pampered', 'Couldn\'t stop smiling', 'Ready to show it off'], multi: false },
   ],
   spa: [
-    { id: 'service',   question: 'What did you have?',           options: ['Massage', 'Facial', 'Body treatment', 'Full day package', 'Multiple treatments'], multi: false },
-    { id: 'feeling',   question: 'How did you feel?',            options: ['Completely relaxed', 'Totally recharged', 'Like a new person', 'Deeply pampered'], multi: false },
-    { id: 'highlight', question: 'What stood out?',              options: ['The atmosphere', 'The therapist', 'The facilities', 'The results', 'Everything'], multi: true },
+    { id: 'service',   question: 'What did you have?',           options: ['Massage', 'Facial', 'Body treatment', 'Full day package', 'Couples treatment', 'Other...'], multi: false, allowOther: true },
+    { id: 'feeling',   question: 'How did you feel after?',      options: ['Completely relaxed', 'Totally recharged', 'Like a new person', 'Deeply pampered', 'All tension gone'], multi: false },
+    { id: 'highlight', question: 'What stood out?',              options: ['The atmosphere & ambience', 'The therapist\'s skill', 'The facilities', 'The results on my skin or body', 'How personalised it felt', 'Everything'], multi: true },
   ],
   clinic: [
-    { id: 'reason',    question: 'What brought you in?',         options: ['Routine appointment', 'A specific concern', 'Follow-up', 'First visit'], multi: false },
-    { id: 'care',      question: 'How was the care?',            options: ['Thorough & attentive', 'Quick & efficient', 'Warm & reassuring', 'Very professional'], multi: true },
-    { id: 'highlight', question: 'What stood out?',              options: ['Clear communication', 'Short wait time', 'Friendly staff', 'Feeling truly heard'], multi: false },
+    { id: 'reason',    question: 'What brought you in?',         options: ['Routine check-up', 'A health concern', 'Follow-up appointment', 'Tests or results', 'First visit', 'Other...'], multi: false, allowOther: true },
+    { id: 'care',      question: 'How was the care?',            options: ['Thorough & attentive', 'Quick & efficient', 'Warm & reassuring', 'Very professional', 'They really listened'], multi: true },
+    { id: 'highlight', question: 'What stood out?',              options: ['Clear explanations', 'Short waiting time', 'Friendly & welcoming staff', 'Feeling genuinely heard', 'Easy to book', 'Left with a clear plan'], multi: false },
   ],
   retail: [
-    { id: 'reason',    question: 'What brought you in?',         options: ['Something specific', 'Just browsing', 'A gift', 'Everyday items'], multi: false },
-    { id: 'highlight', question: 'How was the experience?',      options: ['Found exactly what I needed', 'Great staff help', 'Brilliant selection', 'Really good value'], multi: true },
-    { id: 'tell',      question: 'What would you tell a friend?', options: ['Must visit', 'Great range', 'Friendly team', 'Worth every penny'], multi: false },
+    { id: 'reason',    question: 'What brought you in?',         options: ['Looking for something specific', 'Browsing & exploring', 'Buying a gift', 'A recommendation from someone', 'Regular shopping trip', 'Saw it online first'], multi: false },
+    { id: 'highlight', question: 'How was the experience?',      options: ['Found exactly what I needed', 'Staff really helped me out', 'Great range & selection', 'Really good value', 'Beautiful store layout', 'Quick & easy'], multi: true },
+    { id: 'tell',      question: 'What would you tell a friend?', options: ['You have to check this place out', 'Great range, never disappointed', 'The staff are genuinely helpful', 'Worth every penny', 'My new go-to spot'], multi: false },
   ],
   other: [
-    { id: 'highlight', question: 'What stood out most?',         options: ['The quality', 'The people', 'The experience', 'The value'], multi: true },
-    { id: 'feeling',   question: 'How did it make you feel?',    options: ['Really impressed', 'Happy I came', 'Glad I found this place', 'Like a regular already'], multi: false },
+    { id: 'reason',    question: 'What brought you here?',       options: ['A recommendation', 'Saw it online', 'Regular visit', 'First time trying it', 'Special occasion'], multi: false },
+    { id: 'highlight', question: 'What stood out most?',         options: ['The quality', 'The people', 'The whole experience', 'The value', 'How professional it was'], multi: true },
+    { id: 'feeling',   question: 'How did it make you feel?',    options: ['Really impressed', 'Happy I came', 'Glad I found this place', 'Like a regular already', 'I\'ll be back for sure'], multi: false },
   ],
+}
+
+const PLACEHOLDERS: Record<string, string> = {
+  restaurant: 'e.g. The pasta was cooked perfectly — we couldn\'t stop talking about it on the way home...',
+  dental:     'e.g. Dr. Smith talked me through every step before starting — I barely felt a thing...',
+  gym:        'e.g. The 6am classes have completely changed my routine — I\'m actually enjoying mornings now...',
+  salon:      'e.g. She matched my reference photos exactly and gave me the best advice for maintaining the colour...',
+  spa:        'e.g. I came in stressed and left feeling like I\'d had a full night\'s sleep — genuinely incredible...',
+  clinic:     'e.g. The doctor took time to really listen and didn\'t rush me out — I left feeling reassured...',
+  retail:     'e.g. They didn\'t just sell me something — they took time to find what actually suited my needs...',
+  other:      'e.g. What really stood out was how attentive everyone was from the moment I walked in...',
 }
 
 function getQuestions(industry: string): Question[] {
@@ -127,6 +140,7 @@ export function ReviewFlow({ businessId, businessName, industry, brandColor, goo
   const [hoveredStar, setHoveredStar] = useState(0)
   const [questionIndex, setQuestionIndex] = useState(0)
   const [answers, setAnswers]         = useState<Record<string, string[]>>({})
+  const [otherInputs, setOtherInputs] = useState<Record<string, string>>({})
   const [freeText, setFreeText]       = useState('')
   const [staffName, setStaffName]     = useState('')
   const [complaint, setComplaint]     = useState('')
@@ -146,8 +160,10 @@ export function ReviewFlow({ businessId, businessName, industry, brandColor, goo
       })
     } else {
       setAnswers(prev => ({ ...prev, [q.id]: [option] }))
-      // Auto-advance on single select
-      setTimeout(() => advanceQuestion(), 280)
+      // Auto-advance on single select, unless "Other..." was chosen (needs text input)
+      if (!(q.allowOther && option === 'Other...')) {
+        setTimeout(() => advanceQuestion(), 280)
+      }
     }
   }
 
@@ -163,7 +179,10 @@ export function ReviewFlow({ businessId, businessName, industry, brandColor, goo
     const parts: string[] = []
     for (const q of questions) {
       const selected = answers[q.id]
-      if (selected?.length) parts.push(selected.join(', '))
+      if (selected?.length) {
+        const resolved = selected.map(o => (o === 'Other...' && otherInputs[q.id]) ? otherInputs[q.id] : o)
+        parts.push(resolved.join(', '))
+      }
     }
     if (freeText.trim()) parts.push(freeText.trim())
     return parts.join('. ')
@@ -319,7 +338,7 @@ export function ReviewFlow({ businessId, businessName, industry, brandColor, goo
               <h2 className="text-xl font-bold mb-6 text-center" style={{ color: '#1a1814', fontFamily: 'Georgia, serif' }}>
                 {currentQ.question}
               </h2>
-              <div className="flex flex-wrap gap-2.5 justify-center mb-8">
+              <div className="flex flex-wrap gap-2.5 justify-center mb-4">
                 {currentQ.options.map(option => {
                   const selected = currentSelected.includes(option)
                   return (
@@ -339,8 +358,21 @@ export function ReviewFlow({ businessId, businessName, industry, brandColor, goo
                   )
                 })}
               </div>
-              {/* Next button — only shown for multi-select */}
-              {currentQ.multi && currentSelected.length > 0 && (
+              {/* "Other..." text input */}
+              {currentQ.allowOther && currentSelected.includes('Other...') && (
+                <input
+                  type="text"
+                  autoFocus
+                  value={otherInputs[currentQ.id] ?? ''}
+                  onChange={e => setOtherInputs(prev => ({ ...prev, [currentQ.id]: e.target.value }))}
+                  placeholder="Tell us what you came in for..."
+                  className="w-full px-4 py-3 rounded-2xl border text-sm outline-none mb-4"
+                  style={{ borderColor: brandColor, color: '#1a1814', background: 'white' }}
+                />
+              )}
+              <div className="mb-4" />
+              {/* Next / Skip buttons */}
+              {(currentQ.multi || (currentQ.allowOther && currentSelected.includes('Other...'))) && currentSelected.length > 0 && (
                 <button
                   onClick={advanceQuestion}
                   className="w-full py-4 rounded-2xl text-white font-bold text-base transition-all active:scale-95"
@@ -372,7 +404,7 @@ export function ReviewFlow({ businessId, businessName, industry, brandColor, goo
               <textarea
                 value={freeText}
                 onChange={e => setFreeText(e.target.value)}
-                placeholder="e.g. The tiramisu was outstanding..."
+                placeholder={PLACEHOLDERS[industry] ?? PLACEHOLDERS.other}
                 className="w-full px-4 py-3 rounded-2xl border text-sm outline-none resize-none mb-4"
                 style={{ borderColor: '#e5e2dc', color: '#1a1814', background: 'white', minHeight: 90 }}
                 onFocus={e => e.target.style.borderColor = brandColor}
@@ -430,12 +462,15 @@ export function ReviewFlow({ businessId, businessName, industry, brandColor, goo
                 <h1 className="text-xl font-bold mb-1" style={{ color: '#1a1814' }}>Your review is ready</h1>
                 <p className="text-sm" style={{ color: '#9c9488' }}>Copy it, then paste it into Google</p>
               </div>
-              <div
-                className="rounded-2xl p-5 mb-5 text-sm leading-relaxed"
-                style={{ background: 'white', border: '1px solid #e5e2dc', color: '#3d3a35', fontStyle: 'italic' }}
-              >
-                &ldquo;{draft}&rdquo;
-              </div>
+              <textarea
+                value={draft}
+                onChange={e => setDraft(e.target.value)}
+                className="w-full rounded-2xl p-5 mb-1 text-sm leading-relaxed outline-none resize-none"
+                style={{ background: 'white', border: '1px solid #e5e2dc', color: '#3d3a35', minHeight: 140 }}
+                onFocus={e => e.target.style.borderColor = brandColor}
+                onBlur={e => e.target.style.borderColor = '#e5e2dc'}
+              />
+              <p className="text-xs mb-4 text-right" style={{ color: '#c4bfb8' }}>Tap to edit</p>
               <button
                 onClick={handleCopyAndRedirect}
                 className="w-full py-4 rounded-2xl text-white font-bold text-base transition-all active:scale-95"

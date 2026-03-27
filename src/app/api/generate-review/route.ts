@@ -3,10 +3,19 @@ import { NextRequest, NextResponse } from 'next/server'
 
 const client = new Anthropic()
 
+const STYLE_VARIANTS = [
+  'Open with a specific detail that stood out, then explain why it made the experience memorable.',
+  'Start with how you felt when you left — lead with the outcome, then support it with what happened.',
+  'Begin by mentioning the reason you came and how the experience met or exceeded your expectations.',
+  'Lead with the most impressive aspect of the visit, then close with a clear recommendation.',
+  'Describe the experience in a warm, genuine tone — specific and personal without being over the top.',
+  'Open with what set this place apart from others — what made it worth coming back to.',
+]
+
 export async function POST(req: NextRequest) {
   const { businessName, industry, starRating, whatTheyLiked, staffName } = await req.json()
 
-  const staffLine = staffName ? ` ${staffName} was especially great.` : ''
+  const styleVariant = STYLE_VARIANTS[Math.floor(Math.random() * STYLE_VARIANTS.length)]
 
   const prompt = `You are writing a genuine Google review on behalf of a happy customer.
 
@@ -20,8 +29,9 @@ Write a short, natural, conversational Google review (2-4 sentences).
 - Mention specific details from what they liked
 - ${staffName ? `Mention ${staffName} naturally` : 'Keep it personal and warm'}
 - End with a recommendation or saying you will return
-- Do NOT use the word "amazing" or "fantastic" — keep it authentic
+- Do NOT use the words "amazing" or "fantastic" — keep it authentic
 - No hashtags, no emojis
+- Vary the structure: ${styleVariant}
 
 Return ONLY the review text, nothing else.`
 
