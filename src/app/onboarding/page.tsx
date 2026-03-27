@@ -152,11 +152,22 @@ function OnboardingInner() {
     <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'var(--bg)' }}>
       <div className="w-full max-w-[480px]">
         {/* Logo */}
-        <div className="flex items-center gap-2.5 mb-10 justify-center">
+        <div className="flex items-center justify-between mb-10">
           <Link href="/" className="flex items-center gap-2.5 hover:opacity-70 transition-opacity">
             <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-sm" style={{ background: 'var(--accent)' }}>⚡</div>
             <span className="font-bold text-lg" style={{ color: 'var(--ink)' }}>Buzzloop</span>
           </Link>
+          <button
+            onClick={async () => {
+              const { createClient } = await import('@/lib/supabase/client')
+              await createClient().auth.signOut()
+              window.location.href = '/login'
+            }}
+            className="text-xs hover:underline"
+            style={{ color: 'var(--ink4)' }}
+          >
+            Sign out
+          </button>
         </div>
 
         {/* Progress */}
