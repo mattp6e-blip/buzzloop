@@ -1,0 +1,2 @@
+ALTER TABLE businesses ADD COLUMN IF NOT EXISTS reel_themes JSONB;
+ALTER TABLE businesses ADD COLUMN IF NOT EXISTS reel_themes_review_count INTEGER DEFAULT 0;

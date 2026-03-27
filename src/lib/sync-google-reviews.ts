@@ -1,0 +1,127 @@
+import { SupabaseClient } from '@supabase/supabase-js'
+
+interface GBPReview {
+  starRating: string
+  comment?: string
+  reviewer?: { displayName?: string }
+  createTime?: string
+}
+
+async function refreshAccessToken(refreshToken: string): Promise<string | null> {
+  const res = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      client_id: process.env.GOOGLE_CLIENT_ID!,
+      client_secret: process.env.GOOGLE_CLIENT_SECRET!,
+      refresh_token: refreshToken,
+      grant_type: 'refresh_token',
+    }),
+  })
+  const data = await res.json()
+  return data.access_token ?? null
+}
+
+export async function syncGoogleReviews(
+  supabase: SupabaseClient,
+  businessId: string,
+): Promise<{ imported: number; total: number }> {
+  const { data: business } = await supabase
+    .from('businesses')
+    .select('id, google_access_token, google_refresh_token, google_token_expiry, google_connected, google_location_id')
+    .eq('id', businessId)
+    .single()
+
+  if (!business?.google_connected || !business.google_access_token) {
+    return { imported: 0, total: 0 }
+  }
+
+  let accessToken = business.google_access_token
+
+  // Refresh token if expired
+  const expiry = business.google_token_expiry ? new Date(business.google_token_expiry) : null
+  if (expiry && expiry < new Date() && business.google_refresh_token) {
+    const newToken = await refreshAccessToken(business.google_refresh_token)
+    if (newToken) {
+      accessToken = newToken
+      await supabase.from('businesses').update({ google_access_token: newToken }).eq('id', businessId)
+    }
+  }
+
+  // Resolve location ID (cached or fresh lookup)
+  let locationName = business.google_location_id as string | null
+
+  if (!locationName) {
+    const accountsRes = await fetch(
+      'https://mybusinessaccountmanagement.googleapis.com/v1/accounts',
+      { headers: { Authorization: `Bearer ${accessToken}` } }
+    )
+    const accountsData = await accountsRes.json()
+    if (!accountsData.accounts?.length) return { imported: 0, total: 0 }
+
+    const locationsRes = await fetch(
+      `https://mybusinessbusinessinformation.googleapis.com/v1/${accountsData.accounts[0].name}/locations?readMask=name,title,metadata`,
+      { headers: { Authorization: `Bearer ${accessToken}` } }
+    )
+    const locationsData = await locationsRes.json()
+    if (!locationsData.locations?.length) return { imported: 0, total: 0 }
+
+    const location = locationsData.locations[0]
+    locationName = location.name as string
+    const newReviewUri = location.metadata?.newReviewUri ?? null
+    await supabase.from('businesses').update({
+      google_location_id: locationName,
+      ...(newReviewUri ? { google_business_url: newReviewUri } : {}),
+    }).eq('id', businessId)
+  }
+
+  // Paginate through all reviews (cap at 200)
+  const allReviews: GBPReview[] = []
+  let pageToken: string | undefined
+
+  do {
+    const url = new URL(`https://mybusiness.googleapis.com/v4/${locationName}/reviews`)
+    url.searchParams.set('pageSize', '50')
+    if (pageToken) url.searchParams.set('pageToken', pageToken)
+
+    const res = await fetch(url.toString(), { headers: { Authorization: `Bearer ${accessToken}` } })
+    const data = await res.json()
+
+    if (data.reviews?.length) allReviews.push(...data.reviews)
+    pageToken = data.nextPageToken
+  } while (pageToken && allReviews.length < 200)
+
+  // Keep 4+5 star reviews with substantive text
+  const qualifying = allReviews.filter(r =>
+    (r.starRating === 'FIVE' || r.starRating === 'FOUR') &&
+    r.comment && r.comment.length >= 30
+  )
+
+  if (!qualifying.length) return { imported: 0, total: 0 }
+
+  // Deduplicate against existing reviews
+  const { data: existing } = await supabase
+    .from('reviews')
+    .select('what_they_liked')
+    .eq('business_id', businessId)
+
+  const existingTexts = new Set(existing?.map((r: { what_they_liked: string }) => r.what_they_liked) ?? [])
+
+  const toInsert = qualifying
+    .filter(r => !existingTexts.has(r.comment!))
+    .map(r => ({
+      business_id: businessId,
+      star_rating: r.starRating === 'FIVE' ? 5 : 4,
+      what_they_liked: r.comment!,
+      customer_name: r.reviewer?.displayName ?? null,
+      ai_draft: r.comment!,
+      posted_to_google: true,
+      created_at: r.createTime ?? new Date().toISOString(),
+    }))
+
+  if (toInsert.length > 0) {
+    await supabase.from('reviews').insert(toInsert)
+  }
+
+  return { imported: toInsert.length, total: qualifying.length }
+}

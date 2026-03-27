@@ -1,0 +1,6 @@
+ALTER TABLE businesses ADD COLUMN IF NOT EXISTS website_url TEXT;
+ALTER TABLE businesses ADD COLUMN IF NOT EXISTS brand_logo_url TEXT;
+ALTER TABLE businesses ADD COLUMN IF NOT EXISTS brand_secondary_color TEXT;
+ALTER TABLE businesses ADD COLUMN IF NOT EXISTS brand_personality TEXT;
+ALTER TABLE businesses ADD COLUMN IF NOT EXISTS brand_extracted BOOLEAN DEFAULT FALSE;
+ALTER TABLE businesses ADD COLUMN IF NOT EXISTS brand_font TEXT DEFAULT 'Inter';

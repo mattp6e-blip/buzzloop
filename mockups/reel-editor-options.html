@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reel Editor — Layout Options</title>
+  <style>
+    /* ─── Reset & Base ───────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, 'Inter', sans-serif;
+      background: #f8f8f8;
+      color: #111;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ─── Option Switcher Bar ────────────────────────────────── */
+    .option-switcher {
+      background: #fff;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      flex-shrink: 0;
+      z-index: 100;
+    }
+
+    .option-switcher span {
+      font-size: 12px;
+      color: #6b7280;
+      font-weight: 500;
+      margin-right: 4px;
+    }
+
+    .opt-tab {
+      padding: 6px 16px;
+      border-radius: 6px;
+      border: 1px solid #e5e7eb;
+      background: #f8f8f8;
+      font-size: 13px;
+      font-weight: 500;
+      color: #6b7280;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .opt-tab:hover {
+      border-color: #2563eb;
+      color: #2563eb;
+    }
+
+    .opt-tab.active {
+      background: #2563eb;
+      border-color: #2563eb;
+      color: #fff;
+    }
+
+    /* ─── Layout Panels ──────────────────────────────────────── */
+    .layout-panel {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .layout-panel.active {
+      display: flex;
+    }
+
+    /* ─── Shared Top Bar ─────────────────────────────────────── */
+    .top-bar {
+      background: #fff;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 0 24px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+
+    .top-bar-back {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: #6b7280;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.1s;
+    }
+
+    .top-bar-back:hover { color: #111; }
+
+    .top-bar-divider {
+      width: 1px;
+      height: 18px;
+      background: #e5e7eb;
+    }
+
+    .top-bar-theme {
+      font-size: 14px;
+      font-weight: 600;
+      color: #111;
+    }
+
+    .top-bar-meta {
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    /* ─── Shared Components ──────────────────────────────────── */
+
+    /* Reel Preview */
+    .reel-preview {
+      background: #0a0a0a;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.28), 0 2px 8px rgba(0,0,0,0.18);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      padding: 32px 24px;
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .reel-preview::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #2563eb, #7c3aed);
+      border-radius: 16px 16px 0 0;
+    }
+
+    .reel-preview-eyebrow {
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      font-weight: 600;
+    }
+
+    .reel-preview-hook {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+      text-align: center;
+      line-height: 1.35;
+      letter-spacing: -0.3px;
+    }
+
+    .reel-preview-stars {
+      font-size: 15px;
+      letter-spacing: 3px;
+      color: #fbbf24;
+    }
+
+    .reel-preview-bar {
+      width: 48px;
+      height: 3px;
+      background: #2563eb;
+      border-radius: 2px;
+    }
+
+    .reel-preview-sub {
+      font-size: 11px;
+      color: rgba(255,255,255,0.35);
+      text-align: center;
+    }
+
+    /* Style Toggle */
+    .style-toggle {
+      display: flex;
+      align-items: center;
+      background: #f3f4f6;
+      border-radius: 8px;
+      padding: 3px;
+      gap: 2px;
+    }
+
+    .style-toggle-btn {
+      padding: 6px 14px;
+      border-radius: 6px;
+      border: none;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      color: #6b7280;
+      background: transparent;
+      transition: all 0.15s ease;
+    }
+
+    .style-toggle-btn.active {
+      background: #fff;
+      color: #111;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+
+    /* Slide Cards */
+    .slide-card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 16px;
+      transition: border-color 0.15s;
+    }
+
+    .slide-card:hover { border-color: #2563eb; }
+
+    .slide-card-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .slide-number {
+      width: 22px;
+      height: 22px;
+      background: #eff6ff;
+      color: #2563eb;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .slide-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #374151;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .field-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 5px;
+    }
+
+    .field-input, .field-textarea {
+      width: 100%;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 13px;
+      font-family: inherit;
+      color: #374151;
+      background: #fafafa;
+      resize: none;
+      outline: none;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .field-input:focus, .field-textarea:focus {
+      border-color: #2563eb;
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.08);
+    }
+
+    .photo-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      padding: 7px 12px;
+      border: 1px dashed #d1d5db;
+      border-radius: 6px;
+      background: transparent;
+      font-size: 12px;
+      color: #6b7280;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+
+    .photo-btn:hover {
+      border-color: #2563eb;
+      color: #2563eb;
+      background: #eff6ff;
+    }
+
+    /* Buttons */
+    .btn-primary {
+      padding: 10px 22px;
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.15s, transform 0.1s;
+    }
+
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-primary:active { transform: scale(0.98); }
+
+    .btn-ghost {
+      padding: 8px 16px;
+      background: transparent;
+      color: #374151;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+
+    .btn-ghost:hover { border-color: #374151; background: #f9fafb; }
+
+    /* Caption Area */
+    .caption-section label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .caption-section textarea {
+      width: 100%;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 13px;
+      font-family: inherit;
+      color: #374151;
+      background: #fafafa;
+      resize: none;
+      outline: none;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .caption-section textarea:focus {
+      border-color: #2563eb;
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.08);
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #d1d5db; }
+
+    /* ─────────────────────────────────────────────────────────────
+       OPTION A — Side by Side
+    ───────────────────────────────────────────────────────────── */
+    #layout-a .layout-body {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* Left: slide editor */
+    #layout-a .col-left {
+      width: 45%;
+      min-width: 320px;
+      overflow-y: auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      border-right: 1px solid #e5e7eb;
+    }
+
+    #layout-a .col-left-inner {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* Right: sticky preview */
+    #layout-a .col-right {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      gap: 18px;
+      overflow: hidden;
+    }
+
+    #layout-a .col-right-top {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    /* Option A header within layout */
+    #layout-a .layout-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0;
+    }
+
+    #layout-a .col-left-heading {
+      font-size: 13px;
+      font-weight: 600;
+      color: #374151;
+      padding-bottom: 4px;
+      border-bottom: 2px solid #2563eb;
+      display: inline-block;
+      margin-bottom: 2px;
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       OPTION B — Preview First
+    ───────────────────────────────────────────────────────────── */
+    #layout-b .layout-body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      overflow-y: auto;
+      padding: 28px 24px 32px;
+      gap: 24px;
+    }
+
+    #layout-b .preview-zone {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+    }
+
+    #layout-b .slide-tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .slide-pill {
+      padding: 7px 16px;
+      border-radius: 100px;
+      border: 1px solid #e5e7eb;
+      background: #fff;
+      font-size: 13px;
+      font-weight: 500;
+      color: #6b7280;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+
+    .slide-pill.active {
+      background: #2563eb;
+      border-color: #2563eb;
+      color: #fff;
+    }
+
+    .slide-pill:hover:not(.active) {
+      border-color: #2563eb;
+      color: #2563eb;
+    }
+
+    #layout-b .slide-edit-zone {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 20px;
+      width: 100%;
+      max-width: 600px;
+    }
+
+    #layout-b .slide-edit-zone h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #111;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #layout-b .fields-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    #layout-b .caption-save-row {
+      width: 100%;
+      max-width: 600px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    #layout-b .divider {
+      height: 1px;
+      background: #e5e7eb;
+      width: 100%;
+      max-width: 600px;
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       OPTION C — Studio (3-panel)
+    ───────────────────────────────────────────────────────────── */
+    #layout-c .layout-body {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* Left panel: slide list */
+    #layout-c .studio-left {
+      width: 280px;
+      flex-shrink: 0;
+      background: #fff;
+      border-right: 1px solid #e5e7eb;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    #layout-c .studio-left-header {
+      padding: 16px 18px 12px;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    #layout-c .studio-left-header h3 {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #6b7280;
+    }
+
+    #layout-c .slide-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .slide-list-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.12s;
+      border: 1px solid transparent;
+    }
+
+    .slide-list-item:hover { background: #f9fafb; }
+
+    .slide-list-item.active {
+      background: #eff6ff;
+      border-color: #dbeafe;
+    }
+
+    .slide-list-item .item-num {
+      width: 20px;
+      height: 20px;
+      background: #f3f4f6;
+      border-radius: 5px;
+      font-size: 10px;
+      font-weight: 700;
+      color: #6b7280;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .slide-list-item.active .item-num {
+      background: #2563eb;
+      color: #fff;
+    }
+
+    .slide-list-item .item-icon {
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .slide-list-item .item-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .slide-list-item .item-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: #374151;
+    }
+
+    .slide-list-item.active .item-name { color: #1d4ed8; }
+
+    .slide-list-item .item-preview {
+      font-size: 11px;
+      color: #9ca3af;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 1px;
+    }
+
+    /* Center panel: preview */
+    #layout-c .studio-center {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      padding: 24px;
+      background: #f8f8f8;
+      overflow: hidden;
+    }
+
+    #layout-c .center-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #9ca3af;
+    }
+
+    /* Right panel: editing */
+    #layout-c .studio-right {
+      width: 320px;
+      flex-shrink: 0;
+      background: #fff;
+      border-left: 1px solid #e5e7eb;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    #layout-c .studio-right-header {
+      padding: 16px 18px;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    #layout-c .studio-right-header .editing-badge {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #2563eb;
+      margin-bottom: 4px;
+    }
+
+    #layout-c .studio-right-header h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #111;
+    }
+
+    #layout-c .studio-right-body {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #layout-c .right-fields {
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex: 1;
+    }
+
+    #layout-c .right-divider {
+      height: 1px;
+      background: #e5e7eb;
+      margin: 0;
+      flex-shrink: 0;
+    }
+
+    #layout-c .right-caption {
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    #layout-c .right-caption label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #6b7280;
+    }
+
+    #layout-c .right-caption textarea {
+      width: 100%;
+      height: 110px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 13px;
+      font-family: inherit;
+      color: #374151;
+      background: #fafafa;
+      resize: none;
+      outline: none;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    #layout-c .right-caption textarea:focus {
+      border-color: #2563eb;
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.08);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── Option Switcher ────────────────────────────────────── -->
+  <div class="option-switcher">
+    <span>Layout:</span>
+    <button class="opt-tab active" onclick="switchLayout('a')">Option A — Side by Side</button>
+    <button class="opt-tab" onclick="switchLayout('b')">Option B — Preview First</button>
+    <button class="opt-tab" onclick="switchLayout('c')">Option C — Studio</button>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       LAYOUT A — Side by Side
+  ═══════════════════════════════════════════════════════════════ -->
+  <div id="layout-a" class="layout-panel active">
+
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <a href="#" class="top-bar-back">← Back to Reel ideas</a>
+      <div class="top-bar-divider"></div>
+      <span class="top-bar-theme">Fear → Confidence</span>
+      <div class="top-bar-divider"></div>
+      <span class="top-bar-meta">Based on 6 reviews</span>
+      <div style="flex:1"></div>
+      <button class="btn-ghost">↻ Regenerate</button>
+    </div>
+
+    <!-- Body -->
+    <div class="layout-body">
+
+      <!-- Left: Slide Editor -->
+      <div class="col-left">
+        <div class="col-left-inner">
+
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span class="col-left-heading">Slides</span>
+            <span style="font-size:12px;color:#9ca3af;">5 slides</span>
+          </div>
+
+          <!-- Slide 1: Hook -->
+          <div class="slide-card">
+            <div class="slide-card-header">
+              <div class="slide-number">1</div>
+              <span class="slide-label">Opening Hook</span>
+              <span style="margin-left:auto;font-size:11px;color:#9ca3af;">🎣</span>
+            </div>
+            <div class="field-label">Headline</div>
+            <input class="field-input" type="text" value="She flew from Norway. For this dentist." />
+            <button class="photo-btn">📷 Add background photo</button>
+          </div>
+
+          <!-- Slide 2: Quote 1 -->
+          <div class="slide-card">
+            <div class="slide-card-header">
+              <div class="slide-number">2</div>
+              <span class="slide-label">Review Quote 1</span>
+              <span style="margin-left:auto;font-size:11px;color:#9ca3af;">💬</span>
+            </div>
+            <div class="field-label">Quote</div>
+            <textarea class="field-textarea" rows="2">"I'd rather fly from Norway than go to a dentist here."</textarea>
+            <div class="field-label" style="margin-top:10px;">Attribution</div>
+            <input class="field-input" type="text" value="— Maria K." />
+            <button class="photo-btn">📷 Add background photo</button>
+          </div>
+
+          <!-- Slide 3: Quote 2 -->
+          <div class="slide-card">
+            <div class="slide-card-header">
+              <div class="slide-number">3</div>
+              <span class="slide-label">Review Quote 2</span>
+              <span style="margin-left:auto;font-size:11px;color:#9ca3af;">💬</span>
+            </div>
+            <div class="field-label">Quote</div>
+            <textarea class="field-textarea" rows="2">"20 years of dental anxiety. One visit changed everything."</textarea>
+            <div class="field-label" style="margin-top:10px;">Attribution</div>
+            <input class="field-input" type="text" value="— James T." />
+            <button class="photo-btn">📷 Add background photo</button>
+          </div>
+
+          <!-- Slide 4: Social Proof -->
+          <div class="slide-card">
+            <div class="slide-card-header">
+              <div class="slide-number">4</div>
+              <span class="slide-label">Social Proof</span>
+              <span style="margin-left:auto;font-size:11px;color:#9ca3af;">⭐</span>
+            </div>
+            <div class="field-label">Proof line</div>
+            <input class="field-input" type="text" value="4.9★ · 127 reviews" />
+            <button class="photo-btn">📷 Add background photo</button>
+          </div>
+
+          <!-- Slide 5: CTA -->
+          <div class="slide-card">
+            <div class="slide-card-header">
+              <div class="slide-number">5</div>
+              <span class="slide-label">Call to Action</span>
+              <span style="margin-left:auto;font-size:11px;color:#9ca3af;">🚀</span>
+            </div>
+            <div class="field-label">CTA Headline</div>
+            <input class="field-input" type="text" value="Still putting off that appointment?" />
+            <div class="field-label" style="margin-top:10px;">CTA Body</div>
+            <textarea class="field-textarea" rows="2">Book your first visit. See what everyone's talking about.</textarea>
+            <button class="photo-btn">📷 Add background photo</button>
+          </div>
+
+          <!-- Caption -->
+          <div class="caption-section" style="margin-top:8px;">
+            <label>Instagram Caption</label>
+            <textarea rows="4" style="width:100%;border:1px solid #e5e7eb;border-radius:8px;padding:10px 12px;font-size:13px;font-family:inherit;color:#374151;background:#fafafa;resize:none;outline:none;">From anxiety to confidence — our patients say it best 🦷✨
+
+Real stories. Real results. Book your visit at the link in bio.
+
+#DentalCare #SmileTransformation #NoMoreDentalAnxiety</textarea>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Right: Preview -->
+      <div class="col-right">
+        <!-- Style Toggle -->
+        <div class="col-right-top">
+          <span style="font-size:12px;color:#6b7280;font-weight:500;">Style</span>
+          <div class="style-toggle">
+            <button class="style-toggle-btn active" onclick="toggleStyle(this)">🎬 Cinematic</button>
+            <button class="style-toggle-btn" onclick="toggleStyle(this)">☀ Clean</button>
+          </div>
+        </div>
+
+        <!-- Reel Preview (340px wide × 9:16) -->
+        <div class="reel-preview" style="width:340px;height:605px;">
+          <div class="reel-preview-eyebrow">Opening Hook</div>
+          <div class="reel-preview-bar"></div>
+          <div class="reel-preview-hook">She flew from Norway.<br>For this dentist.</div>
+          <div class="reel-preview-stars">★★★★★</div>
+          <div class="reel-preview-sub">Fear → Confidence · 6 reviews</div>
+        </div>
+
+        <!-- Save -->
+        <button class="btn-primary" style="width:340px;padding:12px 0;font-size:15px;">Save Reel</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       LAYOUT B — Preview First
+  ═══════════════════════════════════════════════════════════════ -->
+  <div id="layout-b" class="layout-panel">
+
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <a href="#" class="top-bar-back">← Back to Reel ideas</a>
+      <div class="top-bar-divider"></div>
+      <span class="top-bar-theme">Fear → Confidence</span>
+      <div class="top-bar-divider"></div>
+      <span class="top-bar-meta">Based on 6 reviews</span>
+    </div>
+
+    <!-- Body: centered scrollable column -->
+    <div class="layout-body">
+
+      <div class="preview-zone">
+        <!-- Style Toggle above preview -->
+        <div class="style-toggle">
+          <button class="style-toggle-btn active" onclick="toggleStyle(this)">🎬 Cinematic</button>
+          <button class="style-toggle-btn" onclick="toggleStyle(this)">☀ Clean</button>
+        </div>
+
+        <!-- Reel Preview (360px) -->
+        <div class="reel-preview" style="width:360px;height:640px;">
+          <div class="reel-preview-eyebrow">Opening Hook</div>
+          <div class="reel-preview-bar"></div>
+          <div class="reel-preview-hook">She flew from Norway.<br>For this dentist.</div>
+          <div class="reel-preview-stars">★★★★★</div>
+          <div class="reel-preview-sub">Fear → Confidence · 6 reviews</div>
+        </div>
+      </div>
+
+      <!-- Slide tab pills -->
+      <div class="slide-tabs">
+        <button class="slide-pill active" onclick="selectPill(this,'b-hook')">🎣 Hook</button>
+        <button class="slide-pill" onclick="selectPill(this,'b-q1')">💬 Quote 1</button>
+        <button class="slide-pill" onclick="selectPill(this,'b-q2')">💬 Quote 2</button>
+        <button class="slide-pill" onclick="selectPill(this,'b-proof')">⭐ Proof</button>
+        <button class="slide-pill" onclick="selectPill(this,'b-cta')">🚀 CTA</button>
+      </div>
+
+      <!-- Slide edit panels (only one visible) -->
+
+      <!-- Hook -->
+      <div id="b-hook" class="slide-edit-zone">
+        <h3><span style="background:#eff6ff;color:#2563eb;padding:3px 8px;border-radius:5px;font-size:12px;">Slide 1</span> Opening Hook</h3>
+        <div class="field-label">Headline</div>
+        <input class="field-input" type="text" value="She flew from Norway. For this dentist." style="margin-bottom:12px;" />
+        <button class="photo-btn">📷 Add background photo</button>
+      </div>
+
+      <!-- Quote 1 (hidden by default) -->
+      <div id="b-q1" class="slide-edit-zone" style="display:none;">
+        <h3><span style="background:#eff6ff;color:#2563eb;padding:3px 8px;border-radius:5px;font-size:12px;">Slide 2</span> Review Quote 1</h3>
+        <div class="fields-row">
+          <div>
+            <div class="field-label">Quote</div>
+            <textarea class="field-textarea" rows="3">"I'd rather fly from Norway than go to a dentist here."</textarea>
+          </div>
+          <div>
+            <div class="field-label">Attribution</div>
+            <input class="field-input" type="text" value="— Maria K." />
+          </div>
+        </div>
+        <button class="photo-btn" style="margin-top:12px;">📷 Add background photo</button>
+      </div>
+
+      <!-- Quote 2 (hidden) -->
+      <div id="b-q2" class="slide-edit-zone" style="display:none;">
+        <h3><span style="background:#eff6ff;color:#2563eb;padding:3px 8px;border-radius:5px;font-size:12px;">Slide 3</span> Review Quote 2</h3>
+        <div class="fields-row">
+          <div>
+            <div class="field-label">Quote</div>
+            <textarea class="field-textarea" rows="3">"20 years of dental anxiety. One visit changed everything."</textarea>
+          </div>
+          <div>
+            <div class="field-label">Attribution</div>
+            <input class="field-input" type="text" value="— James T." />
+          </div>
+        </div>
+        <button class="photo-btn" style="margin-top:12px;">📷 Add background photo</button>
+      </div>
+
+      <!-- Proof (hidden) -->
+      <div id="b-proof" class="slide-edit-zone" style="display:none;">
+        <h3><span style="background:#eff6ff;color:#2563eb;padding:3px 8px;border-radius:5px;font-size:12px;">Slide 4</span> Social Proof</h3>
+        <div class="field-label">Proof line</div>
+        <input class="field-input" type="text" value="4.9★ · 127 reviews" style="margin-bottom:12px;" />
+        <button class="photo-btn">📷 Add background photo</button>
+      </div>
+
+      <!-- CTA (hidden) -->
+      <div id="b-cta" class="slide-edit-zone" style="display:none;">
+        <h3><span style="background:#eff6ff;color:#2563eb;padding:3px 8px;border-radius:5px;font-size:12px;">Slide 5</span> Call to Action</h3>
+        <div class="fields-row">
+          <div>
+            <div class="field-label">CTA Headline</div>
+            <input class="field-input" type="text" value="Still putting off that appointment?" />
+          </div>
+          <div>
+            <div class="field-label">CTA Body</div>
+            <textarea class="field-textarea" rows="2">Book your first visit. See what everyone's talking about.</textarea>
+          </div>
+        </div>
+        <button class="photo-btn" style="margin-top:12px;">📷 Add background photo</button>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Caption + Save -->
+      <div class="caption-save-row">
+        <div class="caption-section">
+          <label>Instagram Caption</label>
+          <textarea rows="4">From anxiety to confidence — our patients say it best 🦷✨
+
+Real stories. Real results. Book your visit at the link in bio.
+
+#DentalCare #SmileTransformation #NoMoreDentalAnxiety</textarea>
+        </div>
+        <div style="display:flex;justify-content:flex-end;">
+          <button class="btn-primary">Save Reel →</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       LAYOUT C — Studio (3 panels)
+  ═══════════════════════════════════════════════════════════════ -->
+  <div id="layout-c" class="layout-panel">
+
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <a href="#" class="top-bar-back">← Back to Reel ideas</a>
+      <div class="top-bar-divider"></div>
+      <span class="top-bar-theme">Fear → Confidence</span>
+      <div class="top-bar-divider"></div>
+      <span class="top-bar-meta">Based on 6 reviews</span>
+      <div style="flex:1"></div>
+      <button class="btn-ghost" style="font-size:12px;">↻ Regenerate</button>
+    </div>
+
+    <!-- Body: 3-panel studio -->
+    <div class="layout-body">
+
+      <!-- Left: Slide List -->
+      <div class="studio-left">
+        <div class="studio-left-header">
+          <h3>Slides</h3>
+        </div>
+        <div class="slide-list">
+
+          <div class="slide-list-item active" onclick="selectStudioSlide(this, 'c-hook')">
+            <div class="item-num">1</div>
+            <div class="item-icon">🎣</div>
+            <div class="item-content">
+              <div class="item-name">Opening Hook</div>
+              <div class="item-preview">She flew from Norway. For this dentist.</div>
+            </div>
+          </div>
+
+          <div class="slide-list-item" onclick="selectStudioSlide(this, 'c-q1')">
+            <div class="item-num">2</div>
+            <div class="item-icon">💬</div>
+            <div class="item-content">
+              <div class="item-name">Review Quote 1</div>
+              <div class="item-preview">"I'd rather fly from Norway…"</div>
+            </div>
+          </div>
+
+          <div class="slide-list-item" onclick="selectStudioSlide(this, 'c-q2')">
+            <div class="item-num">3</div>
+            <div class="item-icon">💬</div>
+            <div class="item-content">
+              <div class="item-name">Review Quote 2</div>
+              <div class="item-preview">"20 years of dental anxiety…"</div>
+            </div>
+          </div>
+
+          <div class="slide-list-item" onclick="selectStudioSlide(this, 'c-proof')">
+            <div class="item-num">4</div>
+            <div class="item-icon">⭐</div>
+            <div class="item-content">
+              <div class="item-name">Social Proof</div>
+              <div class="item-preview">4.9★ · 127 reviews</div>
+            </div>
+          </div>
+
+          <div class="slide-list-item" onclick="selectStudioSlide(this, 'c-cta')">
+            <div class="item-num">5</div>
+            <div class="item-icon">🚀</div>
+            <div class="item-content">
+              <div class="item-name">Call to Action</div>
+              <div class="item-preview">Still putting off that appointment?</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Center: Preview -->
+      <div class="studio-center">
+        <div class="center-label">Reel Preview</div>
+
+        <!-- Reel Preview (380px) -->
+        <div class="reel-preview" style="width:380px;height:675px;">
+          <div class="reel-preview-eyebrow">Opening Hook</div>
+          <div class="reel-preview-bar"></div>
+          <div class="reel-preview-hook">She flew from Norway.<br>For this dentist.</div>
+          <div class="reel-preview-stars">★★★★★</div>
+          <div class="reel-preview-sub">Fear → Confidence · 6 reviews</div>
+        </div>
+
+        <!-- Style toggle below preview -->
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:12px;color:#6b7280;font-weight:500;">Style</span>
+          <div class="style-toggle">
+            <button class="style-toggle-btn active" onclick="toggleStyle(this)">🎬 Cinematic</button>
+            <button class="style-toggle-btn" onclick="toggleStyle(this)">☀ Clean</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Edit Panel -->
+      <div class="studio-right">
+        <div class="studio-right-header">
+          <div class="editing-badge">Editing</div>
+          <h3 id="c-right-title">Opening Hook</h3>
+        </div>
+
+        <div class="studio-right-body">
+
+          <!-- Slide field panels — only one shown at a time -->
+
+          <!-- Hook fields -->
+          <div id="c-hook" class="right-fields">
+            <div>
+              <div class="field-label">Headline</div>
+              <input class="field-input" type="text" value="She flew from Norway. For this dentist." />
+            </div>
+            <button class="photo-btn">📷 Add background photo</button>
+          </div>
+
+          <!-- Q1 fields (hidden) -->
+          <div id="c-q1" class="right-fields" style="display:none;">
+            <div>
+              <div class="field-label">Quote</div>
+              <textarea class="field-textarea" rows="3">"I'd rather fly from Norway than go to a dentist here."</textarea>
+            </div>
+            <div>
+              <div class="field-label">Attribution</div>
+              <input class="field-input" type="text" value="— Maria K." />
+            </div>
+            <button class="photo-btn">📷 Add background photo</button>
+          </div>
+
+          <!-- Q2 fields (hidden) -->
+          <div id="c-q2" class="right-fields" style="display:none;">
+            <div>
+              <div class="field-label">Quote</div>
+              <textarea class="field-textarea" rows="3">"20 years of dental anxiety. One visit changed everything."</textarea>
+            </div>
+            <div>
+              <div class="field-label">Attribution</div>
+              <input class="field-input" type="text" value="— James T." />
+            </div>
+            <button class="photo-btn">📷 Add background photo</button>
+          </div>
+
+          <!-- Proof fields (hidden) -->
+          <div id="c-proof" class="right-fields" style="display:none;">
+            <div>
+              <div class="field-label">Proof line</div>
+              <input class="field-input" type="text" value="4.9★ · 127 reviews" />
+            </div>
+            <button class="photo-btn">📷 Add background photo</button>
+          </div>
+
+          <!-- CTA fields (hidden) -->
+          <div id="c-cta" class="right-fields" style="display:none;">
+            <div>
+              <div class="field-label">CTA Headline</div>
+              <input class="field-input" type="text" value="Still putting off that appointment?" />
+            </div>
+            <div>
+              <div class="field-label">CTA Body</div>
+              <textarea class="field-textarea" rows="3">Book your first visit. See what everyone's talking about.</textarea>
+            </div>
+            <button class="photo-btn">📷 Add background photo</button>
+          </div>
+
+          <!-- Divider before caption -->
+          <div class="right-divider"></div>
+
+          <!-- Caption + Save -->
+          <div class="right-caption">
+            <label>Instagram Caption</label>
+            <textarea>From anxiety to confidence — our patients say it best 🦷✨
+
+Real stories. Real results. Book your visit at the link in bio.
+
+#DentalCare #SmileTransformation</textarea>
+            <button class="btn-primary" style="width:100%;padding:11px 0;">Save Reel</button>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ─── JavaScript ─────────────────────────────────────────── -->
+  <script>
+    /* ── Layout switcher ──────────────────────────────────────── */
+    function switchLayout(id) {
+      // Hide all panels
+      document.querySelectorAll('.layout-panel').forEach(p => p.classList.remove('active'));
+      // Deactivate all tabs
+      document.querySelectorAll('.opt-tab').forEach(t => t.classList.remove('active'));
+
+      // Show selected panel
+      document.getElementById('layout-' + id).classList.add('active');
+
+      // Activate the clicked tab (find it by its onclick value)
+      document.querySelectorAll('.opt-tab').forEach(t => {
+        if (t.getAttribute('onclick') === "switchLayout('" + id + "')") {
+          t.classList.add('active');
+        }
+      });
+    }
+
+    /* ── Style toggle (shared behavior) ──────────────────────── */
+    function toggleStyle(btn) {
+      // Get sibling buttons inside the same .style-toggle parent
+      const parent = btn.closest('.style-toggle');
+      parent.querySelectorAll('.style-toggle-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+    /* ── Option B: pill tab switching ────────────────────────── */
+    // Map pill to panel id
+    const pillPanels = ['b-hook', 'b-q1', 'b-q2', 'b-proof', 'b-cta'];
+
+    function selectPill(btn, panelId) {
+      // Deactivate all pills in layout-b
+      document.querySelectorAll('#layout-b .slide-pill').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+
+      // Hide all slide panels
+      pillPanels.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+      });
+
+      // Show selected
+      const target = document.getElementById(panelId);
+      if (target) target.style.display = 'block';
+    }
+
+    /* ── Option C: studio slide list selection ────────────────── */
+    const studioSlides = {
+      'c-hook':  'Opening Hook',
+      'c-q1':    'Review Quote 1',
+      'c-q2':    'Review Quote 2',
+      'c-proof': 'Social Proof',
+      'c-cta':   'Call to Action',
+    };
+
+    function selectStudioSlide(listItem, panelId) {
+      // Deactivate all list items
+      document.querySelectorAll('#layout-c .slide-list-item').forEach(i => i.classList.remove('active'));
+      listItem.classList.add('active');
+
+      // Hide all right-field panels
+      Object.keys(studioSlides).forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+      });
+
+      // Show selected panel
+      const target = document.getElementById(panelId);
+      if (target) target.style.display = 'flex';
+
+      // Update right panel header title
+      document.getElementById('c-right-title').textContent = studioSlides[panelId] || '';
+    }
+  </script>
+
+</body>
+</html>
