@@ -36,17 +36,19 @@ interface Props {
 }
 
 const SLIDE_LABELS: Record<string, string> = {
-  hook:  'Opening hook',
-  quote: 'Review quote',
-  proof: 'Social proof',
-  cta:   'Call to action',
+  hook:    'Opening hook',
+  quote:   'Review quote',
+  proof:   'Social proof',
+  insight: 'Key insight',
+  cta:     'Call to action',
 }
 
 const SLIDE_ICONS: Record<string, string> = {
-  hook:  '✦',
-  quote: '❝',
-  proof: '★',
-  cta:   '→',
+  hook:    '✦',
+  quote:   '❝',
+  proof:   '★',
+  insight: '▸',
+  cta:     '→',
 }
 
 export function ReelEditor({
@@ -253,6 +255,35 @@ export function ReelEditor({
                     />
                   </div>
                 )}
+              </>
+            )}
+
+            {/* Insight */}
+            {activeSlideData.type === 'insight' && (
+              <>
+                <div>
+                  <label className="text-xs font-semibold block mb-1.5" style={{ color: 'var(--ink3)' }}>Insight</label>
+                  <textarea
+                    value={activeSlideData.content.headline ?? ''}
+                    onChange={e => updateSlide(activeSlide, { headline: e.target.value })}
+                    rows={3}
+                    className="w-full px-3 py-2.5 rounded-xl border text-sm outline-none resize-none"
+                    style={{ borderColor: 'var(--border)', color: 'var(--ink)', background: 'var(--bg)', lineHeight: 1.55 }}
+                    onFocus={e => e.target.style.borderColor = brandColor}
+                    onBlur={e => e.target.style.borderColor = 'var(--border)'}
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold block mb-1.5" style={{ color: 'var(--ink3)' }}>Supporting line <span style={{ fontWeight: 400 }}>(optional)</span></label>
+                  <input
+                    value={activeSlideData.content.subline ?? ''}
+                    onChange={e => updateSlide(activeSlide, { subline: e.target.value })}
+                    className="w-full px-3 py-2.5 rounded-xl border text-sm outline-none"
+                    style={{ borderColor: 'var(--border)', color: 'var(--ink3)', background: 'var(--bg)' }}
+                    onFocus={e => e.target.style.borderColor = brandColor}
+                    onBlur={e => e.target.style.borderColor = 'var(--border)'}
+                  />
+                </div>
               </>
             )}
 

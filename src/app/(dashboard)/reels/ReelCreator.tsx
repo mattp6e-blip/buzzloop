@@ -62,7 +62,7 @@ export function ReelCreator({ theme, reviews, businessName, industry, brandColor
     const res = await fetch('/api/generate-reel', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ theme, reviews: themeReviews, businessName, industry, brandPersonality, websiteUrl, customerWord, serviceWord, bookingWord }),
+      body: JSON.stringify({ theme, reviews: themeReviews, businessName, industry, brandPersonality, websiteUrl, customerWord, serviceWord, bookingWord, reelCategory: theme.reelCategory ?? 'social_proof' }),
     })
     const data = await res.json()
     const newScript = data.script ?? null

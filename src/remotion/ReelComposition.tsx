@@ -3,6 +3,7 @@ import { HookScene } from './scenes/HookScene'
 import { QuoteScene } from './scenes/QuoteScene'
 import { ProofScene } from './scenes/ProofScene'
 import { CTAScene } from './scenes/CTAScene'
+import { InsightScene } from './scenes/InsightScene'
 import { VISUAL_STYLES } from './styleConfigs'
 import type { ReelCompositionProps } from './types'
 
@@ -64,6 +65,16 @@ export function ReelComposition({ script, variation, brandColor, brandSecondaryC
                   highlightWords={slide.content.highlightWords ?? []}
                   photoUrl={slide.content.photoUrl}
                   {...commonProps}
+                />
+              )}
+              {type === 'insight' && (
+                <InsightScene
+                  headline={slide.content.headline ?? ''}
+                  subline={slide.content.subline}
+                  visualStyle={visualStyle}
+                  brandColor={brandColor}
+                  brandSecondaryColor={brandSecondaryColor || brandColor}
+                  industry={industry}
                 />
               )}
               {type === 'proof' && (

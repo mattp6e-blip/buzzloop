@@ -10,6 +10,7 @@ interface Props {
   businessId: string
   businessName: string
   industry: string
+
   brandColor: string
   brandFont: string
   brandLogoUrl: string | null
@@ -74,7 +75,7 @@ export function ReelsClient({ reviews, businessId, businessName, industry, brand
       const stored = localStorage.getItem(key)
       if (stored) {
         const parsed: ReelTheme[] = JSON.parse(stored)
-        if (parsed.length > 0 && parsed[0].buzzScore !== undefined) {
+        if (parsed.length > 0 && parsed[0].buzzScore !== undefined && parsed[0].reelCategory !== undefined) {
           setThemes(parsed)
           return
         }
@@ -82,7 +83,7 @@ export function ReelsClient({ reviews, businessId, businessName, industry, brand
     } catch {}
 
     // 2. DB cache fallback — same check
-    if (cachedThemes && cachedThemes[0]?.buzzScore !== undefined) {
+    if (cachedThemes && cachedThemes[0]?.buzzScore !== undefined && cachedThemes[0]?.reelCategory !== undefined) {
       setThemes(cachedThemes)
       return
     }
@@ -98,7 +99,7 @@ export function ReelsClient({ reviews, businessId, businessName, industry, brand
       const res = await fetch('/api/analyze-reviews', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reviews, businessId }),
+        body: JSON.stringify({ reviews, businessId, industry, businessName }),
       })
       const data = await res.json()
       if (data.themes?.length) {
@@ -345,13 +346,23 @@ function ThemeCard({ theme, brandColor, onClick }: {
               {theme.buzzReason}
             </p>
           )}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             {score !== undefined && (
               <span
                 className="text-xs font-bold px-2.5 py-1 rounded-full"
                 style={{ background: scoreBg, color: scoreColor }}
               >
                 Buzz Score {score}
+              </span>
+            )}
+            {theme.reelCategory === 'educational' && (
+              <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: '#e0f2fe', color: '#0369a1' }}>
+                Educational
+              </span>
+            )}
+            {theme.reelCategory === 'faq' && (
+              <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: '#fff7ed', color: '#c2410c' }}>
+                FAQ
               </span>
             )}
             <span className="text-xs" style={{ color: 'var(--ink4)' }}>

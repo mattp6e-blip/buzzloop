@@ -44,6 +44,7 @@ export interface ReelTheme {
   title: string        // "7 customers can't stop talking about the truffle pasta"
   hook: string         // bold opening line for slide 1
   category: 'dish' | 'staff' | 'service' | 'emotion' | 'outcome' | 'general'
+  reelCategory: 'social_proof' | 'educational' | 'faq'
   keyPhrase: string    // the recurring word/phrase found in reviews
   emoji: string        // representative emoji
   reviewIds: string[]
@@ -55,7 +56,7 @@ export interface ReelTheme {
 }
 
 export interface ReelSlide {
-  type: 'hook' | 'quote' | 'proof' | 'cta'
+  type: 'hook' | 'quote' | 'proof' | 'cta' | 'insight'
   duration: number     // seconds
   content: {
     headline?: string
