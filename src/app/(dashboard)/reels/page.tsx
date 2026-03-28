@@ -17,7 +17,7 @@ export default async function ReelsPage() {
   if (!business) redirect('/onboarding')
 
   const [{ data: reviews }, { count: savedPostsCount }] = await Promise.all([
-    supabase.from('reviews').select('*').eq('business_id', business.id).gte('star_rating', 4),
+    supabase.from('reviews').select('*').eq('business_id', business.id).eq('star_rating', 5),
     supabase.from('social_posts').select('*', { count: 'exact', head: true }).eq('business_id', business.id),
   ])
 

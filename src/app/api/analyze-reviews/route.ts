@@ -203,7 +203,7 @@ async function runAnalysis(
 ): Promise<ReelTheme[]> {
   try {
     const message = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
+      model: 'claude-sonnet-4-6',
       max_tokens: 2000,
       messages: [{ role: 'user', content: prompt }],
     })
@@ -233,10 +233,14 @@ export async function POST(req: NextRequest) {
 
     const topReviews = [...reviews]
       .sort((a, b) => scoreReview(b.what_they_liked ?? '', b.star_rating) - scoreReview(a.what_they_liked ?? '', a.star_rating))
-      .slice(0, 40)
+      .slice(0, 20)
 
     const reviewList = buildReviewList(topReviews)
-    const categories = CATEGORY_MAP[industry] ?? ['social_proof']
+    const baseCategories = CATEGORY_MAP[industry] ?? ['social_proof']
+    // Gate educational + faq — need enough material to find real patterns
+    const categories = topReviews.length >= 15
+      ? baseCategories
+      : baseCategories.filter(c => c === 'social_proof')
 
     // Run all applicable category analyses in parallel
     const results = await Promise.all(
