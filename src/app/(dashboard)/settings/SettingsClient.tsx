@@ -40,6 +40,7 @@ async function extractColorFromImage(file: File): Promise<string> {
 
 export function SettingsClient({ business }: { business: Business }) {
   const [businessName, setBusinessName] = useState(business.name)
+  const [city, setCity] = useState(business.city ?? '')
   const [websiteUrl, setWebsiteUrl] = useState(business.website_url ?? '')
   const [googleUrl, setGoogleUrl] = useState(business.google_business_url ?? '')
   const [brandColor, setBrandColor] = useState(business.brand_color ?? '#6366f1')
@@ -103,6 +104,7 @@ export function SettingsClient({ business }: { business: Business }) {
 
     const { error: updateErr } = await supabase.from('businesses').update({
       name: businessName,
+      city: city.trim() || null,
       website_url: websiteUrl || null,
       google_business_url: googleUrl || null,
       brand_color: brandColor,
@@ -205,6 +207,11 @@ export function SettingsClient({ business }: { business: Business }) {
         </div>
         <div className="flex flex-col gap-4">
           <Input id="settings-name" label="Business name" value={businessName} onChange={e => setBusinessName(e.target.value)} />
+          <div>
+            <Input id="settings-city" label="City" placeholder="e.g. London"
+              value={city} onChange={e => setCity(e.target.value)} />
+            <p className="text-xs mt-1.5" style={{ color: 'var(--ink4)' }}>Used to generate location-specific hashtags for your posts</p>
+          </div>
           <div>
             <Input id="settings-website" label="Website URL" type="url" placeholder="https://yourwebsite.com"
               value={websiteUrl} onChange={e => setWebsiteUrl(e.target.value)} />

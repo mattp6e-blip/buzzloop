@@ -13,6 +13,7 @@ export interface Business {
   user_id: string
   name: string
   industry: Industry
+  city: string | null
   google_business_url: string | null
   logo_url: string | null
   brand_color: string
