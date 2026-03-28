@@ -1,4 +1,5 @@
 import { ReelDemos } from './ReelDemos'
+import { HeroDemo } from './HeroDemo'
 
 const QR_BUSINESSES = [
   {
@@ -123,30 +124,56 @@ export function LandingPage() {
       </nav>
 
       {/* ── Hero ────────────────────────────────── */}
-      <section className="pt-36 pb-24 px-6 text-center max-w-4xl mx-auto">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold mb-8"
-          style={{ background: 'var(--accent-bg)', color: 'var(--accent)', border: '1px solid var(--accent-border)' }}>
-          ⚡ AI-powered review growth for local businesses
-        </div>
-        <h1 className="font-bold leading-tight mb-6"
-          style={{ fontSize: 'clamp(2.5rem, 6vw, 4.5rem)', color: 'var(--ink)', letterSpacing: '-0.03em' }}>
-          More reviews.<br />More customers.
-        </h1>
-        <p className="text-lg leading-relaxed mb-10 mx-auto max-w-xl"
-          style={{ color: 'var(--ink3)' }}>
-          We help local businesses get more Google reviews and turn them into cinematic Instagram Reels — automatically.
-        </p>
-        <div className="flex items-center justify-center gap-3 flex-wrap">
-          <a href="/signup"
-            className="px-8 py-4 rounded-2xl text-base font-bold text-white transition-all hover:opacity-90 hover:-translate-y-0.5"
-            style={{ background: 'var(--accent)', boxShadow: '0 4px 24px rgba(232,71,10,0.35)' }}>
-            Start for free →
-          </a>
-          <a href="#how-it-works"
-            className="px-8 py-4 rounded-2xl text-base font-semibold border transition-all hover:bg-white"
-            style={{ borderColor: 'var(--border)', color: 'var(--ink3)', background: 'transparent' }}>
-            See how it works
-          </a>
+      <section className="pt-32 pb-20 px-8">
+        <div className="max-w-6xl mx-auto flex items-center gap-16 flex-wrap lg:flex-nowrap">
+
+          {/* Left: copy */}
+          <div style={{ flex: '1 1 480px', minWidth: 0 }}>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold mb-8"
+              style={{ background: 'var(--accent-bg)', color: 'var(--accent)', border: '1px solid var(--accent-border)' }}>
+              ⚡ AI-powered review growth for local businesses
+            </div>
+
+            <h1 className="font-bold leading-tight mb-6"
+              style={{ fontSize: 'clamp(2.2rem, 4.5vw, 3.75rem)', color: 'var(--ink)', letterSpacing: '-0.035em', lineHeight: 1.1 }}>
+              Your 5-star Google reviews
+              <br />are a goldmine.
+              <br />
+              <span style={{ color: 'var(--ink)' }}>We turn them into </span>
+              <span style={{
+                background: 'linear-gradient(90deg, #833AB4 0%, #E1306C 50%, #F77737 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}>Reels</span>
+              <br />
+              <span style={{ color: 'var(--ink)' }}>that bring you more customers.</span>
+            </h1>
+
+            <p className="text-lg leading-relaxed mb-10"
+              style={{ color: 'var(--ink3)', maxWidth: 480 }}>
+              AI reads your reviews, finds what customers love, and builds cinematic 9:16 videos — branded, ready to post on Instagram.
+            </p>
+
+            <div className="flex items-center gap-3 flex-wrap">
+              <a href="/signup"
+                className="px-8 py-4 rounded-2xl text-base font-bold text-white transition-all hover:opacity-90 hover:-translate-y-0.5"
+                style={{ background: 'var(--accent)', boxShadow: '0 4px 24px rgba(232,71,10,0.35)' }}>
+                Start for free →
+              </a>
+              <a href="#how-it-works"
+                className="px-8 py-4 rounded-2xl text-base font-semibold border transition-all hover:bg-white"
+                style={{ borderColor: 'var(--border)', color: 'var(--ink3)', background: 'transparent' }}>
+                See how it works
+              </a>
+            </div>
+          </div>
+
+          {/* Right: interactive demo */}
+          <div style={{ flex: '0 0 auto', display: 'flex', justifyContent: 'center', width: '100%', maxWidth: 460 }}>
+            <HeroDemo />
+          </div>
+
         </div>
       </section>
 
