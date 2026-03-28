@@ -46,16 +46,22 @@ function StatBar() {
     { display: `+${v4}%`, label: 'more revenue' },
   ]
 
+  const statItems = stats.filter(s => !('arrow' in s))
+
   return (
     <section className="py-12 border-y" style={{ borderColor: 'var(--border)', background: 'white' }}>
-      <div ref={ref} className="max-w-4xl mx-auto flex items-center justify-around flex-wrap gap-4 px-8">
-        {stats.map((s, i) => 'arrow' in s ? (
-          <span key={i} style={{ color: 'var(--ink4)', fontSize: 18, fontWeight: 300 }}>→</span>
-        ) : (
-          <div key={s.label} className="text-center">
-            <p style={{ fontSize: 'clamp(2rem, 3.5vw, 3rem)', fontWeight: 800, color: 'var(--accent)', marginBottom: 4, lineHeight: 1, letterSpacing: '-0.03em' }}>{s.display}</p>
-            <p className="text-sm" style={{ color: 'var(--ink4)' }}>{s.label}</p>
-          </div>
+      <style>{`.stat-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 24px 16px; } @media(min-width: 640px) { .stat-bar { display: flex; align-items: center; justify-content: space-around; flex-wrap: nowrap; } .stat-arrow { display: flex !important; } }`}</style>
+      <div ref={ref} className="stat-bar max-w-4xl mx-auto px-8">
+        {statItems.map((s, i) => (
+          <>
+            <div key={s.label} className="text-center">
+              <p style={{ fontSize: 'clamp(2rem, 3.5vw, 3rem)', fontWeight: 800, color: 'var(--accent)', marginBottom: 4, lineHeight: 1, letterSpacing: '-0.03em' }}>{s.display}</p>
+              <p className="text-sm" style={{ color: 'var(--ink4)' }}>{s.label}</p>
+            </div>
+            {i < statItems.length - 1 && (
+              <span className="stat-arrow" key={`arrow-${i}`} style={{ display: 'none', color: 'var(--ink4)', fontSize: 18, fontWeight: 300 }}>→</span>
+            )}
+          </>
         ))}
       </div>
     </section>
