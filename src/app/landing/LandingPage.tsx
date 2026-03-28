@@ -134,25 +134,26 @@ export function LandingPage() {
               ⚡ AI-powered review growth for local businesses
             </div>
 
-            <h1 className="font-bold leading-tight mb-6"
-              style={{ fontSize: 'clamp(2.2rem, 4.5vw, 3.75rem)', color: 'var(--ink)', letterSpacing: '-0.035em', lineHeight: 1.1 }}>
-              Your 5-star Google reviews
-              <br />are a goldmine.
-              <br />
-              <span style={{ color: 'var(--ink)' }}>We turn them into </span>
-              <span style={{
-                background: 'linear-gradient(90deg, #833AB4 0%, #E1306C 50%, #F77737 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}>Reels</span>
-              <br />
-              <span style={{ color: 'var(--ink)' }}>that bring you more customers.</span>
+            <h1 className="font-bold mb-5" style={{ letterSpacing: '-0.03em', lineHeight: 1.1 }}>
+              <span style={{ display: 'block', fontSize: 'clamp(1.8rem, 2.8vw, 2.8rem)', color: 'var(--ink)', marginBottom: 8 }}>
+                Your 5-star Google reviews are a goldmine.
+              </span>
+              <span style={{ display: 'block', fontSize: 'clamp(1.2rem, 1.9vw, 1.9rem)', color: 'var(--ink)', fontWeight: 600, opacity: 0.85 }}>
+                We turn them into{' '}
+                <span style={{
+                  background: 'linear-gradient(90deg, #833AB4 0%, #E1306C 50%, #F77737 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  fontWeight: 800,
+                }}>Reels</span>
+                {' '}that bring you more customers.
+              </span>
             </h1>
 
             <p className="text-lg leading-relaxed mb-10"
               style={{ color: 'var(--ink3)', maxWidth: 480 }}>
-              AI reads your reviews, finds what customers love, and builds cinematic 9:16 videos — branded, ready to post on Instagram.
+              Your happiest customers already wrote your best ads. You're just not using them yet.
             </p>
 
             <div className="flex items-center gap-3 flex-wrap">

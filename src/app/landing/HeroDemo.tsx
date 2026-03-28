@@ -1,15 +1,22 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+
+const PHASES = [
+  { type: 'hook', duration: 3000 },
+  { type: 'quote', duration: 4000 },
+  { type: 'proof', duration: 3000 },
+  { type: 'cta', duration: 5000 },
+]
 
 export function HeroDemo() {
   const [step, setStep] = useState<'review' | 'reel'>('review')
 
   return (
-    <div style={{ width: '100%', maxWidth: 420 }}>
+    <div style={{ width: '100%', maxWidth: 400 }}>
       {step === 'review' ? (
         <ReviewCard onConvert={() => setStep('reel')} />
       ) : (
-        <ReelCard onBack={() => setStep('review')} />
+        <ReelPreview onBack={() => setStep('review')} />
       )}
     </div>
   )
@@ -17,203 +24,295 @@ export function HeroDemo() {
 
 function ReviewCard({ onConvert }: { onConvert: () => void }) {
   return (
-    <div style={{
-      background: 'white',
-      borderRadius: 24,
-      padding: '28px 28px 24px',
-      boxShadow: '0 12px 60px rgba(0,0,0,0.1), 0 2px 12px rgba(0,0,0,0.06)',
-      border: '1px solid rgba(0,0,0,0.06)',
-    }}>
-      {/* Google header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18 }}>
-        <div style={{
-          width: 40, height: 40, borderRadius: 10,
-          background: '#f8f9fa', border: '1px solid #e8eaed',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          flexShrink: 0,
-        }}>
-          <GoogleLogo />
-        </div>
-        <div>
-          <p style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', margin: 0, lineHeight: 1.3 }}>Google Review</p>
-          <p style={{ fontSize: 11, color: '#5f6368', margin: 0 }}>Pearl Dental Clinic</p>
-        </div>
-        <div style={{ marginLeft: 'auto', display: 'flex', gap: 1 }}>
-          {[...Array(5)].map((_, i) => (
-            <span key={i} style={{ color: '#fbbc04', fontSize: 15 }}>★</span>
-          ))}
-        </div>
-      </div>
-
-      {/* Review text */}
-      <p style={{
-        fontSize: 15, lineHeight: 1.7, color: '#3c4043', margin: '0 0 18px',
+    <div style={{ position: 'relative' }}>
+      {/* Try me annotation */}
+      <div style={{
+        position: 'absolute',
+        bottom: -10,
+        right: 28,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 2,
+        zIndex: 10,
+        animation: 'bounce 1.8s ease-in-out infinite',
+        pointerEvents: 'none',
       }}>
-        "I was terrified of the dentist for years. Walked out actually smiling. Best decision I ever made."
-      </p>
-
-      {/* Reviewer */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 22 }}>
-        <div style={{
-          width: 30, height: 30, borderRadius: '50%',
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 12, color: 'white', fontWeight: 700, flexShrink: 0,
-        }}>S</div>
-        <span style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a' }}>Sarah M.</span>
-        <span style={{ fontSize: 11, color: '#9aa0a6', marginLeft: 4 }}>2 weeks ago</span>
+        <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--accent)', letterSpacing: '-0.01em' }}>try me</span>
+        <svg width="24" height="28" viewBox="0 0 24 28" fill="none" style={{ transform: 'rotate(15deg)' }}>
+          <path d="M12 2 C12 2, 4 10, 4 18 C4 22, 8 26, 12 26 C16 26, 20 22, 20 18" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" fill="none"/>
+          <path d="M17 22 L20 18 L23 22" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+        </svg>
       </div>
 
-      {/* CTA */}
-      <button
-        onClick={onConvert}
-        style={{
-          width: '100%',
-          padding: '15px 20px',
-          borderRadius: 14,
-          border: 'none',
-          background: 'linear-gradient(90deg, #833AB4 0%, #E1306C 50%, #F77737 100%)',
-          color: 'white',
-          fontSize: 14,
-          fontWeight: 700,
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 8,
-          letterSpacing: '-0.01em',
-        }}
-      >
-        Turn this into a Reel →
-      </button>
+      <style>{`@keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }`}</style>
+
+      <div style={{
+        background: 'white',
+        borderRadius: 24,
+        padding: '28px 28px 24px',
+        boxShadow: '0 12px 60px rgba(0,0,0,0.1), 0 2px 12px rgba(0,0,0,0.06)',
+        border: '1px solid rgba(0,0,0,0.06)',
+      }}>
+        {/* Google header */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18 }}>
+          <div style={{
+            width: 40, height: 40, borderRadius: 10,
+            background: '#f8f9fa', border: '1px solid #e8eaed',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0,
+          }}>
+            <GoogleLogo />
+          </div>
+          <div>
+            <p style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', margin: 0, lineHeight: 1.3 }}>Google Review</p>
+            <p style={{ fontSize: 11, color: '#5f6368', margin: 0 }}>Pearl Dental Clinic</p>
+          </div>
+          <div style={{ marginLeft: 'auto', display: 'flex', gap: 1 }}>
+            {[...Array(5)].map((_, i) => (
+              <span key={i} style={{ color: '#fbbc04', fontSize: 15 }}>★</span>
+            ))}
+          </div>
+        </div>
+
+        {/* Review text */}
+        <p style={{ fontSize: 15, lineHeight: 1.7, color: '#3c4043', margin: '0 0 18px' }}>
+          "I was terrified of the dentist for years. Walked out actually smiling. Best decision I ever made."
+        </p>
+
+        {/* Reviewer */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 22 }}>
+          <div style={{
+            width: 30, height: 30, borderRadius: '50%',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 12, color: 'white', fontWeight: 700, flexShrink: 0,
+          }}>S</div>
+          <span style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a' }}>Sarah M.</span>
+          <span style={{ fontSize: 11, color: '#9aa0a6', marginLeft: 4 }}>2 weeks ago</span>
+        </div>
+
+        {/* CTA */}
+        <button
+          onClick={onConvert}
+          style={{
+            width: '100%',
+            padding: '15px 20px',
+            borderRadius: 14,
+            border: 'none',
+            background: 'linear-gradient(90deg, #833AB4 0%, #E1306C 50%, #F77737 100%)',
+            color: 'white',
+            fontSize: 14,
+            fontWeight: 700,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 8,
+            letterSpacing: '-0.01em',
+          }}
+        >
+          Turn this into a Reel →
+        </button>
+      </div>
     </div>
   )
 }
 
-function ReelCard({ onBack }: { onBack: () => void }) {
+function ReelPreview({ onBack }: { onBack: () => void }) {
+  const [phaseIdx, setPhaseIdx] = useState(0)
+  const [visible, setVisible] = useState(true)
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setVisible(false)
+      setTimeout(() => {
+        setPhaseIdx(i => (i + 1) % PHASES.length)
+        setVisible(true)
+      }, 300)
+    }, PHASES[phaseIdx].duration)
+    return () => clearTimeout(timer)
+  }, [phaseIdx])
+
+  const phase = PHASES[phaseIdx].type
+
   return (
-    <div>
-      {/* Label row */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+    <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start' }}>
+      {/* Phone */}
+      <div style={{
+        width: 200,
+        aspectRatio: '9/16',
+        borderRadius: 28,
+        overflow: 'hidden',
+        position: 'relative',
+        background: 'linear-gradient(160deg, #0a0a14 0%, #1a0a2e 100%)',
+        boxShadow: '0 24px 64px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.08)',
+        flexShrink: 0,
+      }}>
+        {/* Notch */}
+        <div style={{
+          position: 'absolute', top: 10, left: '50%', transform: 'translateX(-50%)',
+          width: 60, height: 6, background: 'rgba(0,0,0,0.6)', borderRadius: 3, zIndex: 10,
+        }} />
+
+        {/* Accent bar */}
+        <div style={{
+          position: 'absolute', top: 28, left: 20, right: 20, height: 2, borderRadius: 1,
+          background: 'linear-gradient(90deg, #833AB4, #E1306C)',
+          opacity: phase === 'hook' ? 1 : 0.3,
+          transition: 'opacity 0.4s',
+        }} />
+
+        {/* Content */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center',
+          padding: '40px 20px 32px',
+          textAlign: 'center',
+          opacity: visible ? 1 : 0,
+          transform: visible ? 'translateY(0)' : 'translateY(8px)',
+          transition: 'opacity 0.3s ease, transform 0.3s ease',
+        }}>
+          {phase === 'hook' && <HookSlide />}
+          {phase === 'quote' && <QuoteSlide />}
+          {phase === 'proof' && <ProofSlide />}
+          {phase === 'cta' && <CtaSlide />}
+        </div>
+
+        {/* Progress dots */}
+        <div style={{
+          position: 'absolute', bottom: 16, left: 0, right: 0,
+          display: 'flex', justifyContent: 'center', gap: 5,
+        }}>
+          {PHASES.map((_, i) => (
+            <div key={i} style={{
+              width: i === phaseIdx ? 18 : 5, height: 5, borderRadius: 3,
+              background: i === phaseIdx ? '#E1306C' : 'rgba(255,255,255,0.25)',
+              transition: 'all 0.3s ease',
+            }} />
+          ))}
+        </div>
+
+        {/* Instagram Reels badge */}
+        <div style={{
+          position: 'absolute', top: 40, right: 12,
+          background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(4px)',
+          borderRadius: 6, padding: '3px 7px',
+          fontSize: 9, color: 'rgba(255,255,255,0.75)', fontWeight: 700, letterSpacing: '0.05em',
+        }}>▶ REEL</div>
+      </div>
+
+      {/* Side panel */}
+      <div style={{ paddingTop: 8 }}>
+        <div style={{
+          display: 'inline-flex', alignItems: 'center', gap: 5,
+          background: '#f0fdf4', borderRadius: 8, padding: '4px 10px', marginBottom: 14,
+        }}>
+          <span style={{ fontSize: 11, color: '#16a34a' }}>✓</span>
+          <span style={{ fontSize: 11, color: '#16a34a', fontWeight: 700 }}>Ready to post</span>
+        </div>
+
+        <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink)', margin: '0 0 4px' }}>
+          Your Reel
+        </p>
+        <p style={{ fontSize: 11, color: 'var(--ink3)', margin: '0 0 20px', lineHeight: 1.5 }}>
+          Branded. 22 seconds.<br />Ready for Instagram.
+        </p>
+
         <button
           onClick={onBack}
           style={{
-            display: 'flex', alignItems: 'center', gap: 6,
-            padding: '6px 12px', borderRadius: 8,
+            padding: '8px 13px', borderRadius: 10,
             border: '1px solid var(--border)',
-            background: 'white', fontSize: 12, fontWeight: 600,
+            background: 'white', fontSize: 11, fontWeight: 600,
             color: 'var(--ink3)', cursor: 'pointer',
           }}
         >
           ← Review
         </button>
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 6,
-          background: '#f0fdf4', borderRadius: 8, padding: '5px 12px',
-        }}>
-          <span style={{ fontSize: 12 }}>✓</span>
-          <span style={{ fontSize: 12, color: '#16a34a', fontWeight: 700 }}>3 variations ready</span>
-        </div>
       </div>
-
-      {/* Three phone frames */}
-      <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
-        {VARIATIONS.map((v, i) => (
-          <PhoneFrame key={i} variation={v} isMain={i === 1} />
-        ))}
-      </div>
-
-      <p style={{ textAlign: 'center', fontSize: 11, color: 'var(--ink4)', marginTop: 14 }}>
-        Story · Bold · Authority — pick your tone
-      </p>
     </div>
   )
 }
 
-const VARIATIONS = [
-  {
-    label: 'Story',
-    hook: 'She was terrified for years.',
-    quote: '"Walked out actually smiling."',
-    bg: 'linear-gradient(160deg, #1a0a2e 0%, #2d1b4e 100%)',
-    accent: '#a855f7',
-  },
-  {
-    label: 'Bold',
-    hook: 'Years of fear. Gone in one visit.',
-    quote: '"Best decision I ever made."',
-    bg: 'linear-gradient(160deg, #0a0a0a 0%, #1a1a2e 100%)',
-    accent: '#e1306c',
-  },
-  {
-    label: 'Authority',
-    hook: 'Every patient said the same thing.',
-    quote: '"I wish I hadn\'t waited."',
-    bg: 'linear-gradient(160deg, #0a1628 0%, #0d2240 100%)',
-    accent: '#38bdf8',
-  },
-]
-
-function PhoneFrame({ variation, isMain }: { variation: typeof VARIATIONS[0]; isMain: boolean }) {
-  const scale = isMain ? 1 : 0.88
+function HookSlide() {
   return (
-    <div style={{
-      transform: `scale(${scale}) translateY(${isMain ? 0 : 10}px)`,
-      transformOrigin: 'top center',
-      width: 110,
-      aspectRatio: '9/16',
-      borderRadius: 16,
-      overflow: 'hidden',
-      position: 'relative',
-      boxShadow: isMain
-        ? '0 20px 50px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.1)'
-        : '0 8px 24px rgba(0,0,0,0.2)',
-      flexShrink: 0,
-    }}>
-      {/* Background */}
-      <div style={{ position: 'absolute', inset: 0, background: variation.bg }} />
+    <>
+      <p style={{ fontSize: 20, fontWeight: 900, color: 'white', lineHeight: 1.2, letterSpacing: '-0.025em', margin: 0 }}>
+        She was terrified for years.
+      </p>
+      <div style={{ width: 32, height: 1, background: 'rgba(255,255,255,0.2)', margin: '16px auto' }} />
+      <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', margin: 0 }}>Pearl Dental Clinic</p>
+    </>
+  )
+}
 
-      {/* Top accent line */}
+function QuoteSlide() {
+  return (
+    <>
       <div style={{
-        position: 'absolute', top: 14, left: 12, right: 12,
-        height: 2, borderRadius: 1,
-        background: variation.accent, opacity: 0.8,
-      }} />
-
-      {/* Content */}
-      <div style={{
-        position: 'absolute', inset: 0,
-        display: 'flex', flexDirection: 'column',
-        alignItems: 'center', justifyContent: 'center',
-        padding: '16px 10px',
-        textAlign: 'center',
+        background: 'rgba(255,255,255,0.06)',
+        borderRadius: 16, padding: '20px 16px',
+        border: '1px solid rgba(255,255,255,0.08)',
       }}>
-        <p style={{
-          fontSize: 10, fontWeight: 900, color: 'white',
-          lineHeight: 1.25, letterSpacing: '-0.02em', margin: '0 0 8px',
-        }}>{variation.hook}</p>
-        <div style={{ width: 24, height: 1, background: 'rgba(255,255,255,0.25)', margin: '4px auto 8px' }} />
-        <p style={{
-          fontSize: 8, color: 'rgba(255,255,255,0.65)',
-          lineHeight: 1.5, margin: '0 0 10px', fontStyle: 'italic',
-        }}>{variation.quote}</p>
-        <div style={{ display: 'flex', gap: 2 }}>
-          {[...Array(5)].map((_, i) => (
-            <span key={i} style={{ color: '#f59e0b', fontSize: 8 }}>★</span>
-          ))}
+        <p style={{ fontSize: 14, fontWeight: 500, color: 'white', lineHeight: 1.6, margin: '0 0 12px', fontStyle: 'italic' }}>
+          "Walked out actually{' '}
+          <span style={{ color: '#E1306C', fontWeight: 800, fontStyle: 'normal' }}>smiling</span>.
+          Best decision I ever made."
+        </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{
+            width: 24, height: 24, borderRadius: '50%',
+            background: 'linear-gradient(135deg, #667eea, #764ba2)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 10, color: 'white', fontWeight: 700,
+          }}>S</div>
+          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', fontWeight: 600 }}>Sarah M.</span>
+          <div style={{ display: 'flex', gap: 2, marginLeft: 'auto' }}>
+            {[...Array(5)].map((_, i) => <span key={i} style={{ fontSize: 9, color: '#f59e0b' }}>★</span>)}
+          </div>
         </div>
       </div>
+    </>
+  )
+}
 
-      {/* Tone label badge */}
+function ProofSlide() {
+  return (
+    <>
+      <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', margin: '0 0 12px', letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 600 }}>
+        The pattern
+      </p>
+      <p style={{ fontSize: 22, fontWeight: 900, color: 'white', lineHeight: 1.2, letterSpacing: '-0.02em', margin: '0 0 8px' }}>
+        From terrified to:<br />
+        <span style={{ color: '#E1306C' }}>"Can't wait to come back."</span>
+      </p>
+      <div style={{ display: 'flex', gap: 3, justifyContent: 'center', marginTop: 16 }}>
+        {[...Array(5)].map((_, i) => <span key={i} style={{ color: '#f59e0b', fontSize: 16 }}>★</span>)}
+      </div>
+      <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', margin: '8px 0 0' }}>4.9 · 47 Google reviews</p>
+    </>
+  )
+}
+
+function CtaSlide() {
+  return (
+    <>
+      <p style={{ fontSize: 16, fontWeight: 700, color: 'rgba(255,255,255,0.7)', margin: '0 0 12px' }}>
+        Still putting it off?
+      </p>
+      <p style={{ fontSize: 18, fontWeight: 900, color: 'white', lineHeight: 1.25, letterSpacing: '-0.02em', margin: '0 0 24px' }}>
+        Book your first visit. See what everyone's talking about.
+      </p>
       <div style={{
-        position: 'absolute', bottom: 10, left: '50%',
-        transform: 'translateX(-50%)',
-        background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)',
-        borderRadius: 5, padding: '2px 7px',
-        fontSize: 8, color: 'rgba(255,255,255,0.8)', fontWeight: 700,
-        whiteSpace: 'nowrap',
-      }}>{variation.label}</div>
-    </div>
+        background: 'linear-gradient(90deg, #833AB4, #E1306C)',
+        borderRadius: 50, padding: '12px 24px',
+        fontSize: 13, fontWeight: 700, color: 'white',
+      }}>
+        Book appointment →
+      </div>
+    </>
   )
 }
 
