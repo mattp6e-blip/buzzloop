@@ -27,6 +27,25 @@ interface Props {
   onScriptCached: (themeId: string, script: ReelScript, variations: ReelVariation[]) => void
 }
 
+function detectLanguage(reviews: Review[]): string {
+  const text = reviews.map(r => r.what_they_liked).join(' ').toLowerCase()
+  const markers: [string, string[]][] = [
+    ['English',    [' the ', ' and ', ' was ', ' they ', ' very ', ' great ', ' have ', ' this ', ' from ', ' with ']],
+    ['Spanish',    [' que ', ' los ', ' las ', ' del ', ' muy ', ' fue ', ' también ', ' están ', ' porque ', ' años ']],
+    ['French',     [' les ', ' des ', ' est ', ' dans ', ' sur ', ' très ', ' bien ', ' nous ', ' vous ', ' une ']],
+    ['German',     [' und ', ' die ', ' der ', ' das ', ' ist ', ' ich ', ' auch ', ' hat ', ' war ', ' sehr ']],
+    ['Italian',    [' che ', ' del ', ' sono ', ' nel ', ' dei ', ' tutto ', ' molto ', ' alla ', ' questo ']],
+    ['Portuguese', [' que ', ' com ', ' uma ', ' não ', ' dos ', ' muito ', ' também ', ' está ', ' para ']],
+    ['Dutch',      [' van ', ' het ', ' een ', ' dat ', ' zijn ', ' met ', ' voor ', ' ook ', ' dit ', ' maar ']],
+  ]
+  let best = 'English', bestScore = 0
+  for (const [lang, words] of markers) {
+    const score = words.filter(w => text.includes(w)).length
+    if (score > bestScore) { bestScore = score; best = lang }
+  }
+  return best
+}
+
 export function ReelCreator({ theme, reviews, businessName, industry, brandColor, brandFont, logoUrl, websiteUrl, brandPersonality, brandSecondaryColor, customerWord, serviceWord, bookingWord, businessId, city, onBack, onScriptCached }: Props) {
   const [script, setScript]               = useState<ReelScript | null>(null)
   const [variations, setVariations]       = useState<ReelVariation[]>([])
@@ -62,7 +81,7 @@ export function ReelCreator({ theme, reviews, businessName, industry, brandColor
     const res = await fetch('/api/generate-reel', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ theme, reviews: themeReviews, businessName, industry, brandPersonality, websiteUrl, customerWord, serviceWord, bookingWord, reelCategory: theme.reelCategory ?? 'social_proof' }),
+      body: JSON.stringify({ theme, reviews: themeReviews, businessName, industry, brandPersonality, websiteUrl, customerWord, serviceWord, bookingWord, reelCategory: theme.reelCategory ?? 'social_proof', language: detectLanguage(themeReviews) }),
     })
     const data = await res.json()
     const newScript = data.script ?? null
@@ -100,6 +119,7 @@ export function ReelCreator({ theme, reviews, businessName, industry, brandColor
         bookingWord,
         websiteUrl,
         city: activeCity,
+        language: detectLanguage(sourceReviews),
       }),
     })
     const data = await res.json()

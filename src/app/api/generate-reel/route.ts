@@ -4,10 +4,10 @@ import type { Review, ReelTheme, ReelScript } from '@/types'
 
 const client = new Anthropic()
 
-function getSocialProofPrompt(theme: ReelTheme, reviewTexts: string, businessName: string, industry: string, reviews: Review[]): string {
+function getSocialProofPrompt(theme: ReelTheme, reviewTexts: string, businessName: string, industry: string, reviews: Review[], language: string): string {
   return `You are the creative director behind award-winning commercial ad campaigns. You write copy that is SPECIFIC, LOGICAL, and EARNED — never generic, never formulaic.
 
-LANGUAGE: Detect the language of the review quotes provided (ignore the business name and city — those are not language signals). Write every part of your response in that same language. Never respond in English if the reviews are not in English.
+LANGUAGE: Write every part of your response in ${language}.
 
 Business: ${businessName} (${industry})
 Reel theme: ${theme.title}
@@ -78,10 +78,10 @@ Return ONLY valid JSON:
 }`
 }
 
-function getEducationalPrompt(theme: ReelTheme, reviewTexts: string, businessName: string, industry: string): string {
+function getEducationalPrompt(theme: ReelTheme, reviewTexts: string, businessName: string, industry: string, language: string): string {
   return `You are the creative director behind award-winning commercial ad campaigns. You write educational Instagram Reels that teach viewers something they didn't know, while using real customer experiences as proof.
 
-LANGUAGE: Detect the language of the reviews. Write every part of your response (hook, insight, quote, CTA) in that same language. Never respond in English if the reviews are not in English.
+LANGUAGE: Write every part of your response in ${language}.
 
 Business: ${businessName} (${industry})
 Educational topic: ${theme.title}
@@ -127,10 +127,10 @@ Return ONLY valid JSON:
 }`
 }
 
-function getFaqPrompt(theme: ReelTheme, reviewTexts: string, businessName: string, industry: string): string {
+function getFaqPrompt(theme: ReelTheme, reviewTexts: string, businessName: string, industry: string, language: string): string {
   return `You are the creative director behind award-winning commercial ad campaigns. You write FAQ / myth-busting Instagram Reels that turn hesitation into action.
 
-LANGUAGE: Detect the language of the reviews. Write every part of your response (hook, insight, quote, CTA) in that same language. Never respond in English if the reviews are not in English.
+LANGUAGE: Write every part of your response in ${language}.
 
 Business: ${businessName} (${industry})
 Fear or myth to bust: ${theme.title}
@@ -178,7 +178,7 @@ Return ONLY valid JSON:
 }
 
 export async function POST(req: NextRequest) {
-  const { theme, reviews, businessName, industry, brandPersonality, websiteUrl, customerWord, serviceWord, bookingWord }: {
+  const { theme, reviews, businessName, industry, brandPersonality, websiteUrl, customerWord, serviceWord, bookingWord, language }: {
     theme: ReelTheme
     reviews: Review[]
     businessName: string
@@ -188,6 +188,7 @@ export async function POST(req: NextRequest) {
     customerWord?: string
     serviceWord?: string
     bookingWord?: string
+    language?: string
   } = await req.json()
 
   const reviewTexts = reviews.map((r, i) =>
@@ -196,13 +197,14 @@ export async function POST(req: NextRequest) {
 
   const reelCategory = theme.reelCategory ?? 'social_proof'
 
+  const lang = language ?? 'English'
   let prompt: string
   if (reelCategory === 'educational') {
-    prompt = getEducationalPrompt(theme, reviewTexts, businessName, industry)
+    prompt = getEducationalPrompt(theme, reviewTexts, businessName, industry, lang)
   } else if (reelCategory === 'faq') {
-    prompt = getFaqPrompt(theme, reviewTexts, businessName, industry)
+    prompt = getFaqPrompt(theme, reviewTexts, businessName, industry, lang)
   } else {
-    prompt = getSocialProofPrompt(theme, reviewTexts, businessName, industry, reviews)
+    prompt = getSocialProofPrompt(theme, reviewTexts, businessName, industry, reviews, lang)
   }
 
   const message = await client.messages.create({

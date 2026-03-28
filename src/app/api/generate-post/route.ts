@@ -15,7 +15,7 @@ const INDUSTRY_CTAS: Record<string, string> = {
 }
 
 export async function POST(req: NextRequest) {
-  const { businessName, industry, reviewText, reelTheme, reelHook, buzzReason, serviceWord, bookingWord, websiteUrl, city } = await req.json()
+  const { businessName, industry, reviewText, reelTheme, reelHook, buzzReason, serviceWord, bookingWord, websiteUrl, city, language } = await req.json()
 
   // Build CTA from extracted brand words if available, otherwise use industry default
   const ctaAction = bookingWord && serviceWord
@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
 
   const prompt = `You are writing an Instagram caption for a Reel that is already a powerful customer testimonial video.
 
-LANGUAGE: Detect the language of the review text provided (ignore the city name and business name — those are not language signals). Write the entire caption and hashtags in that same language. Never respond in English if the reviews are not in English.
+LANGUAGE: Write the entire caption and hashtags in ${language ?? 'English'}.
 
 Business: ${businessName}
 Industry: ${industry}${websiteUrl ? `\nWebsite: ${websiteUrl}` : ''}
