@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { ReelCreator } from './ReelCreator'
+import { createClient } from '@/lib/supabase/client'
 import type { Review, ReelTheme, ReelScript } from '@/types'
 import type { ReelVariation } from '@/remotion/types'
 
@@ -170,6 +171,12 @@ export function ReelsClient({ reviews, businessId, businessName, industry, brand
       try {
         localStorage.setItem(localCacheKey(businessId, reviews.length), JSON.stringify(updated))
       } catch {}
+      // Persist to DB so other devices get the same variations
+      const supabase = createClient()
+      supabase.from('businesses').update({
+        reel_themes: updated,
+        reel_themes_review_count: reviews.length,
+      }).eq('id', businessId).then(() => {})
       return updated
     })
   }
