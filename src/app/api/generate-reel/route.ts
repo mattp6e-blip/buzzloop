@@ -57,25 +57,32 @@ ${reviewTexts}
 ---
 
 BEFORE YOU WRITE ANYTHING — do this analysis in your head:
-1. Read ALL the reviews. What is the ONE thing they ALL share? Not just one review — all of them.
-2. What is the common emotional experience? (e.g. all went in scared, all mention pain-free, all mention a specific person, all mention a transformation)
-3. The hook, quotes, and CTA must ALL serve that single common truth. If a review doesn't fit the common thread, don't use it.
-4. The hook must be something that ALL the reviews support — not a detail unique to one review.
+1. Read ALL reviews together. Find the single most unexpected or specific thing any customer said — one sentence, across all reviews, that a stranger would find surprising or hard to believe.
+2. That sentence wins the hook. One winner. Not one hook per review.
+3. The remaining reviews become quote slides — ranked by how specific and surprising they are.
+4. Weak reviews (generic praise, vague adjectives) do not get quote slides — use them only to support the proof stat.
 
-HOOK — what stops them scrolling (max 8 words):
-The best hooks are SPECIFIC FACTS stated in an unexpected way.
-- "She flew from Norway. For this clinic." ✓  (specific, surprising, human)
-- "20 teeth out. All implants in. 48 hours." ✓  (specific numbers, unexpected)
-- "She used to cancel every single appointment." ✓  (relatable, creates curiosity)
-- "She came in terrified. Left crying — happy tears." ✓  (before/after contrast)
-- "Patients keep coming back" ✗  (vague, means nothing)
-- "Amazing results" ✗  (says nothing specific)
-The hook must be TRUE and directly connected to these real reviews.
+HOOK — the one line that stops the scroll (max 10 words):
+Step 1: Find the most unexpected sentence in ANY of the reviews. Copy it exactly.
+Step 2: Can you trim it to 10 words while keeping the contrast, wit, or specific detail that makes it surprising? If yes — trim it. Use the customer's exact words. Do not rephrase.
+Step 3: If it genuinely cannot be trimmed and still work, minimally rephrase — but the core fact, contrast or behaviour must come directly from the review. Never invent.
 
-QUOTE SLIDES — real words, cinematic trim (max 18 words each):
-Pull the most powerful sentence from each review. Cut filler. Keep the emotional core.
-- Good: "I'd rather travel two hours than go anywhere else." (raw, specific, unbelievable)
-- Bad: "The service was very good and they are very professional." (no emotional weight)
+The hook speaks to the VIEWER, not the patient. It makes someone who relates to this situation feel seen or surprised.
+What works:
+- A real behaviour that implies extraordinary quality ("Norway has free dentistry. She still flies here.")
+- A contrast the viewer didn't expect ("Treatments that always hurt. She didn't notice a thing.")
+- A specific detail that no other business could claim
+
+What fails — never write these:
+- Transformation arcs: "Came in terrified. Left smiling." — generic, applies to any clinic anywhere
+- Statements that require knowing the patient to care about: "They gave me back my smile."
+- Anything you constructed that isn't directly from a review
+- Anything that could apply to 100 other businesses in this industry
+
+QUOTE SLIDES — the most specific sentences from the remaining reviews (max 18 words each):
+Find the sentence with the most specific detail — a real number, a real name, an unexpected contrast, or a behaviour that surprises. Cut adjectives. Keep nouns and verbs. The specificity is the emotion.
+- Good: "I'd rather fly from Norway than see a dentist at home." (specific behaviour, unexpected contrast)
+- Bad: "The service was very good and they are very professional." (adjectives, no specific detail)
 highlightWords: the exact 1-3 words that carry the most weight in that sentence.
 
 PROOF SLIDE — one undeniable fact that earns trust:
