@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
-import { ReelDemos } from './ReelDemos'
 import { HeroDemo } from './HeroDemo'
+import { BusinessReels } from './BusinessReels'
 
 function useCountUp(target: number, duration = 1200, started = false) {
   const [value, setValue] = useState(0)
@@ -47,14 +47,14 @@ function StatBar() {
   ]
 
   return (
-    <section className="py-8 border-y" style={{ borderColor: 'var(--border)', background: 'white' }}>
+    <section className="py-12 border-y" style={{ borderColor: 'var(--border)', background: 'white' }}>
       <div ref={ref} className="max-w-4xl mx-auto flex items-center justify-around flex-wrap gap-4 px-8">
         {stats.map((s, i) => 'arrow' in s ? (
           <span key={i} style={{ color: 'var(--ink4)', fontSize: 18, fontWeight: 300 }}>→</span>
         ) : (
           <div key={s.label} className="text-center">
-            <p className="text-2xl font-bold mb-0.5" style={{ color: 'var(--accent)' }}>{s.display}</p>
-            <p className="text-xs" style={{ color: 'var(--ink4)' }}>{s.label}</p>
+            <p style={{ fontSize: 'clamp(2rem, 3.5vw, 3rem)', fontWeight: 800, color: 'var(--accent)', marginBottom: 4, lineHeight: 1, letterSpacing: '-0.03em' }}>{s.display}</p>
+            <p className="text-sm" style={{ color: 'var(--ink4)' }}>{s.label}</p>
           </div>
         ))}
       </div>
@@ -156,10 +156,7 @@ function HowItWorks() {
     <section id="how-it-works" className="py-24 px-6" style={{ background: '#1c1814' }}>
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-16">
-          <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: 'var(--accent)' }}>How it works</p>
-          <h2 className="font-bold" style={{ fontSize: 'clamp(1.8rem, 4vw, 3rem)', letterSpacing: '-0.025em', color: 'white' }}>
-            More reviews.<br />More reach. More customers.
-          </h2>
+          <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--accent)' }}>How it works</p>
         </div>
         <div>
           {HOW_STEPS.map((step, i) => (
@@ -171,104 +168,6 @@ function HowItWorks() {
   )
 }
 
-const QR_BUSINESSES = [
-  {
-    label: 'Restaurant',
-    location: 'On the wall by the urinals',
-    message: 'Leave us a review\nwhile you wait 😄',
-    photo: 'https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=600&q=80',
-    color: '#e8470a',
-    rotate: '-2deg',
-  },
-  {
-    label: 'Gym',
-    location: 'Next to the water fountain',
-    message: 'Just crushed it?\nLeave us a review ⭐',
-    photo: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=600&q=80',
-    color: '#2563eb',
-    rotate: '1.5deg',
-  },
-  {
-    label: 'Dental clinic',
-    location: 'On the ceiling above the chair',
-    message: 'Since you\'re already\nstaring up here… ⭐',
-    photo: 'https://images.unsplash.com/photo-1609840114035-3c981b782dfe?auto=format&fit=crop&w=600&q=80',
-    color: '#0891b2',
-    rotate: '-1deg',
-  },
-  {
-    label: 'Salon',
-    location: 'Taped to the mirror',
-    message: 'Love your new look?\nTell the world 💇',
-    photo: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=600&q=80',
-    color: '#7c3aed',
-    rotate: '2deg',
-  },
-]
-
-function QrSvg({ color, size = 56 }: { color: string; size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-      {/* Top-left finder */}
-      <rect x="2" y="2" width="18" height="18" rx="3" fill={color} />
-      <rect x="5" y="5" width="12" height="12" rx="2" fill="white" />
-      <rect x="8" y="8" width="6" height="6" rx="1" fill={color} />
-      {/* Top-right finder */}
-      <rect x="32" y="2" width="18" height="18" rx="3" fill={color} />
-      <rect x="35" y="5" width="12" height="12" rx="2" fill="white" />
-      <rect x="38" y="8" width="6" height="6" rx="1" fill={color} />
-      {/* Bottom-left finder */}
-      <rect x="2" y="32" width="18" height="18" rx="3" fill={color} />
-      <rect x="5" y="35" width="12" height="12" rx="2" fill="white" />
-      <rect x="8" y="38" width="6" height="6" rx="1" fill={color} />
-      {/* Data dots */}
-      <rect x="32" y="32" width="5" height="5" rx="1" fill={color} />
-      <rect x="39" y="32" width="5" height="5" rx="1" fill={color} />
-      <rect x="46" y="32" width="5" height="5" rx="1" fill={color} />
-      <rect x="32" y="39" width="5" height="5" rx="1" fill={color} />
-      <rect x="46" y="39" width="5" height="5" rx="1" fill={color} />
-      <rect x="39" y="46" width="5" height="5" rx="1" fill={color} />
-      <rect x="46" y="46" width="5" height="5" rx="1" fill={color} />
-      <rect x="32" y="46" width="5" height="5" rx="1" fill={color} />
-    </svg>
-  )
-}
-
-function ReviewSign({ message, color, rotate }: { message: string; color: string; rotate: string }) {
-  const lines = message.split('\n')
-  return (
-    <div
-      style={{
-        transform: `rotate(${rotate})`,
-        background: 'white',
-        borderRadius: 12,
-        padding: '12px 14px',
-        boxShadow: '0 8px 32px rgba(0,0,0,0.35), 0 2px 8px rgba(0,0,0,0.2)',
-        width: 160,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: 8,
-      }}
-    >
-      {/* Message */}
-      <div style={{ textAlign: 'center' }}>
-        {lines.map((line, i) => (
-          <p key={i} style={{ fontSize: 11, fontWeight: 700, color: '#1a1814', lineHeight: 1.4, margin: 0 }}>{line}</p>
-        ))}
-      </div>
-      {/* QR code */}
-      <QrSvg color={color} size={64} />
-      {/* Footer */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-        <div style={{ width: 12, height: 12, borderRadius: 3, background: color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <span style={{ fontSize: 7, color: 'white', fontWeight: 900 }}>⚡</span>
-        </div>
-        <p style={{ fontSize: 8, color: '#b0aca4', margin: 0, fontWeight: 600 }}>Scan to leave a review</p>
-      </div>
-    </div>
-  )
-}
 
 export function LandingPage() {
   return (
@@ -346,6 +245,7 @@ export function LandingPage() {
               <div className="flex items-center gap-6">
                 <img src="/logo-harmonia.png" alt="Harmonia Dental" style={{ height: 64, opacity: 0.5, filter: 'grayscale(100%)', objectFit: 'contain', mixBlendMode: 'multiply' }} />
                 <img src="/logo-masvell.png" alt="Masvell" style={{ height: 36, opacity: 0.5, filter: 'grayscale(100%)', objectFit: 'contain', mixBlendMode: 'multiply' }} />
+                <img src="/logo-dermamedicum.webp" alt="DermaMedicum" style={{ height: 44, opacity: 0.4, filter: 'grayscale(100%)', objectFit: 'contain' }} />
               </div>
             </div>
           </div>
@@ -363,42 +263,76 @@ export function LandingPage() {
 
       <HowItWorks />
 
-      {/* ── QR in the wild ──────────────────────── */}
-      <section className="py-24 px-6">
+      <BusinessReels />
+
+      {/* ── Testimonials ────────────────────────── */}
+      <section className="py-24 px-6" style={{ background: '#fafaf8' }}>
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14">
-            <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: 'var(--accent)' }}>
-              QR Code
-            </p>
-            <h2 className="font-bold mb-4" style={{ fontSize: 'clamp(1.8rem, 4vw, 3rem)', letterSpacing: '-0.025em', color: 'var(--ink)' }}>
-              Your QR code,<br />everywhere customers are
+            <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: 'var(--accent)' }}>What they say</p>
+            <h2 className="font-bold" style={{ fontSize: 'clamp(1.8rem, 4vw, 3rem)', letterSpacing: '-0.025em', color: 'var(--ink)' }}>
+              Why our customers love <span style={{ color: 'var(--accent)' }}>Buzzloop</span>
             </h2>
-            <p className="text-base max-w-md mx-auto" style={{ color: 'var(--ink3)' }}>
-              Place it on tables, counters, receipts, mirrors. Customers scan, review in under 10 seconds, and you get a 5-star Google review.
-            </p>
           </div>
-
-          <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
-            {QR_BUSINESSES.map((b) => (
-              <div key={b.label} className="flex flex-col gap-3">
-                <div className="relative rounded-2xl overflow-hidden group" style={{ aspectRatio: '3/4' }}>
-                  {/* Photo */}
+          <div className="grid gap-6" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
+            {[
+              {
+                quote: "In 6 weeks we tripled our Google reviews and our Instagram started actually bringing people through the door. For a restaurant, that's everything.",
+                name: 'Carlos', business: 'Mas Vell', industry: 'Restaurant', initial: 'C',
+                color: '#c0392b', logo: '/logo-masvell.png', logoHeight: 22, logoBg: false,
+                stat: '3× more Google reviews in 6 weeks', offset: 0,
+              },
+              {
+                quote: "Reviews were our biggest frustration for years. Now they come in automatically. And the Reels are the kind of content we could never have made ourselves.",
+                name: 'Laura', business: 'Harmonia Dental', industry: 'Dental clinic', initial: 'L',
+                color: '#00b0e0', logo: '/logo-harmonia.png', logoHeight: 48, logoBg: false,
+                stat: '70 to 200 reviews in 2 months', offset: 0,
+              },
+              {
+                quote: "Between patients, there's no time for marketing. We tried agencies but got average results. The educational content it creates actually brings in new patients.",
+                name: 'Karla', business: 'DermaMedicum', industry: 'Dermatology clinic', initial: 'K',
+                color: '#c2185b', logo: '/logo-dermamedicum.webp', logoHeight: 40, logoBg: true,
+                stat: '2× more new patient bookings', offset: 0,
+              },
+            ].map(t => (
+              <div key={t.name} style={{
+                background: 'white', borderRadius: 20, padding: '28px 28px 24px',
+                boxShadow: '0 4px 24px rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.06)',
+                display: 'flex', flexDirection: 'column', gap: 20,
+                transform: `translateY(${t.offset}px)`,
+              }}>
+                {/* Logo + stars row */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <img
-                    src={b.photo}
-                    alt={b.label}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    src={t.logo} alt={t.business}
+                    style={{
+                      height: t.logoHeight, objectFit: 'contain',
+                      mixBlendMode: t.logoBg ? 'normal' : 'multiply',
+                      borderRadius: t.logoBg ? 8 : 0,
+                    }}
                   />
-                  {/* Subtle dark overlay */}
-                  <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.05) 40%, rgba(0,0,0,0.4) 100%)' }} />
-                  {/* Realistic sign in centre */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <ReviewSign message={b.message} color={b.color} rotate={b.rotate} />
+                  <div style={{ display: 'flex', gap: 2 }}>
+                    {[...Array(5)].map((_, i) => <span key={i} style={{ color: '#fbbc04', fontSize: 13 }}>★</span>)}
                   </div>
                 </div>
-                {/* Caption below photo */}
-                <div>
-                  <p className="text-sm font-bold" style={{ color: 'var(--ink)' }}>{b.label}</p>
-                  <p className="text-xs" style={{ color: 'var(--ink4)' }}>{b.location}</p>
+                {/* Quote */}
+                <p style={{ fontSize: 15, lineHeight: 1.75, color: 'var(--ink2)', flex: 1, margin: 0 }}>
+                  "{t.quote}"
+                </p>
+                {/* Stat */}
+                <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--accent)', margin: 0 }}>↑ {t.stat}</p>
+                {/* Author */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, paddingTop: 4, borderTop: '1px solid var(--border)' }}>
+                  <div style={{
+                    width: 38, height: 38, borderRadius: '50%', flexShrink: 0,
+                    background: t.color,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 14, color: 'white', fontWeight: 700,
+                  }}>{t.initial}</div>
+                  <div>
+                    <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--ink)', margin: 0 }}>{t.name}</p>
+                    <p style={{ fontSize: 12, color: 'var(--ink4)', margin: 0 }}>{t.business} · {t.industry}</p>
+                  </div>
                 </div>
               </div>
             ))}
@@ -406,30 +340,6 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* ── Reels section ───────────────────────── */}
-      <section className="py-24 px-6" style={{ background: '#0a0a0a' }}>
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-14">
-            <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: 'var(--accent)' }}>
-              Instagram Reels
-            </p>
-            <h2 className="font-bold mb-4" style={{ fontSize: 'clamp(1.8rem, 4vw, 3rem)', letterSpacing: '-0.025em', color: 'white' }}>
-              Reviews that work<br />while you sleep
-            </h2>
-            <p className="text-base max-w-md mx-auto" style={{ color: 'rgba(255,255,255,0.5)' }}>
-              Our AI reads your reviews, finds the patterns, and builds cinematic 9:16 Reels — branded, ready to post, in seconds.
-            </p>
-          </div>
-
-          <ReelDemos />
-
-          <p className="text-center text-xs mt-8" style={{ color: 'rgba(255,255,255,0.3)' }}>
-            These are live previews — the same Reels your customers will see on Instagram.
-          </p>
-        </div>
-      </section>
-
-      {/* ── How it works ────────────────────────── */}
       {/* ── Final CTA ───────────────────────────── */}
       <section className="py-24 px-6 text-center" style={{ background: 'var(--ink)' }}>
         <div className="max-w-2xl mx-auto">
