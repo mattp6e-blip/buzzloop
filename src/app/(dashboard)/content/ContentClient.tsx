@@ -62,10 +62,12 @@ function ReelPreviewModal({ script, brandColor, brandSecondaryColor, brandLogoUr
     id: 1,
     label: '',
     description: '',
+    tone: 'bold',
     hookHeadline: hookSlide?.content.headline ?? '',
     hookSubline:  hookSlide?.content.subline ?? undefined,
     ctaText:      ctaSlide?.content.cta ?? '',
     visualStyle:  (script.visualStyle as ReelVariation['visualStyle']) ?? 'cinematic',
+    script,
   }
 
   const playerProps: ReelCompositionProps = {

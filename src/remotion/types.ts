@@ -12,12 +12,14 @@ export interface VisualStyleConfig {
 
 export interface ReelVariation {
   id: number
-  label: string           // "Cinematic", "Bold", "Clean", "Editorial"
-  description: string     // short description of the style
+  label: string           // "Story", "Bold", "Authority"
+  description: string     // "Emotional arc · most shared"
+  tone: 'story' | 'bold' | 'authority'
   hookHeadline: string
   hookSubline?: string
   ctaText: string
   visualStyle: VisualStyle
+  script: ReelScript      // each variation has its own independently generated script
 }
 
 export interface ReelCompositionProps {

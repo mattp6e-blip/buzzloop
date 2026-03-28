@@ -47,7 +47,6 @@ function detectLanguage(reviews: Review[]): string {
 }
 
 export function ReelCreator({ theme, reviews, businessName, industry, brandColor, brandFont, logoUrl, websiteUrl, brandPersonality, brandSecondaryColor, customerWord, serviceWord, bookingWord, businessId, city, onBack, onScriptCached }: Props) {
-  const [script, setScript]               = useState<ReelScript | null>(null)
   const [variations, setVariations]       = useState<ReelVariation[]>([])
   const [selectedVariation, setSelectedVariation] = useState<ReelVariation | null>(null)
   const [editMode, setEditMode]           = useState(false)
@@ -62,9 +61,8 @@ export function ReelCreator({ theme, reviews, businessName, industry, brandColor
   const [savingCity, setSavingCity]       = useState(false)
 
   useEffect(() => {
-    // Use cached script if available — no API call needed
-    if (theme.cachedScript && theme.cachedVariations?.length) {
-      setScript(theme.cachedScript)
+    // Use cached variations if available — no API call needed
+    if (theme.cachedVariations?.length && theme.cachedVariations[0]?.script) {
       setVariations(theme.cachedVariations)
       setGenerating(false)
       generateCaption(reviews.filter(r => theme.reviewIds.includes(r.id)))
@@ -84,13 +82,11 @@ export function ReelCreator({ theme, reviews, businessName, industry, brandColor
       body: JSON.stringify({ theme, reviews: themeReviews, businessName, industry, brandPersonality, websiteUrl, customerWord, serviceWord, bookingWord, reelCategory: theme.reelCategory ?? 'social_proof', language: detectLanguage(themeReviews) }),
     })
     const data = await res.json()
-    const newScript = data.script ?? null
-    const newVariations = data.variations ?? []
-    setScript(newScript)
+    const newVariations: ReelVariation[] = data.variations ?? []
     setVariations(newVariations)
     setGenerating(false)
-    if (newScript && newVariations.length > 0) {
-      onScriptCached(theme.id, newScript, newVariations)
+    if (newVariations.length > 0) {
+      onScriptCached(theme.id, newVariations[0].script, newVariations)
     }
     generateCaption(themeReviews)
   }
@@ -201,10 +197,9 @@ export function ReelCreator({ theme, reviews, businessName, industry, brandColor
       )}
 
       {/* Step 1 — Pick visual style */}
-      {!generating && script && variations.length > 0 && !editMode && (
+      {!generating && variations.length > 0 && !editMode && (
         <div className="mb-8">
           <VariationPicker
-            script={script}
             variations={variations}
             brandColor={brandColor}
             brandSecondaryColor={brandSecondaryColor}
@@ -215,18 +210,16 @@ export function ReelCreator({ theme, reviews, businessName, industry, brandColor
             onSelect={v => { setSelectedVariation(v); setSaved(false) }}
             onConfirm={() => setEditMode(true)}
             onRegenerate={() => { setEditMode(false); generateScript(themeReviews) }}
-            regenerating={generating}
           />
         </div>
       )}
 
       {/* Step 2 — Edit & save */}
-      {!generating && script && selectedVariation && editMode && (
+      {!generating && selectedVariation?.script && editMode && (
         <ReelEditor
           key={selectedVariation.id}
-          script={script}
+          script={selectedVariation.script}
           variation={selectedVariation}
-          variations={variations}
           brandColor={brandColor}
           brandSecondaryColor={brandSecondaryColor}
           logoUrl={logoUrl}
@@ -243,7 +236,6 @@ export function ReelCreator({ theme, reviews, businessName, industry, brandColor
           onCitySave={handleCitySave}
           onSave={handleSave}
           onBack={() => setEditMode(false)}
-          onSwitchVariation={v => { setSelectedVariation(v); setSaved(false) }}
           saving={saving}
           saved={saved}
           saveError={saveError}

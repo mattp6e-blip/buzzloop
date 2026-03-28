@@ -2,7 +2,6 @@
 
 import dynamic from 'next/dynamic'
 import { useState, useEffect } from 'react'
-import type { ReelScript } from '@/types'
 import type { ReelVariation, ReelCompositionProps } from '@/remotion/types'
 import { REEL_FPS, REEL_WIDTH, REEL_HEIGHT } from '@/remotion/ReelComposition'
 
@@ -10,7 +9,6 @@ const Player = dynamic(() => import('@remotion/player').then(m => m.Player), { s
 const ReelCompositionModule = dynamic(() => import('@/remotion/ReelComposition').then(m => ({ default: m.ReelComposition })), { ssr: false })
 
 interface VariationPickerProps {
-  script: ReelScript
   variations: ReelVariation[]
   brandColor: string
   brandSecondaryColor: string
@@ -21,16 +19,13 @@ interface VariationPickerProps {
   onSelect: (variation: ReelVariation) => void
   onConfirm: () => void
   onRegenerate: () => void
-  regenerating: boolean
 }
 
-export function VariationPicker({ script, variations, brandColor, brandSecondaryColor, logoUrl, businessName, industry, websiteUrl, onSelect, onConfirm, onRegenerate, regenerating }: VariationPickerProps) {
+export function VariationPicker({ variations, brandColor, brandSecondaryColor, logoUrl, businessName, industry, websiteUrl, onSelect, onConfirm, onRegenerate }: VariationPickerProps) {
   const [selected, setSelected] = useState<number | null>(null)
   const [fullscreenVariation, setFullscreenVariation] = useState<ReelVariation | null>(null)
+  const [regenerating, setRegenerating] = useState(false)
 
-  const totalFrames = Math.round(script.totalDuration * REEL_FPS)
-
-  // Auto-select first variation on load
   useEffect(() => {
     if (variations.length > 0 && selected === null) {
       setSelected(variations[0].id)
@@ -43,8 +38,14 @@ export function VariationPicker({ script, variations, brandColor, brandSecondary
     onSelect(variation)
   }
 
+  async function handleRegenerate() {
+    setRegenerating(true)
+    setSelected(null)
+    onRegenerate()
+  }
+
   const makeProps = (variation: ReelVariation): ReelCompositionProps => ({
-    script,
+    script: variation.script,
     variation,
     brandColor,
     brandSecondaryColor: brandSecondaryColor || brandColor,
@@ -54,15 +55,22 @@ export function VariationPicker({ script, variations, brandColor, brandSecondary
     websiteUrl,
   })
 
+  const TONE_ICONS: Record<string, string> = {
+    story: '❤',
+    bold: '⚡',
+    authority: '✦',
+  }
+
   return (
-    <div style={{ maxWidth: 640 }}>
+    <div style={{ maxWidth: 900 }}>
       {/* Header */}
       <div className="flex items-center justify-between mb-5">
-        <p className="text-sm" style={{ color: 'var(--ink3)' }}>
-          Same content, two visual styles — pick the look you prefer.
-        </p>
+        <div>
+          <p className="text-sm font-medium" style={{ color: 'var(--ink2)' }}>Three versions of your reel — same story, different voice.</p>
+          <p className="text-xs mt-0.5" style={{ color: 'var(--ink4)' }}>Pick the one that sounds most like you.</p>
+        </div>
         <button
-          onClick={onRegenerate}
+          onClick={handleRegenerate}
           disabled={regenerating}
           className="flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all hover:bg-[var(--bg2)] disabled:opacity-50"
           style={{ borderColor: 'var(--border)', color: 'var(--ink2)' }}
@@ -72,27 +80,37 @@ export function VariationPicker({ script, variations, brandColor, brandSecondary
         </button>
       </div>
 
-      {/* 2 side-by-side variations */}
-      <div className="grid grid-cols-2 gap-4 mb-6">
+      {/* Variation cards */}
+      <div className={`grid gap-4 mb-6`} style={{ gridTemplateColumns: `repeat(${variations.length}, 1fr)` }}>
         {variations.map(variation => {
           const isSelected = selected === variation.id
+          const frames = Math.round(variation.script.totalDuration * REEL_FPS)
 
           return (
             <div key={variation.id} className="flex flex-col gap-2">
+              {/* Variation name + description */}
+              <div className="flex items-center gap-2 px-1">
+                <span className="text-sm">{TONE_ICONS[variation.tone] ?? '·'}</span>
+                <div>
+                  <p className="text-sm font-bold leading-tight" style={{ color: 'var(--ink)' }}>{variation.label}</p>
+                  <p className="text-xs" style={{ color: 'var(--ink4)' }}>{variation.description}</p>
+                </div>
+              </div>
+
               {/* Video card */}
               <div
-                className="rounded-2xl overflow-hidden transition-all duration-200"
+                className="rounded-2xl overflow-hidden transition-all duration-200 cursor-pointer"
                 style={{
                   border: `3px solid ${isSelected ? brandColor : 'var(--border)'}`,
                   boxShadow: isSelected ? `0 0 0 4px ${brandColor}25` : 'none',
                 }}
+                onClick={() => handleSelect(variation)}
               >
-                {/* Remotion Player */}
                 <div className="relative" style={{ aspectRatio: '9/16', background: '#0a0a0a' }}>
                   <Player
                     component={ReelCompositionModule as never}
                     inputProps={makeProps(variation)}
-                    durationInFrames={totalFrames}
+                    durationInFrames={frames}
                     compositionWidth={REEL_WIDTH}
                     compositionHeight={REEL_HEIGHT}
                     fps={REEL_FPS}
@@ -123,7 +141,7 @@ export function VariationPicker({ script, variations, brandColor, brandSecondary
                 </div>
               </div>
 
-              {/* Hook text */}
+              {/* Hook preview */}
               <p className="text-xs leading-relaxed px-1" style={{ color: 'var(--ink3)' }}>
                 &ldquo;{variation.hookHeadline}&rdquo;
               </p>
@@ -144,7 +162,7 @@ export function VariationPicker({ script, variations, brandColor, brandSecondary
         })}
       </div>
 
-      {/* Confirm selection */}
+      {/* Confirm */}
       {selected !== null && (
         <button
           onClick={onConfirm}
@@ -171,7 +189,7 @@ export function VariationPicker({ script, variations, brandColor, brandSecondary
               <Player
                 component={ReelCompositionModule as never}
                 inputProps={makeProps(fullscreenVariation)}
-                durationInFrames={totalFrames}
+                durationInFrames={Math.round(fullscreenVariation.script.totalDuration * REEL_FPS)}
                 compositionWidth={REEL_WIDTH}
                 compositionHeight={REEL_HEIGHT}
                 fps={REEL_FPS}

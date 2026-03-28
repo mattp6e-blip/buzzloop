@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react'
 import dynamic from 'next/dynamic'
 import type { ReelScript } from '@/types'
-import type { ReelVariation, ReelCompositionProps } from '@/remotion/types'
+import type { ReelVariation, ReelCompositionProps, VisualStyle } from '@/remotion/types'
 import { REEL_FPS, REEL_WIDTH, REEL_HEIGHT } from '@/remotion/ReelComposition'
 
 const Player = dynamic(() => import('@remotion/player').then(m => m.Player), { ssr: false })
@@ -12,7 +12,6 @@ const ReelCompositionModule = dynamic(() => import('@/remotion/ReelComposition')
 interface Props {
   script: ReelScript
   variation: ReelVariation
-  variations: ReelVariation[]
   brandColor: string
   brandSecondaryColor: string
   logoUrl: string | null
@@ -29,7 +28,6 @@ interface Props {
   onCitySave: (city: string) => void
   onSave: (script: ReelScript, variation: ReelVariation) => void
   onBack: () => void
-  onSwitchVariation: (v: ReelVariation) => void
   saving: boolean
   saved: boolean
   saveError: string | null
@@ -52,9 +50,9 @@ const SLIDE_ICONS: Record<string, string> = {
 }
 
 export function ReelEditor({
-  script, variation, variations, brandColor, brandSecondaryColor, logoUrl, businessName,
+  script, variation, brandColor, brandSecondaryColor, logoUrl, businessName,
   industry, websiteUrl, businessId, caption, onCaptionChange, generatingCaption,
-  onRegenerateCaption, cityMissing, savingCity, onCitySave, onSave, onBack, onSwitchVariation, saving, saved, saveError,
+  onRegenerateCaption, cityMissing, savingCity, onCitySave, onSave, onBack, saving, saved, saveError,
 }: Props) {
   const [editedScript, setEditedScript]     = useState<ReelScript>(() => JSON.parse(JSON.stringify(script)))
   const [editedVariation, setEditedVariation] = useState<ReelVariation>(() => ({ ...variation }))
@@ -135,25 +133,23 @@ export function ReelEditor({
             className="text-xs hover:opacity-70 transition-opacity flex items-center gap-1"
             style={{ color: 'var(--ink3)' }}
           >
-            ← Style
+            ← Versions
           </button>
-          {variations.length > 1 && (
-            <div className="flex gap-1 p-0.5 rounded-lg" style={{ background: 'var(--bg2)', border: '1px solid var(--border)' }}>
-              {variations.map(v => (
-                <button
-                  key={v.id}
-                  onClick={() => onSwitchVariation(v)}
-                  className="px-2 py-1 rounded-md text-xs font-medium transition-all"
-                  style={editedVariation.visualStyle === v.visualStyle
-                    ? { background: 'white', color: 'var(--ink)', boxShadow: '0 1px 2px rgba(0,0,0,0.08)' }
-                    : { color: 'var(--ink4)' }
-                  }
-                >
-                  {v.visualStyle === 'cinematic' ? '🎬' : '☀'}
-                </button>
-              ))}
-            </div>
-          )}
+          <div className="flex gap-1 p-0.5 rounded-lg" style={{ background: 'var(--bg2)', border: '1px solid var(--border)' }}>
+            {(['cinematic', 'clean'] as VisualStyle[]).map(style => (
+              <button
+                key={style}
+                onClick={() => setEditedVariation(v => ({ ...v, visualStyle: style }))}
+                className="px-2 py-1 rounded-md text-xs font-medium transition-all"
+                style={editedVariation.visualStyle === style
+                  ? { background: 'white', color: 'var(--ink)', boxShadow: '0 1px 2px rgba(0,0,0,0.08)' }
+                  : { color: 'var(--ink4)' }
+                }
+              >
+                {style === 'cinematic' ? '🎬' : '☀'}
+              </button>
+            ))}
+          </div>
         </div>
 
         <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: 'var(--ink4)' }}>Slides</p>

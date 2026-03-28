@@ -1,13 +1,51 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import type { Review, ReelTheme, ReelScript } from '@/types'
+import type { ReelVariation, VisualStyle } from '@/remotion/types'
+
+type Tone = 'story' | 'bold' | 'authority'
+
+const TONE_CONFIGS: Record<Tone, { label: string; description: string; visualStyle: VisualStyle; instruction: string }> = {
+  story: {
+    label: 'Story',
+    description: 'Emotional arc · most shared',
+    visualStyle: 'clean',
+    instruction: `TONE — Story (emotional transformation arc):
+Quote selection: prioritise quotes that show a journey — fear becoming relief, doubt becoming delight, before and after. The viewer should feel the transformation.
+CTA: warm, inviting — makes the viewer picture themselves there. ("We can't wait to meet you." / "Your story starts here." / "Ready to feel this good?")`,
+  },
+  bold: {
+    label: 'Bold',
+    description: 'High energy · most reach',
+    visualStyle: 'cinematic',
+    instruction: `TONE — Bold (punchy, pattern-interrupt):
+Quote selection: prioritise the most surprising or specific quotes — the ones that stop mid-scroll. Cut ruthlessly to the single most unexpected line.
+CTA: direct, short — a challenge or simple declaration. ("Your turn." / "What are you waiting for?" / "Still putting it off?")`,
+  },
+  authority: {
+    label: 'Authority',
+    description: 'Insight-led · most saved',
+    visualStyle: 'clean',
+    instruction: `TONE — Authority (confident-casual insight):
+Quote selection: prioritise quotes that together reveal a pattern — multiple people noticing the same thing. Frame them as evidence of a bigger shared truth.
+CTA: curiosity-driven, save-oriented. ("Now you know what everyone's been talking about." / "See what they all have in common.")`,
+  },
+}
+
+const CATEGORY_TONES: Record<string, Tone[]> = {
+  social_proof: ['story', 'bold', 'authority'],
+  educational:  ['bold', 'authority'],
+  faq:          ['bold', 'story'],
+}
 
 const client = new Anthropic()
 
-function getSocialProofPrompt(theme: ReelTheme, reviewTexts: string, businessName: string, industry: string, reviews: Review[], language: string): string {
+function getSocialProofPrompt(theme: ReelTheme, reviewTexts: string, businessName: string, industry: string, reviews: Review[], language: string, toneInstruction: string): string {
   return `You are the creative director behind award-winning commercial ad campaigns. You write copy that is SPECIFIC, LOGICAL, and EARNED — never generic, never formulaic.
 
 LANGUAGE: Write every part of your response in ${language}.
+
+${toneInstruction}
 
 Business: ${businessName} (${industry})
 Reel theme: ${theme.title}
@@ -78,10 +116,12 @@ Return ONLY valid JSON:
 }`
 }
 
-function getEducationalPrompt(theme: ReelTheme, reviewTexts: string, businessName: string, industry: string, language: string): string {
+function getEducationalPrompt(theme: ReelTheme, reviewTexts: string, businessName: string, industry: string, language: string, toneInstruction: string): string {
   return `You are the creative director behind award-winning commercial ad campaigns. You write educational Instagram Reels that teach viewers something they didn't know, while using real customer experiences as proof.
 
 LANGUAGE: Write every part of your response in ${language}.
+
+${toneInstruction}
 
 Business: ${businessName} (${industry})
 Educational topic: ${theme.title}
@@ -127,10 +167,12 @@ Return ONLY valid JSON:
 }`
 }
 
-function getFaqPrompt(theme: ReelTheme, reviewTexts: string, businessName: string, industry: string, language: string): string {
+function getFaqPrompt(theme: ReelTheme, reviewTexts: string, businessName: string, industry: string, language: string, toneInstruction: string): string {
   return `You are the creative director behind award-winning commercial ad campaigns. You write FAQ / myth-busting Instagram Reels that turn hesitation into action.
 
 LANGUAGE: Write every part of your response in ${language}.
+
+${toneInstruction}
 
 Business: ${businessName} (${industry})
 Fear or myth to bust: ${theme.title}
@@ -177,17 +219,48 @@ Return ONLY valid JSON:
 }`
 }
 
+async function generateVariation(
+  tone: Tone,
+  prompt: string,
+): Promise<ReelVariation | null> {
+  try {
+    const message = await client.messages.create({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 1800,
+      messages: [{ role: 'user', content: prompt }],
+    })
+    const text = (message.content[0] as { text: string }).text
+    const match = text.match(/\{[\s\S]*\}/)
+    if (!match) return null
+    const parsed = JSON.parse(match[0])
+    const config = TONE_CONFIGS[tone]
+    const script: ReelScript = {
+      themeTitle: parsed.themeTitle,
+      totalDuration: parsed.totalDuration,
+      slides: parsed.slides,
+    }
+    return {
+      id: (['story', 'bold', 'authority'] as Tone[]).indexOf(tone) + 1,
+      label: config.label,
+      description: config.description,
+      tone,
+      hookHeadline: parsed.hookHeadline ?? '',
+      hookSubline: parsed.hookSubline ?? undefined,
+      ctaText: parsed.ctaText ?? '',
+      visualStyle: config.visualStyle,
+      script,
+    }
+  } catch {
+    return null
+  }
+}
+
 export async function POST(req: NextRequest) {
-  const { theme, reviews, businessName, industry, brandPersonality, websiteUrl, customerWord, serviceWord, bookingWord, language }: {
+  const { theme, reviews, businessName, industry, language }: {
     theme: ReelTheme
     reviews: Review[]
     businessName: string
     industry: string
-    brandPersonality?: string[]
-    websiteUrl?: string
-    customerWord?: string
-    serviceWord?: string
-    bookingWord?: string
     language?: string
   } = await req.json()
 
@@ -196,51 +269,27 @@ export async function POST(req: NextRequest) {
   ).join('\n')
 
   const reelCategory = theme.reelCategory ?? 'social_proof'
-
   const lang = language ?? 'English'
-  let prompt: string
-  if (reelCategory === 'educational') {
-    prompt = getEducationalPrompt(theme, reviewTexts, businessName, industry, lang)
-  } else if (reelCategory === 'faq') {
-    prompt = getFaqPrompt(theme, reviewTexts, businessName, industry, lang)
-  } else {
-    prompt = getSocialProofPrompt(theme, reviewTexts, businessName, industry, reviews, lang)
-  }
+  const tones = CATEGORY_TONES[reelCategory] ?? CATEGORY_TONES.social_proof
 
-  const message = await client.messages.create({
-    model: 'claude-sonnet-4-6',
-    max_tokens: 1800,
-    messages: [{ role: 'user', content: prompt }],
-  })
-
-  let result: { script: ReelScript; variations: import('@/remotion/types').ReelVariation[] } | null = null
-  try {
-    const text = (message.content[0] as { text: string }).text
-    const match = text.match(/\{[\s\S]*\}/)
-    if (match) {
-      const parsed = JSON.parse(match[0])
-      const hookHeadline: string = parsed.hookHeadline ?? ''
-      const hookSubline: string | undefined = parsed.hookSubline ?? undefined
-      const ctaText: string = parsed.ctaText ?? ''
-      result = {
-        script: {
-          themeTitle: parsed.themeTitle,
-          totalDuration: parsed.totalDuration,
-          slides: parsed.slides,
-        },
-        variations: [
-          { id: 1, label: '', description: '', hookHeadline, hookSubline, ctaText, visualStyle: 'cinematic' },
-          { id: 2, label: '', description: '', hookHeadline, hookSubline, ctaText, visualStyle: 'clean' },
-        ],
+  const variations = (await Promise.all(
+    tones.map(tone => {
+      const toneInstruction = TONE_CONFIGS[tone].instruction
+      let prompt: string
+      if (reelCategory === 'educational') {
+        prompt = getEducationalPrompt(theme, reviewTexts, businessName, industry, lang, toneInstruction)
+      } else if (reelCategory === 'faq') {
+        prompt = getFaqPrompt(theme, reviewTexts, businessName, industry, lang, toneInstruction)
+      } else {
+        prompt = getSocialProofPrompt(theme, reviewTexts, businessName, industry, reviews, lang, toneInstruction)
       }
-    }
-  } catch {
-    result = null
+      return generateVariation(tone, prompt)
+    })
+  )).filter((v): v is ReelVariation => v !== null)
+
+  if (!variations.length) {
+    return NextResponse.json({ error: 'Failed to generate reel variations' }, { status: 500 })
   }
 
-  if (!result) {
-    return NextResponse.json({ error: 'Failed to generate reel script' }, { status: 500 })
-  }
-
-  return NextResponse.json(result)
+  return NextResponse.json({ variations })
 }
