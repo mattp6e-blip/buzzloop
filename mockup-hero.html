@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Buzzloop — Hero Mockup</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #fafaf8;
+    color: #1a1814;
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Nav */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 32px;
+    background: rgba(250,250,248,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+  .nav-logo { display: flex; align-items: center; gap: 10px; }
+  .nav-logo-mark {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: #e8470a;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; color: white; font-weight: 900;
+  }
+  .nav-logo span { font-size: 14px; font-weight: 700; color: #1a1814; }
+  .nav-actions { display: flex; align-items: center; gap: 12px; }
+  .nav-login {
+    font-size: 14px; font-weight: 500; color: #7a766e;
+    text-decoration: none; padding: 8px 16px;
+  }
+  .nav-cta {
+    font-size: 14px; font-weight: 700; color: white;
+    background: #1a1814; text-decoration: none;
+    padding: 10px 20px; border-radius: 12px;
+  }
+
+  /* Hero */
+  .hero {
+    padding: 120px 32px 80px;
+    max-width: 1152px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 64px;
+  }
+
+  /* Left */
+  .hero-left { flex: 1 1 480px; min-width: 0; }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 14px; border-radius: 100px;
+    background: #fff2ed; border: 1px solid #ffd4c2;
+    color: #e8470a; font-size: 12px; font-weight: 600;
+    margin-bottom: 32px;
+  }
+
+  h1 { letter-spacing: -0.035em; line-height: 1.1; margin-bottom: 20px; }
+  .h1-top {
+    display: block;
+    font-size: clamp(1.9rem, 2.8vw, 2.8rem);
+    font-weight: 900;
+    color: #1a1814;
+    margin-bottom: 10px;
+  }
+  .h1-bottom {
+    display: block;
+    font-size: clamp(1.15rem, 1.65vw, 1.65rem);
+    font-weight: 600;
+    color: #1a1814;
+    opacity: 0.82;
+    line-height: 1.3;
+  }
+  .gradient-text {
+    background: linear-gradient(90deg, #833AB4 0%, #E1306C 50%, #F77737 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 800;
+  }
+
+  .subline {
+    font-size: 17px;
+    line-height: 1.65;
+    color: #7a766e;
+    max-width: 460px;
+    margin-bottom: 36px;
+  }
+
+  .ctas { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .cta-primary {
+    padding: 16px 32px; border-radius: 16px;
+    background: #e8470a;
+    color: white; font-size: 15px; font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 4px 24px rgba(232,71,10,0.35);
+  }
+  .cta-secondary {
+    padding: 16px 32px; border-radius: 16px;
+    border: 1px solid #e8e6e0; background: white;
+    color: #7a766e; font-size: 15px; font-weight: 600;
+    text-decoration: none;
+  }
+
+  /* Right — demo */
+  .hero-right {
+    flex: 0 0 auto;
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .demo-wrap { position: relative; width: 100%; max-width: 380px; }
+
+  /* Review card */
+  .review-card {
+    background: white;
+    border-radius: 24px;
+    padding: 28px 28px 24px;
+    box-shadow: 0 12px 60px rgba(0,0,0,0.1), 0 2px 12px rgba(0,0,0,0.06);
+    border: 1px solid rgba(0,0,0,0.06);
+    position: relative;
+  }
+  .review-header {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 18px;
+  }
+  .google-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: #f8f9fa; border: 1px solid #e8eaed;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .review-meta { flex: 1; }
+  .review-meta strong { display: block; font-size: 13px; font-weight: 700; color: #1a1a1a; }
+  .review-meta span { font-size: 11px; color: #5f6368; }
+  .stars { color: #fbbc04; font-size: 15px; letter-spacing: 1px; }
+  .review-text {
+    font-size: 15px; line-height: 1.7; color: #3c4043; margin: 0 0 18px;
+  }
+  .reviewer {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 22px;
+  }
+  .avatar {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; color: white; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .reviewer strong { font-size: 13px; font-weight: 600; color: #1a1a1a; }
+  .reviewer time { font-size: 11px; color: #9aa0a6; margin-left: 4px; }
+  .convert-btn {
+    width: 100%; padding: 15px 20px; border-radius: 14px;
+    border: none; cursor: pointer;
+    background: linear-gradient(90deg, #833AB4 0%, #E1306C 50%, #F77737 100%);
+    color: white; font-size: 14px; font-weight: 700;
+    font-family: inherit;
+    display: flex; align-items: center; justify-content: center;
+    gap: 8px; letter-spacing: -0.01em;
+    transition: opacity 0.15s, transform 0.15s;
+  }
+  .convert-btn:hover { opacity: 0.92; transform: translateY(-1px); }
+
+  /* Try me annotation — centred below the button */
+  .try-me {
+    position: absolute;
+    bottom: -56px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    animation: tryBounce 2s ease-in-out infinite;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .try-me span {
+    font-size: 13px; font-weight: 700;
+    color: #e8470a; letter-spacing: -0.01em;
+  }
+  @keyframes tryBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+
+  /* Reel state — hidden until button clicked */
+  .reel-state { display: none; }
+
+  /* Phone frame */
+  .phone-wrap {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+  }
+  .phone-frame {
+    width: 189px;
+    height: 336px;
+    border-radius: 24px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.08);
+    flex-shrink: 0;
+    background: #070610;
+  }
+  .phone-frame canvas { width: 100%; height: 100%; display: block; }
+
+  /* Back button */
+  .back-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 14px; border-radius: 10px;
+    border: 1px solid #e8e6e0; background: white;
+    font-size: 12px; font-weight: 600; color: #7a766e;
+    cursor: pointer; font-family: inherit;
+    margin-bottom: 16px;
+    transition: background 0.1s;
+  }
+  .back-btn:hover { background: #f4f3ef; }
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav>
+  <div class="nav-logo">
+    <div class="nav-logo-mark">⚡</div>
+    <span>Buzzloop</span>
+  </div>
+  <div class="nav-actions">
+    <a href="#" class="nav-login">Log in</a>
+    <a href="#" class="nav-cta">Start free →</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+
+  <!-- Left: Copy -->
+  <div class="hero-left">
+    <div class="badge">⚡ AI-powered review growth for local businesses</div>
+
+    <h1>
+      <span class="h1-top">
+        Your 5-star Google reviews<br>are a goldmine.
+      </span>
+      <span class="h1-bottom">
+        We turn them into <span class="gradient-text">Reels</span><br>
+        that bring you more customers.
+      </span>
+    </h1>
+
+    <p class="subline">
+      Your happiest customers already wrote your best ads.<br>
+      You're just not using them yet.
+    </p>
+
+    <div class="ctas">
+      <a href="#" class="cta-primary">Start for free →</a>
+      <a href="#" class="cta-secondary">See how it works</a>
+    </div>
+  </div>
+
+  <!-- Right: Demo -->
+  <div class="hero-right">
+    <div class="demo-wrap">
+
+      <!-- State 1: Review card -->
+      <div class="review-card" id="review-state">
+        <div class="review-header">
+          <div class="google-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+            </svg>
+          </div>
+          <div class="review-meta">
+            <strong>Google Review</strong>
+            <span>Harmonia Dental</span>
+          </div>
+          <div class="stars">★★★★★</div>
+        </div>
+
+        <p class="review-text">
+          "From the moment I walked in the anxiety just disappeared. I actually cried on the way home — happy tears."
+        </p>
+
+        <div class="reviewer">
+          <div class="avatar">S</div>
+          <strong>Sarah M.</strong>
+          <time>3 weeks ago</time>
+        </div>
+
+        <button class="convert-btn" onclick="showReel()">
+          Turn this into a Reel →
+        </button>
+      </div>
+
+      <!-- Try me annotation (below card, outside) -->
+      <div class="try-me" id="try-me">
+        <span>try me</span>
+        <svg width="20" height="32" viewBox="0 0 20 32" fill="none">
+          <path d="M10 30 C10 30, 10 10, 10 4" stroke="#e8470a" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+          <path d="M5 9 L10 3 L15 9" stroke="#e8470a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </svg>
+      </div>
+
+      <!-- State 2: Reel preview -->
+      <div class="reel-state" id="reel-state">
+        <button class="back-btn" onclick="showReview()">← Review</button>
+        <div class="phone-wrap">
+          <div class="phone-frame">
+            <canvas id="reel-canvas" width="189" height="336"></canvas>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</section>
+
+<script>
+  // ── State toggle ──────────────────────────────────────────────────────
+  let animFrame = null
+
+  function showReel() {
+    document.getElementById('review-state').style.display = 'none'
+    document.getElementById('try-me').style.display = 'none'
+    document.getElementById('reel-state').style.display = 'block'
+    startAnimation()
+  }
+
+  function showReview() {
+    document.getElementById('reel-state').style.display = 'none'
+    document.getElementById('review-state').style.display = 'block'
+    document.getElementById('try-me').style.display = 'flex'
+    if (animFrame) { cancelAnimationFrame(animFrame); animFrame = null }
+  }
+
+  // ── Canvas animation ──────────────────────────────────────────────────
+  const W = 189, H = 336
+
+  function clamp(v, lo = 0, hi = 1) { return Math.max(lo, Math.min(hi, v)) }
+  function easeOut(t) { const c = clamp(t); return 1 - Math.pow(1 - c, 3) }
+  function easeOutBack(t) {
+    const c = clamp(t); const s = 1.70158
+    return 1 + (s + 1) * Math.pow(c - 1, 3) + s * Math.pow(c - 1, 2)
+  }
+  function fadeIn(t, delay, dur = 0.45) { return clamp(easeOut((t - delay) / dur)) }
+  function slideUp(t, delay, dur = 0.45) {
+    const p = clamp(easeOut((t - delay) / dur)); return [p, (1 - p) * 20]
+  }
+
+  function drawText(ctx, text, x, y, font, color, align = 'center', alpha = 1, maxW, lineH = 1.35) {
+    if (alpha <= 0) return
+    ctx.save()
+    ctx.globalAlpha = alpha
+    ctx.font = font
+    ctx.fillStyle = color
+    ctx.textAlign = align
+    ctx.textBaseline = 'top'
+    if (maxW) {
+      const words = text.split(' ')
+      const lines = []
+      let line = ''
+      for (const w of words) {
+        const test = line ? line + ' ' + w : w
+        if (ctx.measureText(test).width <= maxW) { line = test }
+        else { if (line) lines.push(line); line = w }
+      }
+      if (line) lines.push(line)
+      const size = parseInt(font)
+      lines.forEach((l, i) => ctx.fillText(l, x, y + i * size * lineH))
+    } else {
+      ctx.fillText(text, x, y)
+    }
+    ctx.restore()
+  }
+
+  // Word-by-word reveal helper (left-aligned block of words, centered on x)
+  function drawWordReveal(ctx, text, centerX, y, font, color, highlight, highlightColor, startDelay, wordDelay, t) {
+    ctx.save()
+    ctx.font = font
+    ctx.textBaseline = 'top'
+    const words = text.split(' ')
+    const spaceW = ctx.measureText(' ').width
+    const totalW = words.reduce((acc, w, i) => acc + ctx.measureText(w).width + (i < words.length - 1 ? spaceW : 0), 0)
+    let curX = centerX - totalW / 2
+    words.forEach((word, i) => {
+      const a = fadeIn(t, startDelay + i * wordDelay, 0.22)
+      if (a <= 0) { curX += ctx.measureText(word).width + spaceW; return }
+      const clean = word.replace(/[^a-zA-Z]/g, '').toLowerCase()
+      const isHL = highlight.some(h => h.toLowerCase() === clean)
+      ctx.globalAlpha = a
+      ctx.fillStyle = isHL ? highlightColor : color
+      ctx.font = isHL ? font.replace(/\d+px/, m => m).replace('500', '800') : font
+      ctx.fillText(word, curX, y)
+      ctx.font = font // reset
+      curX += ctx.measureText(word).width + spaceW
+    })
+    ctx.restore()
+  }
+
+  // Harmonia Dental brand colors
+  const CYAN = '#00b0e0'
+  const PINK = '#f78da7'
+
+  // Generated reel script
+  const SLIDES = [
+    { type: 'hook', duration: 3, headline: 'She cried on the way home. Happy tears.' },
+    { type: 'quote', duration: 4, quote: 'The anxiety just disappeared. I wish I\'d gone sooner.', highlights: ['disappeared', 'sooner'], author: 'Sarah' },
+    { type: 'quote', duration: 4, quote: 'I kept waiting for it to be awful. It never was.', highlights: ['never'], author: 'James' },
+    { type: 'quote', duration: 4, quote: 'Three years avoiding dentists. Now I\'m actually looking forward to it.', highlights: ['looking', 'forward'], author: 'Claire' },
+    { type: 'proof', duration: 3, stat: 'Years of dread. Gone after one appointment.', subline: 'Every single one came back.' },
+    { type: 'cta', duration: 4, headline: 'What if your next visit changed everything?', cta: 'Book your first visit.' },
+  ]
+  const TOTAL_DURATION = SLIDES.reduce((s, sl) => s + sl.duration, 0) // 22
+
+  function drawFrame(ctx, t) {
+    const loopT = t % TOTAL_DURATION
+
+    // Find current phase
+    let acc = 0, phaseIdx = 0, pt = loopT
+    for (let i = 0; i < SLIDES.length; i++) {
+      if (loopT < acc + SLIDES[i].duration) { phaseIdx = i; pt = loopT - acc; break }
+      acc += SLIDES[i].duration
+    }
+    const slide = SLIDES[phaseIdx]
+
+    // ── Background ────────────────────────────────────────────────────
+    const bg = ctx.createLinearGradient(0, 0, 0, H)
+    bg.addColorStop(0, '#050d14')
+    bg.addColorStop(0.5, '#071219')
+    bg.addColorStop(1, '#050d14')
+    ctx.fillStyle = bg
+    ctx.fillRect(0, 0, W, H)
+
+    // Centre glow (Harmonia cyan)
+    const glow = ctx.createRadialGradient(W / 2, H * 0.42, 0, W / 2, H * 0.42, W * 0.72)
+    glow.addColorStop(0, 'rgba(0,176,224,0.06)')
+    glow.addColorStop(1, 'transparent')
+    ctx.fillStyle = glow
+    ctx.fillRect(0, 0, W, H)
+
+    // ── Top accent bar (Harmonia cyan → pink) ─────────────────────────
+    const bar = ctx.createLinearGradient(0, 0, W, 0)
+    bar.addColorStop(0, CYAN)
+    bar.addColorStop(1, PINK)
+    ctx.fillStyle = bar
+    ctx.fillRect(0, 0, W, 3)
+
+    // ── Phase progress bar (bottom) ───────────────────────────────────
+    const progress = Math.min(1, pt / slide.duration)
+    const pb = ctx.createLinearGradient(0, 0, W * progress, 0)
+    pb.addColorStop(0, CYAN + '80')
+    pb.addColorStop(1, PINK + '80')
+    ctx.fillStyle = pb
+    ctx.fillRect(0, H - 2, W * progress, 2)
+
+    // ── Phase content ─────────────────────────────────────────────────
+
+    if (slide.type === 'hook') {
+      // Animated accent bar
+      const barW = clamp(easeOut((pt - 0.05) / 0.5)) * 80
+      ctx.save()
+      ctx.fillStyle = CYAN
+      ctx.globalAlpha = 0.65
+      ctx.beginPath(); ctx.roundRect(W / 2 - barW / 2, H * 0.28, barW, 2.5, 1); ctx.fill()
+      ctx.restore()
+
+      // Split hook into words for staggered reveal
+      const words = slide.headline.split(' ')
+      // Line 1: "She cried on the way home."
+      // Line 2: "Happy tears."
+      const line1 = words.slice(0, 6).join(' ')
+      const line2 = words.slice(6).join(' ')
+
+      const a1 = fadeIn(pt, 0.05, 0.4)
+      const a2 = fadeIn(pt, 0.4, 0.4)
+      const [, oy1] = slideUp(pt, 0.05, 0.4)
+      const [, oy2] = slideUp(pt, 0.4, 0.4)
+
+      drawText(ctx, line1, W / 2, H * 0.36 + oy1, '900 17px/1 system-ui', '#ffffff', 'center', a1, W * 0.82, 1.3)
+      drawText(ctx, line2, W / 2, H * 0.54 + oy2, '900 22px/1 system-ui', CYAN, 'center', a2)
+
+      const a3 = fadeIn(pt, 1.5, 0.5)
+      drawText(ctx, 'Harmonia Dental', W / 2, H * 0.77, '400 8.5px/1 system-ui', 'rgba(255,255,255,0.28)', 'center', a3)
+
+    } else if (slide.type === 'quote') {
+      const ac = fadeIn(pt, 0, 0.4)
+
+      // Frosted glass card
+      ctx.save()
+      ctx.globalAlpha = 0.07 * ac
+      ctx.fillStyle = '#ffffff'
+      ctx.beginPath(); ctx.roundRect(W * 0.05, H * 0.2, W * 0.9, H * 0.52, 14); ctx.fill()
+      ctx.globalAlpha = 0.1 * ac
+      ctx.strokeStyle = 'rgba(255,255,255,0.25)'
+      ctx.lineWidth = 0.8
+      ctx.stroke()
+      ctx.restore()
+
+      // Large quote mark in Harmonia cyan
+      ctx.save()
+      ctx.font = '900 54px/1 Georgia, serif'
+      ctx.fillStyle = CYAN
+      ctx.globalAlpha = 0.3 * ac
+      ctx.textBaseline = 'top'
+      ctx.fillText('\u201C', W * 0.08, H * 0.22)
+      ctx.restore()
+
+      // Word-by-word quote
+      const words = slide.quote.split(' ')
+      // Split into 2 lines (roughly half)
+      const mid = Math.ceil(words.length / 2)
+      const l1 = words.slice(0, mid).join(' ')
+      const l2 = words.slice(mid).join(' ')
+
+      drawWordReveal(ctx, l1, W / 2, H * 0.36, 'italic 500 11px/1 system-ui', '#ffffff', slide.highlights, CYAN, 0.08, 0.07, pt)
+      drawWordReveal(ctx, l2, W / 2, H * 0.5, 'italic 500 11px/1 system-ui', '#ffffff', slide.highlights, CYAN, 0.08 + mid * 0.07, 0.07, pt)
+
+      // Author
+      const a3 = fadeIn(pt, 1.6, 0.4)
+      ctx.save()
+      ctx.strokeStyle = PINK
+      ctx.lineWidth = 0.8
+      ctx.globalAlpha = 0.4 * a3
+      ctx.beginPath(); ctx.moveTo(W * 0.33, H * 0.68); ctx.lineTo(W * 0.67, H * 0.68); ctx.stroke()
+      ctx.restore()
+      drawText(ctx, `— ${slide.author}`, W / 2, H * 0.705, '600 9px/1 system-ui', PINK, 'center', a3)
+
+      const a4 = fadeIn(pt, 1.9, 0.4)
+      drawText(ctx, '★★★★★', W / 2, H * 0.775, '400 11px/1 system-ui', '#f59e0b', 'center', a4)
+
+    } else if (slide.type === 'proof') {
+      const a1 = fadeIn(pt, 0, 0.4)
+      const a2 = fadeIn(pt, 0.5, 0.4)
+
+      // Accent lines
+      const lineW = clamp(easeOut((pt - 0.1) / 0.5)) * 64
+      ctx.save()
+      ctx.fillStyle = CYAN
+      ctx.globalAlpha = 0.45 * a1
+      ctx.beginPath(); ctx.roundRect(W / 2 - lineW / 2, H * 0.22, lineW, 2, 1); ctx.fill()
+      ctx.globalAlpha = 0.22 * a2
+      ctx.beginPath(); ctx.roundRect(W / 2 - 22, H * 0.78, 44, 2, 1); ctx.fill()
+      ctx.restore()
+
+      drawText(ctx, slide.stat, W / 2, H * 0.33, '700 13px/1 system-ui', '#ffffff', 'center', a1, W * 0.78, 1.4)
+      drawText(ctx, slide.subline, W / 2, H * 0.58, '400 9.5px/1 system-ui', 'rgba(255,255,255,0.45)', 'center', a2, W * 0.75, 1.4)
+
+    } else if (slide.type === 'cta') {
+      const a1 = fadeIn(pt, 0.05, 0.4)
+      const a2 = fadeIn(pt, 0.5, 0.4)
+      const a3 = fadeIn(pt, 0.9, 0.4)
+
+      // Small brand mark
+      ctx.save()
+      ctx.globalAlpha = a1 * 0.55
+      const markGrad = ctx.createLinearGradient(W/2-10, 0, W/2+10, 0)
+      markGrad.addColorStop(0, CYAN); markGrad.addColorStop(1, PINK)
+      ctx.fillStyle = markGrad
+      ctx.beginPath(); ctx.roundRect(W / 2 - 11, H * 0.18, 22, 22, 6); ctx.fill()
+      ctx.restore()
+
+      drawText(ctx, slide.headline, W / 2, H * 0.34, '500 11px/1 system-ui', 'rgba(255,255,255,0.6)', 'center', a1, W * 0.8, 1.45)
+
+      drawWordReveal(ctx, slide.cta, W / 2, H * 0.52, '800 14px/1 system-ui', '#ffffff', [], '', 0.5, 0.06, pt)
+
+      // Pill button (Harmonia cyan → pink)
+      ctx.save()
+      ctx.globalAlpha = a3
+      const btnGrad = ctx.createLinearGradient(W * 0.12, 0, W * 0.88, 0)
+      btnGrad.addColorStop(0, CYAN)
+      btnGrad.addColorStop(1, PINK)
+      ctx.fillStyle = btnGrad
+      ctx.shadowColor = CYAN + '50'
+      ctx.shadowBlur = 10
+      ctx.beginPath(); ctx.roundRect(W * 0.1, H * 0.7, W * 0.8, 28, 14); ctx.fill()
+      ctx.restore()
+      drawText(ctx, 'Book appointment →', W / 2, H * 0.706, '700 9.5px/1 system-ui', '#ffffff', 'center', a3)
+    }
+  }
+
+  function startAnimation() {
+    const canvas = document.getElementById('reel-canvas')
+    const ctx = canvas.getContext('2d')
+    const start = performance.now()
+
+    function loop(now) {
+      const t = (now - start) / 1000
+      drawFrame(ctx, t)
+      animFrame = requestAnimationFrame(loop)
+    }
+    animFrame = requestAnimationFrame(loop)
+  }
+</script>
+</body>
+</html>

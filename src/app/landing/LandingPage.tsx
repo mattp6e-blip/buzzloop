@@ -1,5 +1,175 @@
+'use client'
+import { useEffect, useRef, useState } from 'react'
 import { ReelDemos } from './ReelDemos'
 import { HeroDemo } from './HeroDemo'
+
+function useCountUp(target: number, duration = 1200, started = false) {
+  const [value, setValue] = useState(0)
+  useEffect(() => {
+    if (!started) return
+    const start = performance.now()
+    const tick = (now: number) => {
+      const progress = Math.min((now - start) / duration, 1)
+      const ease = 1 - Math.pow(1 - progress, 3)
+      setValue(Math.round(target * ease))
+      if (progress < 1) requestAnimationFrame(tick)
+    }
+    requestAnimationFrame(tick)
+  }, [started, target, duration])
+  return value
+}
+
+function StatBar() {
+  const ref = useRef<HTMLDivElement>(null)
+  const [started, setStarted] = useState(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setStarted(true); obs.disconnect() } }, { threshold: 0.5 })
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
+
+  const v1 = useCountUp(3, 1000, started)
+  const v2 = useCountUp(17, 1200, started)
+  const v3 = useCountUp(225, 1400, started)
+  const v4 = useCountUp(82, 1600, started)
+
+  const stats = [
+    { display: `${v1}×`, label: 'more Google reviews' },
+    { arrow: true },
+    { display: `+${v2}%`, label: 'better Google ranking' },
+    { arrow: true },
+    { display: `${(v3 / 100).toFixed(2)}×`, label: 'more social reach' },
+    { arrow: true },
+    { display: `+${v4}%`, label: 'more revenue' },
+  ]
+
+  return (
+    <section className="py-8 border-y" style={{ borderColor: 'var(--border)', background: 'white' }}>
+      <div ref={ref} className="max-w-4xl mx-auto flex items-center justify-around flex-wrap gap-4 px-8">
+        {stats.map((s, i) => 'arrow' in s ? (
+          <span key={i} style={{ color: 'var(--ink4)', fontSize: 18, fontWeight: 300 }}>→</span>
+        ) : (
+          <div key={s.label} className="text-center">
+            <p className="text-2xl font-bold mb-0.5" style={{ color: 'var(--accent)' }}>{s.display}</p>
+            <p className="text-xs" style={{ color: 'var(--ink4)' }}>{s.label}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+const HOW_STEPS = [
+  {
+    n: '01',
+    title: 'Turn happy customers into reviews — zero effort',
+    body: ['Turn every happy customer into a 5-star Google review — ', <strong key="k">in under 10 seconds.</strong>, ' Branded QR code, smart review page, zero friction.'],
+    flywheel: false,
+  },
+  {
+    n: '02',
+    title: 'Turn reviews into content that sells',
+    body: ['Your reviews become ', <strong key="k">scroll-stopping Reels</strong>, ' — crafted to drive engagement, built to win new customers.'],
+    flywheel: false,
+  },
+  {
+    n: '03',
+    title: 'Fresh content, on autopilot',
+    body: ['We keep remixing your best reviews into fresh Reels — so you ', <strong key="k">never run out of content</strong>, ' to post.'],
+    flywheel: false,
+  },
+  {
+    n: '04',
+    title: 'A growth loop that runs itself',
+    body: ['New Reels bring new customers. New customers leave reviews. Better reviews improve your ranking — ', <span key="bl" style={{ color: 'var(--accent)', fontWeight: 700 }}>Buzzloop</span>, ' keeps it spinning.'],
+    flywheel: true,
+  },
+]
+
+function HowItWorksStep({ step, index, total }: { step: typeof HOW_STEPS[0], index: number, total: number }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [active, setActive] = useState(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const obs = new IntersectionObserver(([e]) => setActive(e.isIntersecting), { threshold: 0.5 })
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
+
+  const isLast = index === total - 1
+
+  return (
+    <div ref={ref} style={{
+      display: 'flex', gap: 32, paddingBottom: isLast ? 0 : 56,
+      transition: 'opacity 0.4s ease',
+      opacity: active ? 1 : 0.35,
+    }}>
+      {/* Stepper dot + line */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
+        <div style={{
+          width: 44, height: 44, borderRadius: '50%',
+          background: active ? 'var(--accent)' : 'rgba(255,255,255,0.08)',
+          border: active ? 'none' : '1px solid rgba(255,255,255,0.12)',
+          color: 'white',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 13, fontWeight: 800,
+          boxShadow: active ? '0 4px 24px rgba(232,71,10,0.45)' : 'none',
+          transition: 'all 0.4s ease',
+        }}>{step.n}</div>
+        {!isLast && (
+          <div style={{
+            width: 1, flex: 1, minHeight: 48, marginTop: 8,
+            background: active ? 'linear-gradient(to bottom, var(--accent), rgba(255,255,255,0.08))' : 'rgba(255,255,255,0.08)',
+            transition: 'background 0.4s ease',
+          }} />
+        )}
+      </div>
+
+      {/* Text */}
+      <div style={{ paddingTop: 10 }}>
+        <h3 style={{
+          fontSize: '1.15rem', fontWeight: 700, marginBottom: 8, letterSpacing: '-0.02em',
+          color: active ? 'white' : 'rgba(255,255,255,0.5)',
+          transition: 'color 0.4s ease',
+        }}>
+          {step.title}
+        </h3>
+        <p style={{
+          fontSize: 14, lineHeight: 1.8,
+          color: active ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.25)',
+          transition: 'color 0.4s ease',
+        }}>
+          {step.body}
+        </p>
+      </div>
+    </div>
+  )
+}
+
+function HowItWorks() {
+  return (
+    <section id="how-it-works" className="py-24 px-6" style={{ background: '#1c1814' }}>
+      <div className="max-w-2xl mx-auto">
+        <div className="text-center mb-16">
+          <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: 'var(--accent)' }}>How it works</p>
+          <h2 className="font-bold" style={{ fontSize: 'clamp(1.8rem, 4vw, 3rem)', letterSpacing: '-0.025em', color: 'white' }}>
+            More reviews.<br />More reach. More customers.
+          </h2>
+        </div>
+        <div>
+          {HOW_STEPS.map((step, i) => (
+            <HowItWorksStep key={step.n} step={step} index={i} total={HOW_STEPS.length} />
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
 
 const QR_BUSINESSES = [
   {
@@ -135,10 +305,10 @@ export function LandingPage() {
             </div>
 
             <h1 className="font-bold mb-5" style={{ letterSpacing: '-0.03em', lineHeight: 1.1 }}>
-              <span style={{ display: 'block', fontSize: 'clamp(1.8rem, 2.8vw, 2.8rem)', color: 'var(--ink)', marginBottom: 8 }}>
+              <span style={{ display: 'block', fontSize: 'clamp(1.8rem, 2.8vw, 2.8rem)', color: 'var(--ink)', marginBottom: 8, textWrap: 'balance' } as React.CSSProperties}>
                 Your 5-star Google reviews are a goldmine.
               </span>
-              <span style={{ display: 'block', fontSize: 'clamp(1.2rem, 1.9vw, 1.9rem)', color: 'var(--ink)', fontWeight: 600, opacity: 0.85 }}>
+              <span style={{ display: 'block', fontSize: 'clamp(1.2rem, 1.9vw, 1.9rem)', color: 'var(--ink)', fontWeight: 600, opacity: 0.85, textWrap: 'balance' } as React.CSSProperties}>
                 We turn them into{' '}
                 <span style={{
                   background: 'linear-gradient(90deg, #833AB4 0%, #E1306C 50%, #F77737 100%)',
@@ -168,9 +338,15 @@ export function LandingPage() {
                 See how it works
               </a>
             </div>
-            <div className="flex items-center gap-2">
-              <span style={{ color: '#f59e0b', fontSize: 14, letterSpacing: 1 }}>★★★★★</span>
-              <span className="text-sm font-medium" style={{ color: 'var(--ink3)' }}>Loved by <strong style={{ color: 'var(--ink2)' }}>4,000+</strong> local businesses</span>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2">
+                <span style={{ color: '#f59e0b', fontSize: 14, letterSpacing: 1 }}>★★★★★</span>
+                <span className="text-sm font-medium" style={{ color: 'var(--ink3)' }}>Loved by <strong style={{ color: 'var(--ink2)' }}>4,000+</strong> local businesses</span>
+              </div>
+              <div className="flex items-center gap-6">
+                <img src="/logo-harmonia.png" alt="Harmonia Dental" style={{ height: 64, opacity: 0.5, filter: 'grayscale(100%)', objectFit: 'contain', mixBlendMode: 'multiply' }} />
+                <img src="/logo-masvell.png" alt="Masvell" style={{ height: 36, opacity: 0.5, filter: 'grayscale(100%)', objectFit: 'contain', mixBlendMode: 'multiply' }} />
+              </div>
             </div>
           </div>
 
@@ -183,21 +359,9 @@ export function LandingPage() {
       </section>
 
       {/* ── Stats bar ───────────────────────────── */}
-      <section className="py-8 border-y" style={{ borderColor: 'var(--border)', background: 'white' }}>
-        <div className="max-w-3xl mx-auto flex items-center justify-around flex-wrap gap-6 px-8">
-          {[
-            { n: '< 10s', label: 'to leave a review' },
-            { n: '4.8★', label: 'avg rating for customers' },
-            { n: '3×', label: 'more reviews per month' },
-            { n: '0', label: 'setup cost' },
-          ].map(s => (
-            <div key={s.label} className="text-center">
-              <p className="text-2xl font-bold mb-0.5" style={{ color: 'var(--ink)', fontFamily: 'Georgia, serif' }}>{s.n}</p>
-              <p className="text-xs" style={{ color: 'var(--ink4)' }}>{s.label}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+      <StatBar />
+
+      <HowItWorks />
 
       {/* ── QR in the wild ──────────────────────── */}
       <section className="py-24 px-6">
@@ -266,64 +430,6 @@ export function LandingPage() {
       </section>
 
       {/* ── How it works ────────────────────────── */}
-      <section id="how-it-works" className="py-24 px-6" style={{ background: 'white' }}>
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-16">
-            <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: 'var(--accent)' }}>
-              How it works
-            </p>
-            <h2 className="font-bold" style={{ fontSize: 'clamp(1.8rem, 4vw, 3rem)', letterSpacing: '-0.025em', color: 'var(--ink)' }}>
-              Set up in 5 minutes.<br />Results from day one.
-            </h2>
-          </div>
-
-          <div className="grid gap-8" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
-            {[
-              {
-                step: '01',
-                title: 'Get your QR code',
-                body: 'We generate a branded QR code — your colors, your logo. Print it or display it anywhere.',
-                icon: '▦',
-              },
-              {
-                step: '02',
-                title: 'Reviews come to you',
-                body: 'Customers scan and leave a Google review in under 10 seconds. No friction, no app required.',
-                icon: '★',
-              },
-              {
-                step: '03',
-                title: 'AI builds your content',
-                body: 'Buzzloop reads your reviews, finds what customers love, and creates Reels ready to post.',
-                icon: '▶',
-              },
-            ].map(s => (
-              <div key={s.step} className="relative">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white text-lg font-bold flex-shrink-0"
-                    style={{ background: 'var(--ink)' }}>
-                    {s.icon}
-                  </div>
-                  <span className="text-xs font-bold" style={{ color: 'var(--ink4)' }}>{s.step}</span>
-                </div>
-                <h3 className="font-bold text-lg mb-2" style={{ color: 'var(--ink)' }}>{s.title}</h3>
-                <p className="text-sm leading-relaxed" style={{ color: 'var(--ink3)' }}>{s.body}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Arrow between steps */}
-          <div className="flex justify-center gap-4 mt-12">
-            {['More reviews', '→', 'Better ranking', '→', 'More customers', '→', 'More content', '→', 'Even more customers'].map((item, i) => (
-              <span key={i} className="text-sm font-semibold"
-                style={{ color: item === '→' ? 'var(--ink4)' : 'var(--accent)' }}>
-                {item}
-              </span>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ── Final CTA ───────────────────────────── */}
       <section className="py-24 px-6 text-center" style={{ background: 'var(--ink)' }}>
         <div className="max-w-2xl mx-auto">

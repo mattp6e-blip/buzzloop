@@ -16,20 +16,20 @@ const HARMONIA_VARIATION: ReelVariation = {
   label: 'Bold',
   description: 'High energy · most reach',
   tone: 'bold',
-  hookHeadline: 'She flew from Norway. For this dentist.',
-  hookSubline: "And she's not the only one.",
+  hookHeadline: 'People take a plane to see this dentist.',
+  hookSubline: "Here's what they say.",
   ctaText: "Book your first visit. Meet the team worth traveling for.",
   visualStyle: 'cinematic',
   script: {
     themeTitle: "Patients travel far just to return",
     totalDuration: 29,
     slides: [
-      { type: 'hook', duration: 4, content: { headline: "She flew from Norway. For this dentist.", subline: "And she's not the only one." } },
+      { type: 'hook', duration: 4, content: { headline: "People take a plane to see this dentist.", subline: "Here's what they say." } },
       { type: 'quote', duration: 5, content: { quote: "I'd rather fly from Norway than go to a dentist in Norway.", highlightWords: ['Norway', 'rather'], author: 'Taltunran' } },
       { type: 'quote', duration: 5, content: { quote: "I'm coming from Mallorca, and that says it all.", highlightWords: ['Mallorca'], author: 'Andreu' } },
       { type: 'quote', duration: 5, content: { quote: "They make you feel in good hands from the very first moment.", highlightWords: ['good', 'hands'], author: 'Jordi' } },
       { type: 'proof', duration: 5, content: { stat: "Patients fly internationally. They keep coming back.", subline: "That's not marketing. That's earned trust." } },
-      { type: 'cta', duration: 5, content: { headline: "When did you last actually look forward to the dentist?", cta: "Book your first visit. Meet the team worth traveling for." } },
+      { type: 'cta', duration: 5, content: { headline: "When did you last look forward to the dentist?", cta: "Book your first visit. Meet the team worth traveling for." } },
     ],
   },
 }
@@ -138,7 +138,7 @@ function ReviewCard({ onConvert }: { onConvert: () => void }) {
 
 function ReelPlayer({ onBack }: { onBack: () => void }) {
   return (
-    <div>
+    <div style={{ width: 'fit-content' }}>
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 12 }}>
         <button
           onClick={onBack}
