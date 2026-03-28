@@ -7,7 +7,7 @@ const client = new Anthropic()
 function getSocialProofPrompt(theme: ReelTheme, reviewTexts: string, businessName: string, industry: string, reviews: Review[]): string {
   return `You are the creative director behind award-winning commercial ad campaigns. You write copy that is SPECIFIC, LOGICAL, and EARNED — never generic, never formulaic.
 
-LANGUAGE: Detect the language of the reviews. Write every part of your response (hook, quotes, proof, CTA) in that same language. Never respond in English if the reviews are not in English.
+LANGUAGE: Detect the language of the review quotes provided (ignore the business name and city — those are not language signals). Write every part of your response in that same language. Never respond in English if the reviews are not in English.
 
 Business: ${businessName} (${industry})
 Reel theme: ${theme.title}
