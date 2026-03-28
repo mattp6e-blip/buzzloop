@@ -3,7 +3,6 @@ import { redirect } from 'next/navigation'
 import { GoogleConnectBanner } from './GoogleConnectBanner'
 import { WelcomeBanner } from './WelcomeBanner'
 import { ReviewTrendChart } from './ReviewTrendChart'
-import { NextAction } from './NextAction'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -26,12 +25,10 @@ export default async function DashboardPage() {
     .order('created_at', { ascending: false })
 
   const allReviews = reviews ?? []
-
-  // Reviews collected via QR (not imported from GBP)
   const qrReviews = allReviews.filter(r => !r.posted_to_google)
   const gbpImported = allReviews.filter(r => r.posted_to_google).length
 
-  // Social posts counts
+  // Social posts
   const { data: posts } = await supabase
     .from('social_posts')
     .select('status, post_type, instagram_media_id, created_at')
@@ -39,11 +36,8 @@ export default async function DashboardPage() {
 
   const allPosts = posts ?? []
 
-  // Compute stats
+  // Stats
   const totalReviews = allReviews.length
-  const avgRating = totalReviews
-    ? (allReviews.reduce((s, r) => s + r.star_rating, 0) / totalReviews).toFixed(1)
-    : '—'
 
   const now = new Date()
   const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
@@ -54,210 +48,151 @@ export default async function DashboardPage() {
   }).length
   const weekDelta = thisWeekCount - lastWeekCount
 
-  // Rating distribution (1–5)
-  const ratingDist = [5, 4, 3, 2, 1].map(n => ({
-    stars: n,
-    count: allReviews.filter(r => r.star_rating === n).length,
-  }))
-  const maxDist = Math.max(...ratingDist.map(d => d.count), 1)
+  // Monthly velocity
+  const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+  const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+  const thisMonthCount = allReviews.filter(r => new Date(r.created_at) >= thisMonthStart).length
+  const lastMonthCount = allReviews.filter(r => {
+    const d = new Date(r.created_at); return d >= lastMonthStart && d < thisMonthStart
+  }).length
 
-  // Content stats
-  const totalContent = allPosts.length
-  const publishedIG = allPosts.filter(p => p.instagram_media_id).length
+  let velocityLabel: string | null = null
+  if (lastMonthCount > 0 && thisMonthCount > 0) {
+    const ratio = thisMonthCount / lastMonthCount
+    if (ratio >= 1.5) velocityLabel = `↑ ${ratio.toFixed(1)}× vs last month`
+    else if (thisMonthCount > lastMonthCount) velocityLabel = `↑ ${thisMonthCount - lastMonthCount} more than last month`
+    else if (thisMonthCount < lastMonthCount) velocityLabel = `↓ ${lastMonthCount - thisMonthCount} fewer than last month`
+  }
+
+  // Reel stats
   const reelsCreated = allPosts.filter(p => p.post_type === 'reel').length
-  const drafts = allPosts.filter(p => p.status === 'draft').length
+  const reelsPosted = allPosts.filter(p => p.post_type === 'reel' && p.instagram_media_id).length
 
   const brandColor = business.brand_color ?? '#e8470a'
 
-  const lastReview = allReviews[0]
-  const daysSinceLastReview = lastReview
-    ? Math.floor((Date.now() - new Date(lastReview.created_at).getTime()) / (1000 * 60 * 60 * 24))
-    : null
-
   return (
     <div className="p-8 max-w-5xl">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--ink)' }}>
-          {business.name}
-        </h1>
-        <p className="text-sm" style={{ color: 'var(--ink3)' }}>
-          Your growth loop at a glance
-        </p>
-      </div>
-
       <WelcomeBanner businessName={business.name} importedCount={gbpImported} brandColor={brandColor} />
       {!business.google_connected && <GoogleConnectBanner />}
 
-      {/* Top stats */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
+      {/* Row 1 — 3 stat cards */}
+      <div className="grid grid-cols-3 gap-4 mb-6">
         <StatCard
           label="Total reviews"
           value={String(totalReviews)}
-          sub={qrReviews.length > 0 ? `${qrReviews.length} via QR · ${gbpImported} from Google` : gbpImported > 0 ? `${gbpImported} imported from Google` : 'No reviews yet'}
-          icon="★"
-          brandColor={brandColor}
+          sub={totalReviews === 0
+            ? 'No reviews yet'
+            : qrReviews.length > 0
+              ? `${qrReviews.length} via QR · ${gbpImported} from Google`
+              : `${gbpImported} imported from Google`}
           accent
+          brandColor={brandColor}
         />
         <StatCard
-          label="This week"
+          label="New this week"
           value={String(thisWeekCount)}
           sub={weekDelta === 0
-            ? 'same as last week'
+            ? 'Same as last week'
             : weekDelta > 0
               ? `↑ ${weekDelta} more than last week`
               : `↓ ${Math.abs(weekDelta)} fewer than last week`}
-          icon="📈"
-          brandColor={brandColor}
           up={weekDelta > 0}
           down={weekDelta < 0}
-        />
-        <StatCard
-          label="Avg rating"
-          value={String(avgRating)}
-          sub={totalReviews > 0 ? `★ out of 5.0` : 'No reviews yet'}
-          icon="✦"
           brandColor={brandColor}
         />
         <StatCard
-          label="Content created"
-          value={String(totalContent)}
-          sub={`${reelsCreated} reels · ${drafts} drafts`}
-          icon="🎬"
+          label="Via QR code"
+          value={String(qrReviews.length)}
+          sub={qrReviews.length === 0 ? 'Share your QR to get started' : `${Math.round((qrReviews.length / Math.max(totalReviews, 1)) * 100)}% of all reviews`}
           brandColor={brandColor}
         />
       </div>
 
-      <div className="grid grid-cols-3 gap-6 mb-6">
-        {/* Review trend chart */}
-        <div className="col-span-2 rounded-2xl border p-6" style={{ background: 'white', borderColor: 'var(--border)' }}>
-          <ReviewTrendChart
-            reviewDates={allReviews.map(r => r.created_at)}
-            brandColor={brandColor}
+      {/* Row 2 — Review trend chart full width */}
+      <div className="rounded-2xl border p-6 mb-6" style={{ background: 'white', borderColor: 'var(--border)' }}>
+        <ReviewTrendChart
+          reviewDates={allReviews.map(r => r.created_at)}
+          brandColor={brandColor}
+          velocityLabel={velocityLabel}
+        />
+      </div>
+
+      {/* Row 3 — Reel performance strip */}
+      <div className="rounded-2xl border p-5" style={{ background: 'white', borderColor: 'var(--border)' }}>
+        <div className="flex items-center justify-between mb-4">
+          <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--ink3)' }}>Reel performance</p>
+          {reelsCreated > 0 && <a href="/reels" className="text-xs font-semibold" style={{ color: 'var(--accent)' }}>View all →</a>}
+        </div>
+        <div className="grid grid-cols-4 gap-4">
+          <ReelStat label="Created" value={reelsCreated} />
+          <ReelStat label="Posted" value={reelsPosted} />
+          <ReelStat
+            label="Views"
+            value={business.instagram_connected ? '—' : null}
+            empty={!business.instagram_connected}
+          />
+          <ReelStat
+            label="Likes"
+            value={business.instagram_connected ? '—' : null}
+            empty={!business.instagram_connected}
           />
         </div>
-
-        {/* Rating distribution */}
-        <div className="rounded-2xl border p-6" style={{ background: 'white', borderColor: 'var(--border)' }}>
-          <p className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: 'var(--ink3)' }}>Rating breakdown</p>
-          {totalReviews === 0 ? (
-            <div className="flex items-center justify-center h-[80px]">
-              <p className="text-sm" style={{ color: 'var(--ink4)' }}>No data yet</p>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-2">
-              {ratingDist.map(({ stars, count }) => (
-                <div key={stars} className="flex items-center gap-2">
-                  <span className="text-xs w-6 text-right font-bold" style={{ color: 'var(--ink3)' }}>{stars}★</span>
-                  <div className="flex-1 rounded-full overflow-hidden" style={{ height: 6, background: 'var(--bg)' }}>
-                    <div
-                      className="h-full rounded-full transition-all"
-                      style={{ width: `${(count / maxDist) * 100}%`, background: stars >= 4 ? brandColor : stars === 3 ? '#f59e0b' : '#ef4444' }}
-                    />
-                  </div>
-                  <span className="text-xs w-5" style={{ color: 'var(--ink4)' }}>{count}</span>
-                </div>
-              ))}
-            </div>
-          )}
-          {totalReviews > 0 && (
-            <div className="mt-4 pt-4 border-t flex items-center gap-2" style={{ borderColor: 'var(--border)' }}>
-              <span className="text-2xl font-bold" style={{ color: brandColor, fontFamily: 'Georgia, serif' }}>{avgRating}</span>
-              <div>
-                <div className="flex gap-0.5">
-                  {[1,2,3,4,5].map(n => (
-                    <span key={n} style={{ color: parseFloat(String(avgRating)) >= n ? '#f59e0b' : '#e5e7eb', fontSize: 12 }}>★</span>
-                  ))}
-                </div>
-                <p className="text-xs" style={{ color: 'var(--ink4)' }}>avg from {totalReviews} reviews</p>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      <NextAction
-        totalReviews={totalReviews}
-        reelsCreated={reelsCreated}
-        drafts={drafts}
-        instagramConnected={business.instagram_connected ?? false}
-        daysSinceLastReview={daysSinceLastReview}
-        brandColor={brandColor}
-      />
-
-      {/* Instagram connect + quick actions */}
-      <div className="grid grid-cols-2 gap-4">
         {!business.instagram_connected && (
-          <div className="rounded-2xl border p-5 flex items-center gap-4" style={{ borderColor: '#c7d2fe', background: '#eef2ff' }}>
-            <span className="text-3xl flex-shrink-0">📸</span>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold mb-0.5" style={{ color: '#3730a3' }}>Connect Instagram</p>
-              <p className="text-xs" style={{ color: '#6366f1' }}>Post Reels directly from Buzzloop with one click.</p>
-            </div>
-            <a href="/api/auth/instagram" className="flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold text-white" style={{ background: '#6366f1' }}>
-              Connect →
-            </a>
-          </div>
+          <p className="text-xs mt-4 pt-4 border-t flex items-center gap-1.5" style={{ color: 'var(--ink4)', borderColor: 'var(--border)' }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="ig-grad" x1="0%" y1="100%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#F77737"/>
+                  <stop offset="50%" stopColor="#E1306C"/>
+                  <stop offset="100%" stopColor="#833AB4"/>
+                </linearGradient>
+              </defs>
+              <rect x="2" y="2" width="20" height="20" rx="5" fill="url(#ig-grad)"/>
+              <circle cx="12" cy="12" r="4.5" stroke="white" strokeWidth="1.8" fill="none"/>
+              <circle cx="17" cy="7" r="1.2" fill="white"/>
+            </svg>
+            <a href="/api/auth/instagram" style={{ color: 'var(--accent)', fontWeight: 600 }}>Connect Instagram</a> to track views and likes on your Reels.
+          </p>
         )}
-        {business.instagram_connected && (
-          <div className="rounded-2xl border p-5 flex items-center gap-4" style={{ borderColor: 'var(--green-border)', background: 'var(--green-bg)' }}>
-            <span className="text-3xl flex-shrink-0">📸</span>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold mb-0.5" style={{ color: 'var(--green)' }}>Instagram connected</p>
-              <p className="text-xs" style={{ color: 'var(--ink3)' }}>{publishedIG} reel{publishedIG !== 1 ? 's' : ''} published via Buzzloop</p>
-            </div>
-            <a href="/content" className="flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold border" style={{ borderColor: 'var(--green-border)', color: 'var(--green)' }}>
-              View content →
-            </a>
-          </div>
-        )}
-        <div className="rounded-2xl border p-5 flex items-center gap-4" style={{ borderColor: 'var(--border)', background: 'white' }}>
-          <span className="text-3xl flex-shrink-0">▶</span>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold mb-0.5" style={{ color: 'var(--ink)' }}>
-              {reelsCreated === 0 ? 'Create your first Reel' : `${reelsCreated} reel${reelsCreated !== 1 ? 's' : ''} in library`}
-            </p>
-            <p className="text-xs" style={{ color: 'var(--ink3)' }}>AI turns your reviews into cinematic 9:16 video</p>
-          </div>
-          <a href="/reels" className="flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold text-white" style={{ background: brandColor }}>
-            {reelsCreated === 0 ? 'Create →' : 'View →'}
-          </a>
-        </div>
       </div>
     </div>
   )
 }
 
-function StatCard({ label, value, sub, icon, brandColor, accent, up, down }: {
+function StatCard({ label, value, sub, accent, brandColor, up, down }: {
   label: string
   value: string
   sub: string
-  icon: string
   brandColor: string
   accent?: boolean
   up?: boolean
   down?: boolean
 }) {
   return (
-    <div
-      className="rounded-2xl border p-5"
-      style={{
-        background: accent ? `${brandColor}10` : 'white',
-        borderColor: accent ? `${brandColor}40` : 'var(--border)',
-      }}
-    >
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: accent ? brandColor : 'var(--ink3)' }}>
-          {label}
-        </span>
-        <span className="text-base">{icon}</span>
-      </div>
-      <div className="text-3xl font-bold mb-1" style={{ color: accent ? brandColor : 'var(--ink)', fontFamily: 'Georgia, serif' }}>
+    <div className="rounded-2xl border p-5" style={{
+      background: accent ? `${brandColor}10` : 'white',
+      borderColor: accent ? `${brandColor}40` : 'var(--border)',
+    }}>
+      <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: accent ? brandColor : 'var(--ink3)' }}>
+        {label}
+      </p>
+      <p className="text-3xl font-bold mb-1" style={{ color: accent ? brandColor : 'var(--ink)', fontFamily: 'Georgia, serif' }}>
         {value}
-      </div>
-      <div className="text-xs" style={{ color: up ? '#16a34a' : down ? '#dc2626' : 'var(--ink4)' }}>
+      </p>
+      <p className="text-xs" style={{ color: up ? '#16a34a' : down ? '#dc2626' : 'var(--ink4)' }}>
         {sub}
-      </div>
+      </p>
+    </div>
+  )
+}
+
+function ReelStat({ label, value, empty }: { label: string; value: number | string | null; empty?: boolean }) {
+  return (
+    <div>
+      <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: 'var(--ink3)' }}>{label}</p>
+      <p className="text-2xl font-bold" style={{ color: empty ? 'var(--ink4)' : 'var(--ink)', fontFamily: 'Georgia, serif' }}>
+        {value ?? '—'}
+      </p>
     </div>
   )
 }

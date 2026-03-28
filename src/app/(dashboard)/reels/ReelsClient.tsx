@@ -174,61 +174,18 @@ export function ReelsClient({ reviews, businessId, businessName, industry, brand
   // ── Empty state (no reviews yet) ──────────────────────────────
   if (reviews.length < 2) {
     return (
-      <div>
-        {/* Blurred mock cards */}
-        <div style={{ position: 'relative' }}>
-          <div style={{ filter: 'blur(5px)', pointerEvents: 'none', userSelect: 'none', opacity: 0.45 }}>
-            <MockCard
-              brandColor={activeBrandColor}
-              buzzScore={91}
-              emoji="😨"
-              title="They were terrified. They came back anyway."
-              reason="Fear→relief arc across 4 reviews — stops the scroll immediately"
-              reviewCount={4}
-            />
-            <div className="mt-3">
-              <MockCard
-                brandColor={activeBrandColor}
-                buzzScore={78}
-                emoji="✈️"
-                title="Customers travel out of their way to come back"
-                reason="Extreme loyalty story — powerful social proof hook"
-                reviewCount={3}
-              />
-            </div>
-          </div>
-
-          {/* Overlay CTA */}
-          <div
-            className="absolute inset-0 flex items-center justify-center"
-            style={{ background: 'linear-gradient(to bottom, transparent 0%, rgba(250,250,249,0.6) 40%, rgba(250,250,249,0.95) 100%)' }}
-          >
-            <div
-              className="text-center rounded-2xl p-8 mx-auto"
-              style={{ background: 'white', boxShadow: '0 20px 60px rgba(0,0,0,0.10)', maxWidth: 360, border: '1px solid var(--border)' }}
-            >
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4" style={{ background: `${activeBrandColor}15` }}>
-                🔒
-              </div>
-              <h3 className="font-bold text-lg mb-2" style={{ color: 'var(--ink)' }}>
-                Your Reel ideas unlock here
-              </h3>
-              <p className="text-sm mb-6" style={{ color: 'var(--ink3)' }}>
-                Once customers start leaving reviews, the AI finds patterns and ranks Reel ideas by engagement potential — automatically.
-              </p>
-              <a
-                href="/qr"
-                className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90"
-                style={{ background: activeBrandColor }}
-              >
-                Set up your QR code →
-              </a>
-              <p className="text-xs mt-3" style={{ color: 'var(--ink4)' }}>
-                Place it in your business — customers scan and review in under 10 seconds
-              </p>
-            </div>
-          </div>
-        </div>
+      <div className="rounded-2xl border p-12 text-center" style={{ background: 'white', borderColor: 'var(--border)' }}>
+        <h3 className="font-bold text-lg mb-2" style={{ color: 'var(--ink)' }}>No Reels yet</h3>
+        <p className="text-sm max-w-sm mx-auto mb-6" style={{ color: 'var(--ink3)' }}>
+          Once you have reviews, the AI will find patterns and generate Reel ideas ranked by engagement potential — automatically.
+        </p>
+        <a
+          href="/qr"
+          className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90"
+          style={{ background: activeBrandColor }}
+        >
+          Set up your QR code →
+        </a>
       </div>
     )
   }

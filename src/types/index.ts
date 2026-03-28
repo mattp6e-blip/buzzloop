@@ -3,9 +3,14 @@ export type Industry =
   | 'gym'
   | 'salon'
   | 'dental'
-  | 'clinic'
   | 'spa'
-  | 'retail'
+  | 'hotel'
+  | 'bar'
+  | 'physiotherapy'
+  | 'veterinary'
+  | 'lawyer'
+  | 'tattoo'
+  | 'optician'
   | 'other'
 
 export interface Business {

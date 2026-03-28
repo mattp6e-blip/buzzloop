@@ -89,9 +89,10 @@ function buildSvg(buckets: Bucket[], counts: number[], brandColor: string) {
 interface Props {
   reviewDates: string[]  // ISO strings
   brandColor: string
+  velocityLabel?: string | null
 }
 
-export function ReviewTrendChart({ reviewDates, brandColor }: Props) {
+export function ReviewTrendChart({ reviewDates, brandColor, velocityLabel }: Props) {
   const [period, setPeriod] = useState<Period>('month')
 
   const dates = useMemo(() => reviewDates.map(d => new Date(d)), [reviewDates])
@@ -153,6 +154,11 @@ export function ReviewTrendChart({ reviewDates, brandColor }: Props) {
               {periodTotal}
             </p>
             <p className="text-xs" style={{ color: 'var(--ink4)' }}>{periodLabel}</p>
+            {velocityLabel && (
+              <p className="text-xs font-semibold mt-0.5" style={{ color: velocityLabel.startsWith('↑') ? '#16a34a' : '#dc2626' }}>
+                {velocityLabel}
+              </p>
+            )}
           </div>
         </div>
       </div>

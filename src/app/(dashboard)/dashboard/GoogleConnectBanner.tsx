@@ -10,10 +10,10 @@ export function GoogleConnectBanner() {
         <div className="text-2xl">🔗</div>
         <div>
           <p className="font-semibold text-sm" style={{ color: 'var(--ink)' }}>
-            Connect Google to unlock your best reviews
+            Connect your Google Business Profile
           </p>
           <p className="text-xs" style={{ color: 'var(--ink3)' }}>
-            We&apos;ll automatically import your 5★ reviews and turn them into social content
+            Unlocks your Reels and activates your QR code so you can start getting more reviews immediately.
           </p>
         </div>
       </div>

@@ -14,9 +14,14 @@ const INDUSTRIES: { value: Industry; label: string; icon: string }[] = [
   { value: 'gym', label: 'Gym / Fitness', icon: '💪' },
   { value: 'salon', label: 'Hair Salon', icon: '✂️' },
   { value: 'dental', label: 'Dental Clinic', icon: '🦷' },
-  { value: 'clinic', label: 'Medical Clinic', icon: '🏥' },
   { value: 'spa', label: 'Spa / Beauty', icon: '💆' },
-  { value: 'retail', label: 'Retail Shop', icon: '🛍️' },
+  { value: 'hotel', label: 'Hotel', icon: '🏨' },
+  { value: 'bar', label: 'Bar / Pub', icon: '🍺' },
+  { value: 'physiotherapy', label: 'Physiotherapy', icon: '🏃' },
+  { value: 'veterinary', label: 'Veterinary', icon: '🐾' },
+  { value: 'lawyer', label: 'Law Firm', icon: '⚖️' },
+  { value: 'tattoo', label: 'Tattoo Studio', icon: '🎨' },
+  { value: 'optician', label: 'Optician', icon: '👓' },
   { value: 'other', label: 'Other', icon: '🏢' },
 ]
 
@@ -60,13 +65,13 @@ function OnboardingInner() {
   const searchParams = useSearchParams()
   const [step, setStep] = useState(1)
   const [businessName, setBusinessName] = useState('')
-  const [city, setCity] = useState('')
+
   const [industry, setIndustry] = useState<Industry | null>(null)
+  const [customIndustry, setCustomIndustry] = useState('')
   const [logoFile, setLogoFile] = useState<File | null>(null)
   const [logoPreview, setLogoPreview] = useState<string | null>(null)
   const [brandColor, setBrandColor] = useState('#6366f1')
   const [colorExtracted, setColorExtracted] = useState(false)
-  const [websiteUrl, setWebsiteUrl] = useState('')
   const [googleConnected, setGoogleConnected] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -116,10 +121,12 @@ function OnboardingInner() {
     const payload: Record<string, unknown> = {
       name: businessName,
       industry,
-      city: city.trim() || null,
-      website_url: websiteUrl || null,
+      website_url: null,
       brand_color: brandColor,
       slug,
+      ...(industry === 'other' && customIndustry.trim() && {
+        brand_personality: JSON.stringify({ custom_industry: customIndustry.trim() }),
+      }),
     }
 
     let businessId: string | null = null
@@ -190,11 +197,6 @@ function OnboardingInner() {
               <p className="text-sm mb-7" style={{ color: 'var(--ink3)' }}>This is how it&apos;ll appear to your customers.</p>
               <Input id="name" label="Business name" placeholder="e.g. Harmonia Dental"
                 value={businessName} onChange={e => setBusinessName(e.target.value)} autoFocus />
-              <div className="mt-4">
-                <Input id="city" label="City" placeholder="e.g. London"
-                  value={city} onChange={e => setCity(e.target.value)} />
-                <p className="text-xs mt-1.5" style={{ color: 'var(--ink4)' }}>Used to generate location-specific hashtags for your posts</p>
-              </div>
               <Button className="w-full mt-6" size="lg" disabled={!businessName.trim()} onClick={() => setStep(2)}>
                 Continue →
               </Button>
@@ -221,9 +223,21 @@ function OnboardingInner() {
                   </button>
                 ))}
               </div>
+              {industry === 'other' && (
+                <div className="mt-3">
+                  <Input
+                    id="custom-industry"
+                    label="What type of business?"
+                    placeholder="e.g. Florist, Photography studio, Accountant..."
+                    value={customIndustry}
+                    onChange={e => setCustomIndustry(e.target.value)}
+                    autoFocus
+                  />
+                </div>
+              )}
               <div className="flex gap-3 mt-6">
                 <Button variant="outline" size="lg" className="flex-1" onClick={() => setStep(1)}>← Back</Button>
-                <Button size="lg" className="flex-1" disabled={!industry} onClick={() => setStep(3)}>Continue →</Button>
+                <Button size="lg" className="flex-1" disabled={!industry || (industry === 'other' && !customIndustry.trim())} onClick={() => setStep(3)}>Continue →</Button>
               </div>
             </div>
           )}
@@ -234,7 +248,7 @@ function OnboardingInner() {
               <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: 'var(--ink3)' }}>Step 3 of {TOTAL_STEPS}</p>
               <h2 className="text-2xl font-bold mb-1" style={{ color: 'var(--ink)' }}>Your brand identity</h2>
               <p className="text-sm mb-6" style={{ color: 'var(--ink3)' }}>
-                Upload your logo and we&apos;ll use your exact brand colors, fonts, and style in every Reel and social post we create for you. No generic templates.
+                Upload your logo so we can use your exact brand colors, fonts, and style in every Reel and social post we create for you.
               </p>
 
               {/* Logo upload */}
@@ -303,6 +317,11 @@ function OnboardingInner() {
                 <Button variant="outline" size="lg" className="flex-1" onClick={() => setStep(2)}>← Back</Button>
                 <Button size="lg" className="flex-1" onClick={() => setStep(4)}>Continue →</Button>
               </div>
+              <p className="text-xs text-center mt-3">
+                <button onClick={() => setStep(4)} style={{ color: 'var(--ink4)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
+                  Skip for now
+                </button>
+              </p>
             </div>
           )}
 
@@ -310,20 +329,12 @@ function OnboardingInner() {
           {step === 4 && (
             <div>
               <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: 'var(--ink3)' }}>Step 4 of {TOTAL_STEPS}</p>
-              <h2 className="text-2xl font-bold mb-1" style={{ color: 'var(--ink)' }}>Connect your Google Business Profile to unlock all features</h2>
+              <h2 className="text-2xl font-bold mb-2" style={{ color: 'var(--ink)' }}>One last step — connect Google</h2>
               <p className="text-sm mb-6" style={{ color: 'var(--ink3)' }}>
-                We&apos;ll sync your reviews, turn them into Instagram Reels and drive more customer reviews.
+                We need this to get you more reviews and turn your best ones into Reels that bring in new customers.
               </p>
 
               <div className="flex flex-col gap-4">
-                <div>
-                  <Input id="website" label="Your website URL" placeholder="https://yourwebsite.com"
-                    value={websiteUrl} onChange={e => setWebsiteUrl(e.target.value)} type="url" />
-                  <p className="text-xs mt-1.5" style={{ color: 'var(--ink4)' }}>
-                    Helps the AI understand your tone and services
-                  </p>
-                </div>
-
                 {googleConnected ? (
                   <div className="flex items-center gap-3 px-4 py-3 rounded-xl border"
                     style={{ background: 'var(--green-bg)', borderColor: 'var(--green-border)' }}>
@@ -341,9 +352,12 @@ function OnboardingInner() {
                       <GoogleIcon />
                       Connect Google Business Profile
                     </button>
-                    <p className="text-xs mt-1.5 text-center" style={{ color: 'var(--ink4)' }}>
-                      Read-only access — we never post or change anything on your behalf
-                    </p>
+                    <div className="flex items-center justify-center gap-1.5 mt-2">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--ink4)', flexShrink: 0 }}><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                      <p className="text-xs" style={{ color: 'var(--ink4)' }}>
+                        We can only read your reviews — we cannot post or change anything on your behalf
+                      </p>
+                    </div>
                   </div>
                 )}
               </div>
@@ -354,14 +368,14 @@ function OnboardingInner() {
 
               <div className="flex gap-3 mt-6">
                 <Button variant="outline" size="lg" className="flex-1" onClick={() => setStep(3)}>← Back</Button>
-                <Button size="lg" className="flex-1" loading={loading} disabled={!googleConnected} onClick={handleFinish}>
-                  Launch my account 🚀
+                <Button size="lg" className="flex-1" loading={loading} onClick={handleFinish}>
+                  Go to my dashboard →
                 </Button>
               </div>
 
               {!googleConnected && (
                 <p className="text-xs text-center mt-3" style={{ color: 'var(--ink4)' }}>
-                  Connect Google Business above to continue
+                  You can connect Google from your dashboard anytime
                 </p>
               )}
             </div>
