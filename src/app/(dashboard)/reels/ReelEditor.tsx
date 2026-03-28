@@ -482,6 +482,13 @@ export function ReelEditor({
             />
           )}
 
+          {!cityMissing && !generatingCaption && caption && (
+            <p className="text-xs px-3 py-2 rounded-lg flex items-center gap-2" style={{ background: 'var(--bg2)', color: 'var(--ink3)' }}>
+              <span>🎵</span>
+              <span><strong style={{ color: 'var(--ink2)' }}>Tip:</strong> Add a trending audio track in Instagram before posting — reels with audio get significantly more reach.</span>
+            </p>
+          )}
+
           <button
             onClick={() => onSave(editedScript, editedVariation)}
             disabled={saving || saved || !caption || generatingCaption || cityMissing}
