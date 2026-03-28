@@ -131,7 +131,7 @@ export function LandingPage() {
           <div style={{ flex: '1 1 480px', minWidth: 0 }}>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold mb-8"
               style={{ background: 'var(--accent-bg)', color: 'var(--accent)', border: '1px solid var(--accent-border)' }}>
-              ⚡ AI-powered review growth for local businesses
+              ⚡ Turn local reviews into local customers
             </div>
 
             <h1 className="font-bold mb-5" style={{ letterSpacing: '-0.03em', lineHeight: 1.1 }}>
@@ -156,17 +156,21 @@ export function LandingPage() {
               Your happiest customers already wrote your best ads. You're just not using them yet.
             </p>
 
-            <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex items-center gap-3 flex-wrap mb-5">
               <a href="/signup"
                 className="px-8 py-4 rounded-2xl text-base font-bold text-white transition-all hover:opacity-90 hover:-translate-y-0.5"
                 style={{ background: 'var(--accent)', boxShadow: '0 4px 24px rgba(232,71,10,0.35)' }}>
-                Start for free →
+                Start for free today →
               </a>
               <a href="#how-it-works"
                 className="px-8 py-4 rounded-2xl text-base font-semibold border transition-all hover:bg-white"
                 style={{ borderColor: 'var(--border)', color: 'var(--ink3)', background: 'transparent' }}>
                 See how it works
               </a>
+            </div>
+            <div className="flex items-center gap-2">
+              <span style={{ color: '#f59e0b', fontSize: 14, letterSpacing: 1 }}>★★★★★</span>
+              <span className="text-sm font-medium" style={{ color: 'var(--ink3)' }}>Loved by <strong style={{ color: 'var(--ink2)' }}>4,000+</strong> local businesses</span>
             </div>
           </div>
 
