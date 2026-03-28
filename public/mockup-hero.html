@@ -169,17 +169,19 @@
   }
   .convert-btn:hover { opacity: 0.92; transform: translateY(-1px); }
 
-  /* Try me annotation — positioned BELOW the card, outside */
+  /* Try me annotation — centred below the button */
   .try-me {
     position: absolute;
     bottom: -56px;
-    right: 28px;
+    left: 50%;
+    transform: translateX(-50%);
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 2px;
     animation: tryBounce 2s ease-in-out infinite;
     pointer-events: none;
+    white-space: nowrap;
   }
   .try-me span {
     font-size: 13px; font-weight: 700;
@@ -283,19 +285,19 @@
           </div>
           <div class="review-meta">
             <strong>Google Review</strong>
-            <span>Pearl Dental Clinic</span>
+            <span>Harmonia Dental</span>
           </div>
           <div class="stars">★★★★★</div>
         </div>
 
         <p class="review-text">
-          "I was terrified of the dentist for years. Walked out actually smiling. Best decision I ever made."
+          "From the moment I walked in the anxiety just disappeared. I actually cried on the way home — happy tears."
         </p>
 
         <div class="reviewer">
           <div class="avatar">S</div>
           <strong>Sarah M.</strong>
-          <time>2 weeks ago</time>
+          <time>3 weeks ago</time>
         </div>
 
         <button class="convert-btn" onclick="showReel()">
@@ -306,9 +308,9 @@
       <!-- Try me annotation (below card, outside) -->
       <div class="try-me" id="try-me">
         <span>try me</span>
-        <svg width="28" height="36" viewBox="0 0 28 36" fill="none">
-          <path d="M22 34 C22 22, 4 20, 7 4" stroke="#e8470a" stroke-width="1.8" stroke-linecap="round" fill="none"/>
-          <path d="M3 8 L7 4 L11 8" stroke="#e8470a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <svg width="20" height="32" viewBox="0 0 20 32" fill="none">
+          <path d="M10 30 C10 30, 10 10, 10 4" stroke="#e8470a" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+          <path d="M5 9 L10 3 L15 9" stroke="#e8470a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
         </svg>
       </div>
 
@@ -409,197 +411,184 @@
     ctx.restore()
   }
 
+  // Harmonia Dental brand colors
+  const CYAN = '#00b0e0'
+  const PINK = '#f78da7'
+
+  // Generated reel script
+  const SLIDES = [
+    { type: 'hook', duration: 3, headline: 'She cried on the way home. Happy tears.' },
+    { type: 'quote', duration: 4, quote: 'The anxiety just disappeared. I wish I\'d gone sooner.', highlights: ['disappeared', 'sooner'], author: 'Sarah' },
+    { type: 'quote', duration: 4, quote: 'I kept waiting for it to be awful. It never was.', highlights: ['never'], author: 'James' },
+    { type: 'quote', duration: 4, quote: 'Three years avoiding dentists. Now I\'m actually looking forward to it.', highlights: ['looking', 'forward'], author: 'Claire' },
+    { type: 'proof', duration: 3, stat: 'Years of dread. Gone after one appointment.', subline: 'Every single one came back.' },
+    { type: 'cta', duration: 4, headline: 'What if your next visit changed everything?', cta: 'Book your first visit.' },
+  ]
+  const TOTAL_DURATION = SLIDES.reduce((s, sl) => s + sl.duration, 0) // 22
+
   function drawFrame(ctx, t) {
-    const TOTAL = 20
-    const loopT = t % TOTAL
-    const phase = loopT < 4 ? 0 : loopT < 9 ? 1 : loopT < 13 ? 2 : 3
-    const durations = [4, 5, 4, 7]
-    const starts = [0, 4, 9, 13]
-    const pt = loopT - starts[phase]
+    const loopT = t % TOTAL_DURATION
+
+    // Find current phase
+    let acc = 0, phaseIdx = 0, pt = loopT
+    for (let i = 0; i < SLIDES.length; i++) {
+      if (loopT < acc + SLIDES[i].duration) { phaseIdx = i; pt = loopT - acc; break }
+      acc += SLIDES[i].duration
+    }
+    const slide = SLIDES[phaseIdx]
 
     // ── Background ────────────────────────────────────────────────────
     const bg = ctx.createLinearGradient(0, 0, 0, H)
-    bg.addColorStop(0, '#08060f')
-    bg.addColorStop(0.5, '#0e0a1c')
-    bg.addColorStop(1, '#080614')
+    bg.addColorStop(0, '#050d14')
+    bg.addColorStop(0.5, '#071219')
+    bg.addColorStop(1, '#050d14')
     ctx.fillStyle = bg
     ctx.fillRect(0, 0, W, H)
 
-    // Centre glow
+    // Centre glow (Harmonia cyan)
     const glow = ctx.createRadialGradient(W / 2, H * 0.42, 0, W / 2, H * 0.42, W * 0.72)
-    glow.addColorStop(0, 'rgba(168,85,247,0.07)')
+    glow.addColorStop(0, 'rgba(0,176,224,0.06)')
     glow.addColorStop(1, 'transparent')
     ctx.fillStyle = glow
     ctx.fillRect(0, 0, W, H)
 
-    // ── Top accent bar (Instagram gradient) ───────────────────────────
+    // ── Top accent bar (Harmonia cyan → pink) ─────────────────────────
     const bar = ctx.createLinearGradient(0, 0, W, 0)
-    bar.addColorStop(0, '#833AB4')
-    bar.addColorStop(0.5, '#E1306C')
-    bar.addColorStop(1, '#F77737')
+    bar.addColorStop(0, CYAN)
+    bar.addColorStop(1, PINK)
     ctx.fillStyle = bar
     ctx.fillRect(0, 0, W, 3)
 
     // ── Phase progress bar (bottom) ───────────────────────────────────
-    const progress = Math.min(1, pt / durations[phase])
+    const progress = Math.min(1, pt / slide.duration)
     const pb = ctx.createLinearGradient(0, 0, W * progress, 0)
-    pb.addColorStop(0, 'rgba(131,58,180,0.5)')
-    pb.addColorStop(1, 'rgba(225,48,108,0.5)')
+    pb.addColorStop(0, CYAN + '80')
+    pb.addColorStop(1, PINK + '80')
     ctx.fillStyle = pb
     ctx.fillRect(0, H - 2, W * progress, 2)
 
     // ── Phase content ─────────────────────────────────────────────────
 
-    if (phase === 0) {
-      // HOOK — "She was terrified for years."
-      const a1 = fadeIn(pt, 0.05, 0.4)
-      const a2 = fadeIn(pt, 0.35, 0.4)
-      const a3 = fadeIn(pt, 0.65, 0.4)
-      const [, oy1] = slideUp(pt, 0.05, 0.4)
-      const [, oy2] = slideUp(pt, 0.35, 0.4)
-      const [, oy3] = slideUp(pt, 0.65, 0.4)
-
-      // Accent bar (like HookScene)
+    if (slide.type === 'hook') {
+      // Animated accent bar
       const barW = clamp(easeOut((pt - 0.05) / 0.5)) * 80
-      ctx.fillStyle = '#a855f7'
-      ctx.globalAlpha = 0.7
-      ctx.beginPath()
-      ctx.roundRect(W / 2 - barW / 2, H * 0.3 - 20, barW, 3, 2)
-      ctx.fill()
-      ctx.globalAlpha = 1
+      ctx.save()
+      ctx.fillStyle = CYAN
+      ctx.globalAlpha = 0.65
+      ctx.beginPath(); ctx.roundRect(W / 2 - barW / 2, H * 0.28, barW, 2.5, 1); ctx.fill()
+      ctx.restore()
 
-      drawText(ctx, 'She was', W / 2, H * 0.33 + oy1, '900 21px/1 system-ui', '#ffffff', 'center', a1)
-      drawText(ctx, 'terrified', W / 2, H * 0.43 + oy2, '900 26px/1 system-ui', '#ffffff', 'center', a2)
-      drawText(ctx, 'for years.', W / 2, H * 0.56 + oy3, '900 21px/1 system-ui', '#ffffff', 'center', a3)
+      // Split hook into words for staggered reveal
+      const words = slide.headline.split(' ')
+      // Line 1: "She cried on the way home."
+      // Line 2: "Happy tears."
+      const line1 = words.slice(0, 6).join(' ')
+      const line2 = words.slice(6).join(' ')
 
-      const a4 = fadeIn(pt, 1.5, 0.5)
-      drawText(ctx, 'Pearl Dental Clinic', W / 2, H * 0.77, '400 8.5px/1 system-ui', 'rgba(255,255,255,0.28)', 'center', a4)
+      const a1 = fadeIn(pt, 0.05, 0.4)
+      const a2 = fadeIn(pt, 0.4, 0.4)
+      const [, oy1] = slideUp(pt, 0.05, 0.4)
+      const [, oy2] = slideUp(pt, 0.4, 0.4)
 
-    } else if (phase === 1) {
-      // QUOTE — frosted glass card, word-by-word
+      drawText(ctx, line1, W / 2, H * 0.36 + oy1, '900 17px/1 system-ui', '#ffffff', 'center', a1, W * 0.82, 1.3)
+      drawText(ctx, line2, W / 2, H * 0.54 + oy2, '900 22px/1 system-ui', CYAN, 'center', a2)
+
+      const a3 = fadeIn(pt, 1.5, 0.5)
+      drawText(ctx, 'Harmonia Dental', W / 2, H * 0.77, '400 8.5px/1 system-ui', 'rgba(255,255,255,0.28)', 'center', a3)
+
+    } else if (slide.type === 'quote') {
       const ac = fadeIn(pt, 0, 0.4)
 
-      // Frosted card (like FloatingCard)
+      // Frosted glass card
       ctx.save()
       ctx.globalAlpha = 0.07 * ac
       ctx.fillStyle = '#ffffff'
-      ctx.beginPath()
-      ctx.roundRect(W * 0.05, H * 0.22, W * 0.9, H * 0.48, 14)
-      ctx.fill()
-      ctx.globalAlpha = 0.12 * ac
-      ctx.strokeStyle = 'rgba(255,255,255,0.3)'
+      ctx.beginPath(); ctx.roundRect(W * 0.05, H * 0.2, W * 0.9, H * 0.52, 14); ctx.fill()
+      ctx.globalAlpha = 0.1 * ac
+      ctx.strokeStyle = 'rgba(255,255,255,0.25)'
       ctx.lineWidth = 0.8
       ctx.stroke()
       ctx.restore()
 
-      // Large " quote mark
+      // Large quote mark in Harmonia cyan
       ctx.save()
       ctx.font = '900 54px/1 Georgia, serif'
-      ctx.fillStyle = '#a855f7'
-      ctx.globalAlpha = 0.35 * ac
+      ctx.fillStyle = CYAN
+      ctx.globalAlpha = 0.3 * ac
       ctx.textBaseline = 'top'
-      ctx.fillText('\u201C', W * 0.08, H * 0.24)
+      ctx.fillText('\u201C', W * 0.08, H * 0.22)
       ctx.restore()
 
-      // Word-by-word quote line 1
-      drawWordReveal(ctx,
-        'Walked out actually smiling.',
-        W / 2, H * 0.38,
-        'italic 500 11.5px/1 system-ui', '#ffffff',
-        ['smiling'], '#E1306C',
-        0.1, 0.07, pt
-      )
-      // Word-by-word quote line 2
-      drawWordReveal(ctx,
-        'Best decision I ever made.',
-        W / 2, H * 0.52,
-        'italic 500 11.5px/1 system-ui', '#ffffff',
-        ['Best', 'ever'], '#a855f7',
-        0.65, 0.07, pt
-      )
+      // Word-by-word quote
+      const words = slide.quote.split(' ')
+      // Split into 2 lines (roughly half)
+      const mid = Math.ceil(words.length / 2)
+      const l1 = words.slice(0, mid).join(' ')
+      const l2 = words.slice(mid).join(' ')
 
-      // Separator + author
-      const a3 = fadeIn(pt, 1.5, 0.4)
+      drawWordReveal(ctx, l1, W / 2, H * 0.36, 'italic 500 11px/1 system-ui', '#ffffff', slide.highlights, CYAN, 0.08, 0.07, pt)
+      drawWordReveal(ctx, l2, W / 2, H * 0.5, 'italic 500 11px/1 system-ui', '#ffffff', slide.highlights, CYAN, 0.08 + mid * 0.07, 0.07, pt)
+
+      // Author
+      const a3 = fadeIn(pt, 1.6, 0.4)
       ctx.save()
-      ctx.strokeStyle = '#a855f7'
+      ctx.strokeStyle = PINK
       ctx.lineWidth = 0.8
       ctx.globalAlpha = 0.4 * a3
-      ctx.beginPath(); ctx.moveTo(W * 0.32, H * 0.67); ctx.lineTo(W * 0.68, H * 0.67); ctx.stroke()
+      ctx.beginPath(); ctx.moveTo(W * 0.33, H * 0.68); ctx.lineTo(W * 0.67, H * 0.68); ctx.stroke()
       ctx.restore()
-      drawText(ctx, '— Sarah M.', W / 2, H * 0.695, '600 9px/1 system-ui', '#a855f7', 'center', a3)
+      drawText(ctx, `— ${slide.author}`, W / 2, H * 0.705, '600 9px/1 system-ui', PINK, 'center', a3)
 
-      // Stars
-      const a4 = fadeIn(pt, 1.8, 0.4)
-      drawText(ctx, '★★★★★', W / 2, H * 0.77, '400 11px/1 system-ui', '#f59e0b', 'center', a4)
+      const a4 = fadeIn(pt, 1.9, 0.4)
+      drawText(ctx, '★★★★★', W / 2, H * 0.775, '400 11px/1 system-ui', '#f59e0b', 'center', a4)
 
-    } else if (phase === 2) {
-      // PROOF — big rating
+    } else if (slide.type === 'proof') {
       const a1 = fadeIn(pt, 0, 0.4)
-      const a2 = fadeIn(pt, 0.45, 0.4)
-      const p = clamp(easeOutBack((pt - 0.05) / 0.6))
+      const a2 = fadeIn(pt, 0.5, 0.4)
 
-      // Thin accent lines (like InsightScene)
-      const lineW = clamp(easeOut((pt - 0.1) / 0.5)) * 60
+      // Accent lines
+      const lineW = clamp(easeOut((pt - 0.1) / 0.5)) * 64
       ctx.save()
-      ctx.fillStyle = '#a855f7'
-      ctx.globalAlpha = 0.5 * a1
+      ctx.fillStyle = CYAN
+      ctx.globalAlpha = 0.45 * a1
       ctx.beginPath(); ctx.roundRect(W / 2 - lineW / 2, H * 0.22, lineW, 2, 1); ctx.fill()
-      ctx.globalAlpha = 0.25 * a2
-      ctx.beginPath(); ctx.roundRect(W / 2 - 20, H * 0.78, 40, 2, 1); ctx.fill()
+      ctx.globalAlpha = 0.22 * a2
+      ctx.beginPath(); ctx.roundRect(W / 2 - 22, H * 0.78, 44, 2, 1); ctx.fill()
       ctx.restore()
 
-      drawText(ctx, '4.9', W / 2, H * 0.27, '700 54px/1 Georgia, serif', '#ffffff', 'center', a1 * p)
-      drawText(ctx, '★★★★★', W / 2, H * 0.53, '400 15px/1 system-ui', '#f59e0b', 'center', a1)
-      drawText(ctx, '47 Google reviews', W / 2, H * 0.645, '400 9px/1 system-ui', 'rgba(255,255,255,0.38)', 'center', a2)
+      drawText(ctx, slide.stat, W / 2, H * 0.33, '700 13px/1 system-ui', '#ffffff', 'center', a1, W * 0.78, 1.4)
+      drawText(ctx, slide.subline, W / 2, H * 0.58, '400 9.5px/1 system-ui', 'rgba(255,255,255,0.45)', 'center', a2, W * 0.75, 1.4)
 
-    } else {
-      // CTA — closing question + button (like CTAScene)
+    } else if (slide.type === 'cta') {
       const a1 = fadeIn(pt, 0.05, 0.4)
       const a2 = fadeIn(pt, 0.5, 0.4)
-      const a3 = fadeIn(pt, 0.95, 0.4)
+      const a3 = fadeIn(pt, 0.9, 0.4)
 
-      // Small logo mark
+      // Small brand mark
       ctx.save()
-      ctx.globalAlpha = a1 * 0.6
-      ctx.fillStyle = '#e8470a'
-      ctx.beginPath(); ctx.roundRect(W / 2 - 10, H * 0.2, 20, 20, 5); ctx.fill()
-      ctx.fillStyle = '#fff'
-      ctx.font = '700 12px/1 system-ui'
-      ctx.textAlign = 'center'
-      ctx.textBaseline = 'middle'
-      ctx.fillText('⚡', W / 2, H * 0.2 + 10)
+      ctx.globalAlpha = a1 * 0.55
+      const markGrad = ctx.createLinearGradient(W/2-10, 0, W/2+10, 0)
+      markGrad.addColorStop(0, CYAN); markGrad.addColorStop(1, PINK)
+      ctx.fillStyle = markGrad
+      ctx.beginPath(); ctx.roundRect(W / 2 - 11, H * 0.18, 22, 22, 6); ctx.fill()
       ctx.restore()
 
-      drawText(ctx, 'Still putting it off?', W / 2, H * 0.34, '400 11px/1 system-ui', 'rgba(255,255,255,0.55)', 'center', a1)
+      drawText(ctx, slide.headline, W / 2, H * 0.34, '500 11px/1 system-ui', 'rgba(255,255,255,0.6)', 'center', a1, W * 0.8, 1.45)
 
-      // Word-by-word CTA text
-      drawWordReveal(ctx,
-        'Book your first visit.',
-        W / 2, H * 0.44,
-        '800 14px/1 system-ui', '#ffffff',
-        [], '#ffffff',
-        0.5, 0.06, pt
-      )
-      drawWordReveal(ctx,
-        "See what everyone's talking about.",
-        W / 2, H * 0.56,
-        '400 10px/1 system-ui', 'rgba(255,255,255,0.58)',
-        [], '',
-        0.8, 0.05, pt
-      )
+      drawWordReveal(ctx, slide.cta, W / 2, H * 0.52, '800 14px/1 system-ui', '#ffffff', [], '', 0.5, 0.06, pt)
 
-      // Gradient pill button (like CTAScene)
+      // Pill button (Harmonia cyan → pink)
       ctx.save()
       ctx.globalAlpha = a3
       const btnGrad = ctx.createLinearGradient(W * 0.12, 0, W * 0.88, 0)
-      btnGrad.addColorStop(0, '#833AB4')
-      btnGrad.addColorStop(1, '#E1306C')
+      btnGrad.addColorStop(0, CYAN)
+      btnGrad.addColorStop(1, PINK)
       ctx.fillStyle = btnGrad
-      ctx.shadowColor = 'rgba(225,48,108,0.4)'
-      ctx.shadowBlur = 12
-      ctx.beginPath(); ctx.roundRect(W * 0.12, H * 0.72, W * 0.76, 28, 14); ctx.fill()
+      ctx.shadowColor = CYAN + '50'
+      ctx.shadowBlur = 10
+      ctx.beginPath(); ctx.roundRect(W * 0.1, H * 0.7, W * 0.8, 28, 14); ctx.fill()
       ctx.restore()
-      drawText(ctx, 'Book appointment →', W / 2, H * 0.726, '700 9.5px/1 system-ui', '#ffffff', 'center', a3)
+      drawText(ctx, 'Book appointment →', W / 2, H * 0.706, '700 9.5px/1 system-ui', '#ffffff', 'center', a3)
     }
   }
 
