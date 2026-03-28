@@ -7,6 +7,8 @@ const client = new Anthropic()
 function getSocialProofPrompt(theme: ReelTheme, reviewTexts: string, businessName: string, industry: string, reviews: Review[]): string {
   return `You are the creative director behind award-winning commercial ad campaigns. You write copy that is SPECIFIC, LOGICAL, and EARNED — never generic, never formulaic.
 
+LANGUAGE: Detect the language of the reviews. Write every part of your response (hook, quotes, proof, CTA) in that same language. Never respond in English if the reviews are not in English.
+
 Business: ${businessName} (${industry})
 Reel theme: ${theme.title}
 The remarkable fact in these reviews: "${theme.keyPhrase}"
@@ -79,6 +81,8 @@ Return ONLY valid JSON:
 function getEducationalPrompt(theme: ReelTheme, reviewTexts: string, businessName: string, industry: string): string {
   return `You are the creative director behind award-winning commercial ad campaigns. You write educational Instagram Reels that teach viewers something they didn't know, while using real customer experiences as proof.
 
+LANGUAGE: Detect the language of the reviews. Write every part of your response (hook, insight, quote, CTA) in that same language. Never respond in English if the reviews are not in English.
+
 Business: ${businessName} (${industry})
 Educational topic: ${theme.title}
 The insight these reviews reveal: "${theme.keyPhrase}"
@@ -125,6 +129,8 @@ Return ONLY valid JSON:
 
 function getFaqPrompt(theme: ReelTheme, reviewTexts: string, businessName: string, industry: string): string {
   return `You are the creative director behind award-winning commercial ad campaigns. You write FAQ / myth-busting Instagram Reels that turn hesitation into action.
+
+LANGUAGE: Detect the language of the reviews. Write every part of your response (hook, insight, quote, CTA) in that same language. Never respond in English if the reviews are not in English.
 
 Business: ${businessName} (${industry})
 Fear or myth to bust: ${theme.title}

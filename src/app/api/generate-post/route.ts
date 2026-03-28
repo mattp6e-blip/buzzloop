@@ -28,6 +28,8 @@ export async function POST(req: NextRequest) {
 
   const prompt = `You are writing an Instagram caption for a Reel that is already a powerful customer testimonial video.
 
+LANGUAGE: Detect the language of the review text provided. Write the entire caption and hashtags in that same language. Never respond in English if the reviews are not in English.
+
 Business: ${businessName}
 Industry: ${industry}${websiteUrl ? `\nWebsite: ${websiteUrl}` : ''}
 Reel theme: ${reelTheme}
@@ -41,7 +43,7 @@ Line 1 — Hook (max 125 characters, must work as a standalone statement before 
 
 Line 2–3 — One specific thing that makes ${businessName} worth visiting. Plain language, no clichés, no hype. Something a real person would say to a friend.
 
-CTA line — Use this exactly: "${ctaAction}"
+CTA line — Use this as a template, translated into the review language if needed: "${ctaAction}"
 
 Hashtags — 3 to 5 only, on a new line. Mix of niche industry tags and location-specific tags using the actual city (e.g. #${city ? city.replace(/\s+/g, '') : 'London'}Dentist #SmileTransformation). Do not use generic tags like #instagood or #love.${city ? `\nThe business is located in ${city} — use this exact city name in at least one location hashtag.` : ''}
 

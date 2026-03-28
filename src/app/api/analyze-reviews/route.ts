@@ -36,6 +36,8 @@ function buildReviewList(reviews: Review[]): string {
 function getSocialProofPrompt(reviewList: string, industry: string, businessName: string): string {
   return `You are a world-class Instagram Reel director. Find 4–6 powerful Reel themes in these reviews for ${businessName} (${industry}). Each theme must be a SHARED EXPERIENCE across multiple reviews — not a detail from just one.
 
+LANGUAGE: Detect the language of the reviews. Write every field of your JSON response (title, hook, keyPhrase, buzzReason) in that same language. Never respond in English if the reviews are not in English.
+
 REVIEWS:
 ${reviewList}
 
@@ -95,6 +97,8 @@ Return 4–6 themes ranked by buzzScore descending, strongest first.`
 function getEducationalPrompt(reviewList: string, industry: string, businessName: string): string {
   return `You are finding Educational Reel opportunities in these reviews for a ${industry} business called "${businessName}".
 
+LANGUAGE: Detect the language of the reviews. Write every field of your JSON response (title, hook, keyPhrase, buzzReason) in that same language. Never respond in English if the reviews are not in English.
+
 Educational reels teach viewers something they didn't know, while using real customer experiences as living proof. The reviews are evidence — not the main content.
 
 REVIEWS:
@@ -148,6 +152,8 @@ Return 1–3 themes. Return empty array [] if no genuine educational opportuniti
 
 function getFaqPrompt(reviewList: string, industry: string, businessName: string): string {
   return `You are finding FAQ / Myth-busting Reel opportunities in these reviews for a ${industry} business called "${businessName}".
+
+LANGUAGE: Detect the language of the reviews. Write every field of your JSON response (title, hook, keyPhrase, buzzReason) in that same language. Never respond in English if the reviews are not in English.
 
 FAQ reels directly address the fears, concerns, and misconceptions that prevent people from booking. They are the most direct path from hesitation to action.
 
