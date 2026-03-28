@@ -31,11 +31,7 @@ export default async function QRPage() {
         </p>
       </div>
 
-      <GoogleUrlBanner
-        businessId={business.id}
-        googleConnected={!!business.google_connected}
-        hasReviewUrl={!!business.google_business_url}
-      />
+      <GoogleUrlBanner googleConnected={!!business.google_connected} />
 
       {/* Top section — QR + templates side by side */}
       <div className="grid grid-cols-2 gap-6 mb-8">
@@ -72,58 +68,85 @@ export default async function QRPage() {
         </div>
       </div>
 
-      {/* Where customers place it */}
+      {/* Tips from customers */}
       <div>
         <div className="mb-5">
-          <h2 className="text-lg font-bold mb-1" style={{ color: 'var(--ink)' }}>
-            Where Buzzloop customers are placing their QR codes
-          </h2>
-          <p className="text-sm" style={{ color: 'var(--ink3)' }}>
-            Real businesses, real placements. The more visible, the more reviews.
-          </p>
+          <h2 className="text-lg font-bold mb-1" style={{ color: 'var(--ink)' }}>What's working for other businesses</h2>
+          <p className="text-sm" style={{ color: 'var(--ink3)' }}>Real tips from Buzzloop customers on getting more reviews.</p>
         </div>
 
         <div className="grid grid-cols-3 gap-4">
           {[
-            { src: '/placements/hotel-reception.png', label: 'Hotel reception desk' },
-            { src: '/placements/restaurant-bathroom.png', label: 'Restaurant bathroom' },
-            { src: '/placements/cocktail-bar.png', label: 'Cocktail bar' },
-          ].map(p => (
-            <div key={p.src}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={p.src} alt={p.label} className="w-full block rounded-2xl" style={{ maxHeight: 260, objectFit: 'scale-down' }} />
-              <p className="text-sm font-semibold mt-2 text-center" style={{ color: 'var(--ink)' }}>{p.label}</p>
+            {
+              quote: "We taped the card to the back of the payment terminal. Every single customer sees it right as they're tapping their card.",
+              author: 'Marco',
+              business: 'Barbershop, Milan',
+              emoji: '✂️',
+            },
+            {
+              quote: "I tell staff to say 'it takes 10 seconds' when they hand the card over. That one line doubled our scan rate.",
+              author: 'Priya',
+              business: 'Dental clinic, London',
+              emoji: '🦷',
+            },
+            {
+              quote: "We put a tent card on every table. After a good meal, people are happy — that's exactly when to ask.",
+              author: 'Sofia',
+              business: 'Restaurant, Barcelona',
+              emoji: '🍽️',
+            },
+            {
+              quote: "I print the pocket cards and keep them by the till. When someone says they loved it, I hand one over and ask in person.",
+              author: 'James',
+              business: 'Gym, Dublin',
+              emoji: '💪',
+            },
+            {
+              quote: "Put it near the exit, not the entrance. Customers leaving happy are the ones who'll actually leave a review.",
+              author: 'Leila',
+              business: 'Spa, Amsterdam',
+              emoji: '🌿',
+            },
+            {
+              quote: "We share the link in our WhatsApp status after busy weekends. Regulars who loved the service always click it.",
+              author: 'Carlos',
+              business: 'Cocktail bar, Madrid',
+              emoji: '🍸',
+            },
+          ].map((tip, i) => (
+            <div key={i} className="rounded-2xl border p-5 flex flex-col gap-3" style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}>
+              <p className="text-xl">{tip.emoji}</p>
+              <p className="text-sm leading-relaxed flex-1" style={{ color: 'var(--ink2)' }}>
+                &ldquo;{tip.quote}&rdquo;
+              </p>
+              <div>
+                <p className="text-xs font-semibold" style={{ color: 'var(--ink)' }}>{tip.author}</p>
+                <p className="text-xs" style={{ color: 'var(--ink4)' }}>{tip.business}</p>
+              </div>
             </div>
           ))}
         </div>
 
-        <p className="text-xs mt-4 text-center" style={{ color: 'var(--ink4)' }}>
-          Using Buzzloop in a creative spot? We&apos;d love to feature it —{' '}
-          <a href="mailto:hello@buzzloop.co" className="underline hover:opacity-70" style={{ color: 'var(--ink3)' }}>
-            send us a photo
-          </a>
-        </p>
-
         {/* Coming soon — SMS/WhatsApp */}
-        <div
-          className="mt-6 rounded-2xl border p-5 flex items-center gap-4"
-          style={{ borderColor: `${brandColor}30`, background: `${brandColor}08` }}
-        >
-          <div
-            className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
-            style={{ background: `${brandColor}15` }}
-          >
-            📱
+        <div className="mt-6 rounded-2xl border p-5 flex items-start gap-5" style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}>
+          <div className="flex-shrink-0 rounded-2xl flex items-center justify-center" style={{ width: 56, height: 56, background: 'var(--bg2)' }}>
+            <svg width="28" height="28" viewBox="0 0 36 36" fill="none">
+              <rect x="6" y="2" width="24" height="32" rx="4" fill="#1a1a1a" />
+              <rect x="8" y="6" width="20" height="22" rx="2" fill="#25d366" />
+              <circle cx="18" cy="31" r="2" fill="#444" />
+              <ellipse cx="18" cy="17" rx="7" ry="5" fill="white" opacity="0.9" />
+              <path d="M13 20 L12 23 L15 21" fill="white" opacity="0.9" />
+            </svg>
           </div>
           <div className="flex-1">
-            <div className="flex items-center gap-2 mb-0.5">
-              <p className="font-bold text-sm" style={{ color: 'var(--ink)' }}>Automated review requests via WhatsApp & SMS</p>
-              <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: brandColor, color: 'white' }}>
+            <div className="flex items-center gap-2 mb-1">
+              <p className="font-bold text-sm" style={{ color: 'var(--ink)' }}>Automated review requests via WhatsApp &amp; SMS</p>
+              <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: 'var(--bg2)', color: 'var(--ink3)', border: '1px solid var(--border)' }}>
                 Coming soon
               </span>
             </div>
             <p className="text-xs" style={{ color: 'var(--ink3)' }}>
-              Enter a customer&apos;s number and we&apos;ll send them a personalised message asking for a review — automatically after each visit.
+              After each visit, we&apos;ll automatically send your customer a personalised message asking for a review. No manual effort — just more reviews.
             </p>
           </div>
         </div>

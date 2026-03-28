@@ -10,16 +10,19 @@ export default async function ReelsPage() {
 
   const { data: business } = await supabase
     .from('businesses')
-    .select('id, name, industry, city, brand_color, brand_font, brand_logo_url, brand_secondary_color, brand_personality, brand_extracted, website_url, reel_themes, reel_themes_review_count')
+    .select('id, name, industry, city, brand_color, brand_font, brand_logo_url, brand_secondary_color, brand_personality, brand_extracted, website_url, reel_themes, reel_themes_review_count, google_connected')
     .eq('user_id', user.id)
     .single()
 
   if (!business) redirect('/onboarding')
 
-  const [{ data: reviews }, { count: savedPostsCount }] = await Promise.all([
+  const [{ data: reviews }, { data: savedPosts }] = await Promise.all([
     supabase.from('reviews').select('*').eq('business_id', business.id).eq('star_rating', 5),
-    supabase.from('social_posts').select('*', { count: 'exact', head: true }).eq('business_id', business.id),
+    supabase.from('social_posts').select('reel_theme').eq('business_id', business.id),
   ])
+
+  const savedPostsCount = savedPosts?.length ?? 0
+  const savedThemeTitles = new Set((savedPosts ?? []).map(p => p.reel_theme).filter(Boolean))
 
   const currentReviews = reviews ?? []
 
@@ -32,13 +35,6 @@ export default async function ReelsPage() {
 
   return (
     <div className="p-8" style={{ maxWidth: 900 }}>
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--ink)' }}>Content</h1>
-        <p className="text-sm" style={{ color: 'var(--ink3)' }}>
-          AI finds patterns in your reviews and ranks Reel ideas by engagement potential.
-        </p>
-      </div>
-
       <ReelsClient
         reviews={currentReviews}
         businessId={business.id}
@@ -52,8 +48,10 @@ export default async function ReelsPage() {
         websiteUrl={business.website_url ?? null}
         brandExtracted={business.brand_extracted ?? false}
         cachedThemes={cachedThemes}
-        savedPostsCount={savedPostsCount ?? 0}
+        savedPostsCount={savedPostsCount}
+        savedThemeTitles={[...savedThemeTitles] as string[]}
         city={business.city ?? null}
+        googleConnected={business.google_connected ?? false}
       />
     </div>
   )

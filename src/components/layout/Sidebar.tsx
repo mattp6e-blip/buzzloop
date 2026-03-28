@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -16,6 +17,18 @@ const NAV = [
 export function Sidebar({ businessName }: { businessName: string }) {
   const pathname = usePathname()
   const router = useRouter()
+  const [unseenReels, setUnseenReels] = useState(0)
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('buzzloop_unseen_reels')
+      if (stored) setUnseenReels(parseInt(stored) || 0)
+    } catch {}
+
+    const handler = (e: Event) => setUnseenReels((e as CustomEvent).detail)
+    window.addEventListener('unseen-reels-update', handler)
+    return () => window.removeEventListener('unseen-reels-update', handler)
+  }, [])
 
   async function handleSignOut() {
     const supabase = createClient()
@@ -65,6 +78,11 @@ export function Sidebar({ businessName }: { businessName: string }) {
             >
               <span className="text-base">{item.icon}</span>
               {item.label}
+              {item.href === '/reels' && unseenReels > 0 && (
+                <span className="ml-auto text-xs font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'var(--accent)', color: 'white', minWidth: 18, textAlign: 'center' }}>
+                  {unseenReels}
+                </span>
+              )}
             </Link>
           )
         })}

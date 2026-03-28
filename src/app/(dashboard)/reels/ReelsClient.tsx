@@ -20,18 +20,22 @@ interface Props {
   brandExtracted: boolean
   cachedThemes: ReelTheme[] | null
   savedPostsCount: number
+  savedThemeTitles: string[]
   city: string | null
+  googleConnected: boolean
 }
 
 function localCacheKey(businessId: string, reviewCount: number) {
   return `reel_themes_${businessId}_${reviewCount}`
 }
 
-export function ReelsClient({ reviews, businessId, businessName, industry, brandColor, brandFont, brandLogoUrl, brandPersonality, brandSecondaryColor, websiteUrl, brandExtracted, cachedThemes, savedPostsCount, city }: Props) {
+export function ReelsClient({ reviews, businessId, businessName, industry, brandColor, brandFont, brandLogoUrl, brandPersonality, brandSecondaryColor, websiteUrl, brandExtracted, cachedThemes, savedPostsCount, savedThemeTitles, city, googleConnected }: Props) {
   const [themes, setThemes]               = useState<ReelTheme[] | null>(null)
   const [analyzing, setAnalyzing]         = useState(false)
   const [selectedTheme, setSelectedTheme] = useState<ReelTheme | null>(null)
   const [error, setError]                 = useState<string | null>(null)
+  const [seenThemes, setSeenThemes] = useState<Set<string>>(new Set())
+
   const [extractedBrand, setExtractedBrand] = useState<{
     logoUrl: string | null
     primaryColor: string | null
@@ -41,6 +45,35 @@ export function ReelsClient({ reviews, businessId, businessName, industry, brand
     bookingWord?: string
   } | null>(null)
   const [extracting, setExtracting] = useState(false)
+
+  useEffect(() => {
+    const key = `seen_themes_${businessId}`
+    try {
+      const stored = localStorage.getItem(key)
+      if (stored) setSeenThemes(new Set(JSON.parse(stored)))
+    } catch {}
+  }, [])
+
+  // Mark saved themes as seen immediately
+  useEffect(() => {
+    if (savedThemeTitles.length === 0) return
+    const key = `seen_themes_${businessId}`
+    setSeenThemes(prev => {
+      const updated = new Set([...prev, ...savedThemeTitles])
+      try { localStorage.setItem(key, JSON.stringify([...updated])) } catch {}
+      return updated
+    })
+  }, [savedThemeTitles])
+
+  // Write unseen count to localStorage so Sidebar can show the badge
+  useEffect(() => {
+    if (!themes) return
+    const unseen = themes.filter(t => seenThemes.size > 0 && !seenThemes.has(t.title) && !savedThemeTitles.includes(t.title)).length
+    try {
+      localStorage.setItem('buzzloop_unseen_reels', String(unseen))
+      window.dispatchEvent(new CustomEvent('unseen-reels-update', { detail: unseen }))
+    } catch {}
+  }, [themes, seenThemes, savedThemeTitles])
 
   useEffect(() => {
     if (brandExtracted || !websiteUrl) return
@@ -119,6 +152,15 @@ export function ReelsClient({ reviews, businessId, businessName, industry, brand
     setAnalyzing(false)
   }
 
+  function markThemeSeen(title: string) {
+    const key = `seen_themes_${businessId}`
+    setSeenThemes(prev => {
+      const updated = new Set([...prev, title])
+      try { localStorage.setItem(key, JSON.stringify([...updated])) } catch {}
+      return updated
+    })
+  }
+
   function handleScriptCached(themeId: string, script: ReelScript, variations: ReelVariation[]) {
     setThemes(prev => {
       if (!prev) return prev
@@ -177,21 +219,39 @@ export function ReelsClient({ reviews, businessId, businessName, industry, brand
       <div className="rounded-2xl border p-12 text-center" style={{ background: 'white', borderColor: 'var(--border)' }}>
         <h3 className="font-bold text-lg mb-2" style={{ color: 'var(--ink)' }}>No Reels yet</h3>
         <p className="text-sm max-w-sm mx-auto mb-6" style={{ color: 'var(--ink3)' }}>
-          Once you have reviews, the AI will find patterns and generate Reel ideas ranked by engagement potential — automatically.
+          {googleConnected
+            ? 'Once you have more reviews, the AI will find patterns and generate Reel ideas ranked by engagement potential — automatically.'
+            : 'Connect your Google Business Profile so we can import your reviews and start generating Reel ideas.'}
         </p>
-        <a
-          href="/qr"
-          className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90"
-          style={{ background: activeBrandColor }}
-        >
-          Set up your QR code →
-        </a>
+        {googleConnected ? (
+          <a
+            href="/qr"
+            className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90"
+            style={{ background: activeBrandColor }}
+          >
+            Get more reviews via QR →
+          </a>
+        ) : (
+          <a
+            href="/api/auth/google?returnTo=/reels"
+            className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90"
+            style={{ background: activeBrandColor }}
+          >
+            Connect Google Business Profile →
+          </a>
+        )}
       </div>
     )
   }
 
   return (
     <div style={{ maxWidth: 760 }}>
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--ink)' }}>Recommended Reels</h1>
+        <p className="text-sm" style={{ color: 'var(--ink3)' }}>
+          Ranked by <span style={{ color: 'var(--accent)', fontWeight: 600 }}>Buzz Score</span> — our prediction of how likely each Reel is to stop the scroll and bring in new customers.
+        </p>
+      </div>
 
       {extracting && (
         <div className="flex items-center gap-3 p-4 rounded-xl mb-6" style={{ background: `${activeBrandColor}15`, border: `1px solid ${activeBrandColor}30` }}>
@@ -222,21 +282,43 @@ export function ReelsClient({ reviews, businessId, businessName, industry, brand
 
       {themes && themes.length > 0 && !analyzing && (
         <div>
-          <p className="text-sm mb-5" style={{ color: 'var(--ink3)' }}>
-            <strong style={{ color: 'var(--ink)' }}>{themes.length} Reel ideas</strong> ranked by Buzz Score — highest engagement potential first.
-          </p>
-          <div className="flex flex-col gap-3">
-            {themes.map(theme => (
-              <ThemeCard
-                key={theme.id}
-                theme={theme}
-                brandColor={activeBrandColor}
-                onClick={() => setSelectedTheme(theme)}
-              />
-            ))}
+
+          {/* Recommended — top 3 */}
+          <div className="mb-8">
+            <div className="flex flex-col gap-3">
+              {themes.slice(0, 3).map((theme, i) => (
+                <RecommendedCard
+                  key={theme.id}
+                  theme={theme}
+                  brandColor={activeBrandColor}
+                  rank={i + 1}
+                  saved={savedThemeTitles.includes(theme.title)}
+                  isNew={seenThemes.size > 0 && !seenThemes.has(theme.title)}
+                  onClick={() => { markThemeSeen(theme.title); setSelectedTheme(theme) }}
+                />
+              ))}
+            </div>
           </div>
 
-          {/* Saved posts link */}
+          {/* More ideas */}
+          {themes.length > 3 && (
+            <div>
+              <h2 className="font-bold text-base mb-4" style={{ color: 'var(--ink)' }}>More ideas</h2>
+              <div className="flex flex-col gap-3">
+                {themes.slice(3).map(theme => (
+                  <ThemeCard
+                    key={theme.id}
+                    theme={theme}
+                    brandColor={activeBrandColor}
+                    saved={savedThemeTitles.includes(theme.title)}
+                    isNew={seenThemes.size > 0 && !seenThemes.has(theme.title)}
+                    onClick={() => { markThemeSeen(theme.title); setSelectedTheme(theme) }}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
           {savedPostsCount > 0 && (
             <a
               href="/content"
@@ -255,7 +337,7 @@ export function ReelsClient({ reviews, businessId, businessName, industry, brand
 
           <button
             onClick={forceReanalyze}
-            className="mt-4 text-xs hover:opacity-70 transition-opacity"
+            className="mt-6 text-xs hover:opacity-70 transition-opacity"
             style={{ color: 'var(--ink4)' }}
           >
             ↺ Re-analyse (uses AI credits)
@@ -266,11 +348,86 @@ export function ReelsClient({ reviews, businessId, businessName, industry, brand
   )
 }
 
-// ── Theme card ─────────────────────────────────────────────────
+// ── Recommended card ───────────────────────────────────────────
 
-function ThemeCard({ theme, brandColor, onClick }: {
+function RecommendedCard({ theme, brandColor, rank, saved, isNew, onClick }: {
   theme: ReelTheme
   brandColor: string
+  rank: number
+  saved: boolean
+  isNew: boolean
+  onClick: () => void
+}) {
+  const score = theme.buzzScore
+  const isTop = rank === 1
+
+  return (
+    <button
+      onClick={onClick}
+      className="w-full text-left rounded-2xl p-6 transition-all hover:shadow-md group"
+      style={{
+        background: isTop ? `${brandColor}10` : 'white',
+        border: isTop ? `2px solid ${brandColor}` : '1px solid var(--border)',
+      }}
+    >
+      <div className="flex items-start gap-5">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-2">
+            <span
+              className="text-xs font-bold px-2 py-0.5 rounded-full"
+              style={{ background: `${brandColor}20`, color: brandColor }}
+            >
+              #{rank} pick
+            </span>
+            {score !== undefined && (
+              <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: '#dcfce7', color: '#16a34a' }}>
+                🔥 {score}
+              </span>
+            )}
+            <span className="text-xs" style={{ color: 'var(--ink4)' }}>
+              {theme.reviewIds.length} reviews
+            </span>
+            {isNew && (
+              <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: '#fef9c3', color: '#854d0e' }}>
+                New
+              </span>
+            )}
+            {saved && (
+              <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: '#f0fdf4', color: '#16a34a' }}>
+                ✓ In library
+              </span>
+            )}
+          </div>
+          <h3 className="font-bold text-lg mb-1.5 leading-snug" style={{ color: 'var(--ink)', letterSpacing: '-0.02em' }}>
+            {theme.title}
+          </h3>
+          {theme.buzzReason && (
+            <p className="text-sm" style={{ color: 'var(--ink3)' }}>
+              {theme.buzzReason}
+            </p>
+          )}
+        </div>
+
+        <div className="flex-shrink-0 flex items-center self-center ml-4">
+          <div
+            className="px-4 py-2.5 rounded-xl text-sm font-bold transition-all group-hover:scale-105 whitespace-nowrap"
+            style={{ background: brandColor, color: 'white' }}
+          >
+            {saved ? 'Create again →' : 'Create Reel →'}
+          </div>
+        </div>
+      </div>
+    </button>
+  )
+}
+
+// ── Theme card ─────────────────────────────────────────────────
+
+function ThemeCard({ theme, brandColor, saved, isNew, onClick }: {
+  theme: ReelTheme
+  brandColor: string
+  saved: boolean
+  isNew: boolean
   onClick: () => void
 }) {
   const score = theme.buzzScore
@@ -309,7 +466,7 @@ function ThemeCard({ theme, brandColor, onClick }: {
                 className="text-xs font-bold px-2.5 py-1 rounded-full"
                 style={{ background: scoreBg, color: scoreColor }}
               >
-                Buzz Score {score}
+                🔥 {score}
               </span>
             )}
             {theme.reelCategory === 'educational' && (
@@ -325,6 +482,16 @@ function ThemeCard({ theme, brandColor, onClick }: {
             <span className="text-xs" style={{ color: 'var(--ink4)' }}>
               {theme.reviewIds.length} review{theme.reviewIds.length !== 1 ? 's' : ''}
             </span>
+            {isNew && (
+              <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: '#fef9c3', color: '#854d0e' }}>
+                New
+              </span>
+            )}
+            {saved && (
+              <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: '#f0fdf4', color: '#16a34a' }}>
+                ✓ In library
+              </span>
+            )}
           </div>
         </div>
 
@@ -333,7 +500,7 @@ function ThemeCard({ theme, brandColor, onClick }: {
             className="px-4 py-2 rounded-xl text-sm font-bold transition-all group-hover:scale-105"
             style={{ background: brandColor, color: 'white' }}
           >
-            Build Reel →
+            {saved ? 'Create again →' : 'Build Reel →'}
           </div>
         </div>
       </div>

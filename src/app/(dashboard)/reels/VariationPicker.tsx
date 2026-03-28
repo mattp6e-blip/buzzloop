@@ -21,27 +21,26 @@ interface VariationPickerProps {
   onRegenerate: () => void
 }
 
-export function VariationPicker({ variations, brandColor, brandSecondaryColor, logoUrl, businessName, industry, websiteUrl, onSelect, onConfirm, onRegenerate }: VariationPickerProps) {
-  const [selected, setSelected] = useState<number | null>(null)
+const TONE_ICONS: Record<string, string> = {
+  story: '❤',
+  bold: '⚡',
+  authority: '✦',
+}
+
+export function VariationPicker({ variations, brandColor, brandSecondaryColor, logoUrl, businessName, industry, websiteUrl, onSelect, onConfirm }: VariationPickerProps) {
+  const [selectedId, setSelectedId] = useState<number | null>(null)
   const [fullscreenVariation, setFullscreenVariation] = useState<ReelVariation | null>(null)
-  const [regenerating, setRegenerating] = useState(false)
 
   useEffect(() => {
-    if (variations.length > 0 && selected === null) {
-      setSelected(variations[0].id)
+    if (variations.length > 0 && selectedId === null) {
+      setSelectedId(variations[0].id)
       onSelect(variations[0])
     }
   }, [variations])
 
   function handleSelect(variation: ReelVariation) {
-    setSelected(variation.id)
+    setSelectedId(variation.id)
     onSelect(variation)
-  }
-
-  async function handleRegenerate() {
-    setRegenerating(true)
-    setSelected(null)
-    onRegenerate()
   }
 
   const makeProps = (variation: ReelVariation): ReelCompositionProps => ({
@@ -55,123 +54,84 @@ export function VariationPicker({ variations, brandColor, brandSecondaryColor, l
     websiteUrl,
   })
 
-  const TONE_ICONS: Record<string, string> = {
-    story: '❤',
-    bold: '⚡',
-    authority: '✦',
-  }
+  const activeVariation = variations.find(v => v.id === selectedId) ?? variations[0]
+  if (!activeVariation) return null
 
   return (
-    <div style={{ maxWidth: 900 }}>
-      {/* Header */}
-      <div className="flex items-center justify-between mb-5">
-        <div>
-          <p className="text-sm font-medium" style={{ color: 'var(--ink2)' }}>Three versions of your reel — same story, different voice.</p>
-          <p className="text-xs mt-0.5" style={{ color: 'var(--ink4)' }}>Pick the one that sounds most like you.</p>
-        </div>
-        <button
-          onClick={handleRegenerate}
-          disabled={regenerating}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all hover:bg-[var(--bg2)] disabled:opacity-50"
-          style={{ borderColor: 'var(--border)', color: 'var(--ink2)' }}
-        >
-          {regenerating ? <span className="inline-block w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" /> : '↺'}
-          Regenerate
-        </button>
-      </div>
+    <div style={{ maxWidth: 320 }}>
 
-      {/* Variation cards */}
-      <div className={`grid gap-4 mb-6`} style={{ gridTemplateColumns: `repeat(${variations.length}, 1fr)` }}>
+      {/* Tab switcher */}
+      <div className="flex gap-2 mb-5 p-1 rounded-2xl" style={{ background: 'var(--bg2)' }}>
         {variations.map(variation => {
-          const isSelected = selected === variation.id
-          const frames = Math.round(variation.script.totalDuration * REEL_FPS)
-
+          const isActive = variation.id === selectedId
           return (
-            <div key={variation.id} className="flex flex-col gap-2">
-              {/* Variation name + description */}
-              <div className="flex items-center gap-2 px-1">
-                <span className="text-sm">{TONE_ICONS[variation.tone] ?? '·'}</span>
-                <div>
-                  <p className="text-sm font-bold leading-tight" style={{ color: 'var(--ink)' }}>{variation.label}</p>
-                  <p className="text-xs" style={{ color: 'var(--ink4)' }}>{variation.description}</p>
-                </div>
-              </div>
-
-              {/* Video card */}
-              <div
-                className="rounded-2xl overflow-hidden transition-all duration-200 cursor-pointer"
-                style={{
-                  border: `3px solid ${isSelected ? brandColor : 'var(--border)'}`,
-                  boxShadow: isSelected ? `0 0 0 4px ${brandColor}25` : 'none',
-                }}
-                onClick={() => handleSelect(variation)}
-              >
-                <div className="relative" style={{ aspectRatio: '9/16', background: '#0a0a0a' }}>
-                  <Player
-                    component={ReelCompositionModule as never}
-                    inputProps={makeProps(variation)}
-                    durationInFrames={frames}
-                    compositionWidth={REEL_WIDTH}
-                    compositionHeight={REEL_HEIGHT}
-                    fps={REEL_FPS}
-                    style={{ width: '100%', height: '100%' }}
-                    controls={false}
-                    loop
-                    autoPlay
-                    initialFrame={REEL_FPS * 2}
-                  />
-
-                  {/* Full preview button */}
-                  <button
-                    className="absolute inset-0 flex items-end justify-center pb-3 opacity-0 hover:opacity-100 transition-opacity"
-                    onClick={e => { e.stopPropagation(); setFullscreenVariation(variation) }}
-                  >
-                    <div className="bg-black/60 text-white text-xs font-semibold px-3 py-1.5 rounded-full backdrop-blur-sm">
-                      ▶ Full preview
-                    </div>
-                  </button>
-
-                  {/* Selected badge */}
-                  {isSelected && (
-                    <div className="absolute top-2 left-2 flex items-center gap-1 px-2 py-1 rounded-full text-white text-xs font-bold"
-                      style={{ background: brandColor }}>
-                      ✓ Selected
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Hook preview */}
-              <p className="text-xs leading-relaxed px-1" style={{ color: 'var(--ink3)' }}>
-                &ldquo;{variation.hookHeadline}&rdquo;
-              </p>
-
-              {/* Select button */}
-              <button
-                onClick={() => handleSelect(variation)}
-                className="w-full py-2.5 rounded-xl text-sm font-semibold transition-all"
-                style={isSelected
-                  ? { background: brandColor, color: 'white' }
-                  : { background: 'var(--bg2)', color: 'var(--ink2)', border: '1.5px solid var(--border)' }
-                }
-              >
-                {isSelected ? '✓ Selected' : 'Select'}
-              </button>
-            </div>
+            <button
+              key={variation.id}
+              onClick={() => handleSelect(variation)}
+              className="flex-1 flex flex-col items-center gap-0.5 py-2.5 px-3 rounded-xl text-xs font-semibold transition-all duration-150"
+              style={{
+                background: isActive ? 'var(--surface)' : 'transparent',
+                color: isActive ? brandColor : 'var(--ink3)',
+                boxShadow: isActive ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
+              }}
+            >
+              <span className="text-base leading-none">{TONE_ICONS[variation.tone] ?? '·'}</span>
+              <span>{variation.label}</span>
+            </button>
           )
         })}
       </div>
 
-      {/* Confirm */}
-      {selected !== null && (
+      {/* Description */}
+      <p className="text-xs text-center mb-4" style={{ color: 'var(--ink4)' }}>
+        {activeVariation.description}
+      </p>
+
+      {/* Single phone preview — key forces remount (restarts reel) on tab switch */}
+      <div
+        className="rounded-2xl overflow-hidden relative"
+        style={{
+          aspectRatio: '9/16',
+          background: '#0a0a0a',
+          border: `3px solid ${brandColor}`,
+          boxShadow: `0 0 0 4px ${brandColor}25`,
+        }}
+      >
+        <Player
+          key={selectedId}
+          component={ReelCompositionModule as never}
+          inputProps={makeProps(activeVariation)}
+          durationInFrames={Math.round(activeVariation.script.totalDuration * REEL_FPS)}
+          compositionWidth={REEL_WIDTH}
+          compositionHeight={REEL_HEIGHT}
+          fps={REEL_FPS}
+          style={{ width: '100%', height: '100%' }}
+          controls={false}
+          loop
+          autoPlay
+        />
+
+        {/* Fullscreen icon */}
         <button
-          onClick={onConfirm}
-          className="w-full py-3 rounded-xl text-sm font-bold mb-6 transition-all hover:opacity-90"
-          style={{ background: brandColor, color: 'white' }}
+          className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-lg opacity-70 hover:opacity-100 transition-opacity"
+          style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
+          onClick={() => setFullscreenVariation(activeVariation)}
+          title="Full preview"
         >
-          Edit & Save this version →
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+          </svg>
         </button>
-      )}
+      </div>
+
+      {/* Confirm */}
+      <button
+        onClick={onConfirm}
+        className="w-full py-3 rounded-xl text-sm font-bold mt-5 transition-all hover:opacity-90"
+        style={{ background: brandColor, color: 'white' }}
+      >
+        Edit & Save this version →
+      </button>
 
       {/* Fullscreen modal */}
       {fullscreenVariation && (

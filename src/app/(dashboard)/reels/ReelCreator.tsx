@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { VariationPicker } from './VariationPicker'
 import { ReelEditor } from './ReelEditor'
 import type { ReelTheme, ReelScript, Review } from '@/types'
 import type { ReelVariation } from '@/remotion/types'
@@ -47,34 +46,29 @@ function detectLanguage(reviews: Review[]): string {
 }
 
 export function ReelCreator({ theme, reviews, businessName, industry, brandColor, brandFont, logoUrl, websiteUrl, brandPersonality, brandSecondaryColor, customerWord, serviceWord, bookingWord, businessId, city, onBack, onScriptCached }: Props) {
-  const [variations, setVariations]       = useState<ReelVariation[]>([])
-  const [selectedVariation, setSelectedVariation] = useState<ReelVariation | null>(null)
-  const [editMode, setEditMode]           = useState(false)
-  const [generating, setGenerating]       = useState(true)
-  const [caption, setCaption]             = useState('')
+  const [variations, setVariations]               = useState<ReelVariation[]>([])
+  const [generating, setGenerating]               = useState(true)
+  const [caption, setCaption]                     = useState('')
   const [generatingCaption, setGeneratingCaption] = useState(false)
-  const [saving, setSaving]               = useState(false)
-  const [saved, setSaved]                 = useState(false)
-  const [saveError, setSaveError]         = useState<string | null>(null)
-  const [cityValue, setCityValue]         = useState(city ?? '')
-  const [cityMissing, setCityMissing]     = useState(false)
-  const [savingCity, setSavingCity]       = useState(false)
+  const [saving, setSaving]                       = useState(false)
+  const [saved, setSaved]                         = useState(false)
+  const [saveError, setSaveError]                 = useState<string | null>(null)
+  const [cityValue, setCityValue]                 = useState(city ?? '')
+  const [cityMissing, setCityMissing]             = useState(false)
+  const [savingCity, setSavingCity]               = useState(false)
 
   useEffect(() => {
-    // Use cached variations if available — no API call needed
     if (theme.cachedVariations?.length && theme.cachedVariations[0]?.script) {
       setVariations(theme.cachedVariations)
       setGenerating(false)
       generateCaption(reviews.filter(r => theme.reviewIds.includes(r.id)))
       return
     }
-    const themeReviews = reviews.filter(r => theme.reviewIds.includes(r.id))
-    generateScript(themeReviews)
+    generateScript(reviews.filter(r => theme.reviewIds.includes(r.id)))
   }, [])
 
   async function generateScript(themeReviews: Review[]) {
     setGenerating(true)
-    setSelectedVariation(null)
     setSaved(false)
     const res = await fetch('/api/generate-reel', {
       method: 'POST',
@@ -139,7 +133,6 @@ export function ReelCreator({ theme, reviews, businessName, industry, brandColor
     const supabase = createClient()
     const themeReviews = reviews.filter(r => theme.reviewIds.includes(r.id))
 
-    // Merge variation hook/CTA + visual style into the script for storage
     const finalScript: ReelScript = {
       ...editedScript,
       visualStyle: editedVariation.visualStyle,
@@ -164,8 +157,6 @@ export function ReelCreator({ theme, reviews, businessName, industry, brandColor
     if (error) { setSaveError(error.message); return }
     setSaved(true)
   }
-
-  const themeReviews = reviews.filter(r => theme.reviewIds.includes(r.id))
 
   return (
     <div className="w-full">
@@ -196,30 +187,13 @@ export function ReelCreator({ theme, reviews, businessName, industry, brandColor
         </div>
       )}
 
-      {/* Step 1 — Pick visual style */}
-      {!generating && variations.length > 0 && !editMode && (
-        <div className="mb-8">
-          <VariationPicker
-            variations={variations}
-            brandColor={brandColor}
-            brandSecondaryColor={brandSecondaryColor}
-            logoUrl={logoUrl}
-            businessName={businessName}
-            industry={industry}
-            websiteUrl={websiteUrl}
-            onSelect={v => { setSelectedVariation(v); setSaved(false) }}
-            onConfirm={() => setEditMode(true)}
-            onRegenerate={() => { setEditMode(false); generateScript(themeReviews) }}
-          />
-        </div>
-      )}
-
-      {/* Step 2 — Edit & save */}
-      {!generating && selectedVariation?.script && editMode && (
+      {/* Editor — shown as soon as variations are ready */}
+      {!generating && variations.length > 0 && (
         <ReelEditor
-          key={selectedVariation.id}
-          script={selectedVariation.script}
-          variation={selectedVariation}
+          key={variations[0].id}
+          variations={variations}
+          script={variations[0].script}
+          variation={variations[0]}
           brandColor={brandColor}
           brandSecondaryColor={brandSecondaryColor}
           logoUrl={logoUrl}
@@ -235,7 +209,7 @@ export function ReelCreator({ theme, reviews, businessName, industry, brandColor
           savingCity={savingCity}
           onCitySave={handleCitySave}
           onSave={handleSave}
-          onBack={() => setEditMode(false)}
+          onBack={onBack}
           saving={saving}
           saved={saved}
           saveError={saveError}

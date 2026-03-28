@@ -25,11 +25,11 @@ export default async function ContentPage() {
     .order('created_at', { ascending: false })
 
   return (
-    <div className="p-8 max-w-4xl">
+    <div className="p-8" style={{ maxWidth: 900 }}>
       <div className="mb-8">
         <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--ink)' }}>Content library</h1>
         <p className="text-sm" style={{ color: 'var(--ink3)' }}>
-          {posts?.length ?? 0} post{posts?.length !== 1 ? 's' : ''} saved
+          {posts?.length ?? 0} reel{posts?.length !== 1 ? 's' : ''} saved
         </p>
       </div>
       <ContentClient
