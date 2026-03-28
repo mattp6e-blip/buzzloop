@@ -60,7 +60,7 @@ export function HookScene({ headline, subline, photoUrl, visualStyle, brandColor
 
         <AnimatedText
           text={headline}
-          anim={visualStyle.textAnim}
+          anim="word-reveal"
           delay={15}
           style={{
             fontSize: 76,

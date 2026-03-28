@@ -62,7 +62,7 @@ export function CTAScene({ headline, ctaText, websiteUrl, businessName, logoUrl,
         {headline && (
           <AnimatedText
             text={headline}
-            anim={visualStyle.textAnim}
+            anim="word-reveal"
             delay={8}
             style={{
               fontSize: 44,

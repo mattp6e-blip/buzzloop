@@ -1,7 +1,7 @@
 import { useCurrentFrame, useVideoConfig, interpolate, spring } from 'remotion'
 import type { VisualStyleConfig } from '../types'
 
-type TextAnim = VisualStyleConfig['textAnim']
+type TextAnim = VisualStyleConfig['textAnim'] | 'word-reveal'
 
 interface AnimatedTextProps {
   text: string
@@ -62,6 +62,37 @@ export function AnimatedText({ text, style, anim, delay = 0, highlightWords = []
         {charsToShow < text.length && (
           <span style={{ opacity: Math.round(f / 4) % 2 === 0 ? 1 : 0, color: highlightColor }}>|</span>
         )}
+      </div>
+    )
+  }
+
+  if (anim === 'word-reveal') {
+    const words = text.split(' ')
+    const stagger = 5 // frames between each word (at 30fps ≈ 4–5 words/sec)
+    return (
+      <div style={baseStyle}>
+        {words.map((word, i) => {
+          const wf = Math.max(0, f - i * stagger)
+          const opacity = interpolate(wf, [0, 8], [0, 1], { extrapolateRight: 'clamp' })
+          const translateY = interpolate(wf, [0, 8], [10, 0], { extrapolateRight: 'clamp' })
+          const isHighlight = highlightWords.some(
+            hw => hw.toLowerCase() === word.replace(/[^a-zA-Z0-9]/g, '').toLowerCase()
+          )
+          return (
+            <>
+              <span key={i} style={{
+                opacity,
+                transform: `translateY(${translateY}px)`,
+                display: 'inline-block',
+                color: isHighlight ? highlightColor : 'inherit',
+                fontWeight: isHighlight ? 800 : 'inherit',
+              }}>
+                {word}
+              </span>
+              {i < words.length - 1 && ' '}
+            </>
+          )
+        })}
       </div>
     )
   }

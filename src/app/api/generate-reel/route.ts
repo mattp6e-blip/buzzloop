@@ -102,16 +102,16 @@ NEVER include any URL, domain, or website address anywhere.
 Return ONLY valid JSON:
 {
   "themeTitle": "${theme.title}",
-  "totalDuration": 29,
+  "totalDuration": 22,
   "hookHeadline": "The single best hook for this story — specific, surprising, true for ALL reviews (max 8 words)",
   "hookSubline": "Optional 5-word subline that adds context, or null",
   "ctaText": "Warm closing CTA that callbacks to something specific in the reviews",
   "slides": [
-    { "type": "hook", "duration": 4, "content": { "headline": "Specific surprising hook (max 8 words)", "subline": null } },
-    { "type": "quote", "duration": 5, "content": { "quote": "Most powerful sentence from review 1 (max 18 words)", "highlightWords": ["word1", "word2"], "author": "First name or null" } },
-    { "type": "quote", "duration": 5, "content": { "quote": "Most powerful sentence from review 2 (max 18 words)", "highlightWords": ["word1"], "author": "First name or null" } },
-    { "type": "proof", "duration": 5, "content": { "stat": "Logical fact that follows from this story (max 8 words)", "subline": "Short reinforcing line (max 5 words)" } },
-    { "type": "cta", "duration": 10, "content": { "headline": "Short question or statement connecting story to viewer", "cta": "Specific warm invitation that callbacks to the story" } }
+    { "type": "hook", "duration": 3, "content": { "headline": "Specific surprising hook (max 8 words)", "subline": null } },
+    { "type": "quote", "duration": 4, "content": { "quote": "Most powerful sentence from review 1 (max 12 words)", "highlightWords": ["word1", "word2"], "author": "First name or null" } },
+    { "type": "quote", "duration": 4, "content": { "quote": "Most powerful sentence from review 2 (max 12 words)", "highlightWords": ["word1"], "author": "First name or null" } },
+    { "type": "proof", "duration": 3, "content": { "stat": "Logical fact that follows from this story (max 8 words)", "subline": "Short reinforcing line (max 5 words)" } },
+    { "type": "cta", "duration": 8, "content": { "headline": "Short question or statement connecting story to viewer", "cta": "Specific warm invitation that callbacks to the story" } }
   ]
 }`
 }

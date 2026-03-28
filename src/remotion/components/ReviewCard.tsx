@@ -1,4 +1,4 @@
-import { useCurrentFrame, useVideoConfig, interpolate, spring, AbsoluteFill } from 'remotion'
+import { useCurrentFrame, useVideoConfig, interpolate, spring } from 'remotion'
 import { AnimatedText, AnimatedStars } from './AnimatedText'
 import type { VisualStyleConfig } from '../types'
 
@@ -54,7 +54,7 @@ function FloatingCard({ quote, author, rating, highlightWords, textColor, accent
       <div style={{ fontSize: 120, lineHeight: 0.6, color: accentColor, opacity: 0.4, fontFamily: 'Georgia, serif', marginBottom: 24 }}>&ldquo;</div>
       <AnimatedText
         text={quote}
-        anim="fade-up"
+        anim="word-reveal"
         delay={8}
         highlightWords={highlightWords}
         highlightColor={accentColor}
@@ -85,7 +85,7 @@ function FullscreenCard({ quote, author, rating, highlightWords, textColor, acce
       }} />
       <AnimatedText
         text={`"${quote}"`}
-        anim="scale-in"
+        anim="word-reveal"
         delay={10}
         highlightWords={highlightWords}
         highlightColor={accentColor}
@@ -114,9 +114,14 @@ function ChatBubble({ quote, author, rating, highlightWords, textColor, accentCo
         position: 'relative',
         boxShadow: `0 24px 60px ${accentColor}40`,
       }}>
-        <div style={{ fontSize: 42, color: textColor === '#1a1a2e' ? '#1a1a2e' : '#ffffff', fontWeight: 600, lineHeight: 1.45, letterSpacing: '-0.01em' }}>
-          <HighlightText text={`"${quote}"`} words={highlightWords} color={textColor === '#1a1a2e' ? '#1a1a2e' : '#ffffff'} accentColor={accentColor} />
-        </div>
+        <AnimatedText
+          text={`"${quote}"`}
+          anim="word-reveal"
+          delay={0}
+          highlightWords={highlightWords}
+          highlightColor={textColor === '#1a1a2e' ? '#1a1a2e' : '#ffffff'}
+          style={{ fontSize: 42, color: textColor === '#1a1a2e' ? '#1a1a2e' : '#ffffff', fontWeight: 600, lineHeight: 1.45, letterSpacing: '-0.01em' }}
+        />
       </div>
       {/* Bubble tail */}
       <div style={{ width: 32, height: 24, background: accentColor, clipPath: 'polygon(0 0, 100% 0, 0 100%)', marginLeft: 20 }} />
@@ -141,7 +146,7 @@ function OverlayCard({ quote, author, rating, highlightWords, textColor, accentC
     }}>
       <AnimatedText
         text={`"${quote}"`}
-        anim="typewriter"
+        anim="word-reveal"
         delay={5}
         highlightWords={highlightWords}
         highlightColor={accentColor}
