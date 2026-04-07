@@ -87,7 +87,7 @@ export function QuoteScene({ quote, author, highlightWords = [], template, brand
           transform: `translateY(${cardY}px)`,
           opacity: cardOpacity,
         }}>
-          <QuoteText quote={quote} highlightWords={highlightWords} brandColor={brandColor} template={template} />
+          <QuoteText quote={quote} highlightWords={highlightWords} brandColor={brandColor} template={template} delay={12} />
         </div>
 
         {/* Author */}
@@ -108,14 +108,18 @@ export function QuoteScene({ quote, author, highlightWords = [], template, brand
   )
 }
 
-function QuoteText({ quote, highlightWords, brandColor, template }: {
+function QuoteText({ quote, highlightWords, brandColor, template, delay = 0 }: {
   quote: string
   highlightWords: string[]
   brandColor: string
   template: VisualTemplate
+  delay?: number
 }) {
+  const frame = useCurrentFrame()
   const highlighted = new Set(highlightWords.map(w => w.toLowerCase()))
   const words = quote.split(' ')
+  const f = Math.max(0, frame - delay)
+  const stagger = 4 // frames between each word
 
   const fontSize = template === 'editorial' ? 72 : 58
   const fontWeight = template === 'editorial' ? 900 : 700
@@ -129,16 +133,23 @@ function QuoteText({ quote, highlightWords, brandColor, template }: {
       lineHeight: 1.2,
       flexWrap: 'wrap',
       display: 'flex',
+      alignItems: 'flex-start',
     }}>
       {/* Opening quote mark */}
-      <span style={{ color: brandColor, marginRight: 4, fontWeight: 900, fontSize: fontSize * 1.4, lineHeight: 0.8, verticalAlign: 'top' }}>&ldquo;</span>
+      <span style={{ color: brandColor, marginRight: 4, fontWeight: 900, fontSize: fontSize * 1.4, lineHeight: 0.8, verticalAlign: 'top', opacity: f > 0 ? 1 : 0 }}>&ldquo;</span>
       {words.map((word, i) => {
+        const wf = Math.max(0, f - i * stagger)
+        const opacity = interpolate(wf, [0, 8], [0, 1], { extrapolateRight: 'clamp' })
+        const translateY = interpolate(wf, [0, 8], [12, 0], { extrapolateRight: 'clamp' })
         const clean = word.toLowerCase().replace(/[^a-z]/g, '')
         const isHighlighted = highlighted.has(clean)
         return (
           <span
             key={i}
             style={{
+              opacity,
+              transform: `translateY(${translateY}px)`,
+              display: 'inline-block',
               color: isHighlighted ? brandColor : '#ffffff',
               fontWeight: isHighlighted ? 900 : fontWeight,
               marginRight: '0.25em',
