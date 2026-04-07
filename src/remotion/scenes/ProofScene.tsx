@@ -22,7 +22,7 @@ export function ProofScene({ stat, headline, template, brandColor, logoUrl, busi
   const { fps } = useVideoConfig()
   const config = TEMPLATE_CONFIGS[template]
 
-  const photo = gbpPhotos[gbpPhotos.length - 1]
+  const photo = null // Proof slides always dark
 
   const statSpring = spring({ frame, fps, config: { stiffness: 60, damping: 12 }, delay: 5 })
   const statScale = interpolate(statSpring, [0, 1], [0.7, 1])

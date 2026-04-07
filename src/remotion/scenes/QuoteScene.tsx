@@ -24,7 +24,7 @@ export function QuoteScene({ quote, author, highlightWords = [], template, brand
   const { fps } = useVideoConfig()
   const config = TEMPLATE_CONFIGS[template]
 
-  const hasPhotos = gbpPhotos.length > 0
+  const hasPhotos = false // Quote slides always dark — photos only on Hook + CTA
   const photo = gbpPhotos[photoIndex % gbpPhotos.length]
 
   // Star rating animation

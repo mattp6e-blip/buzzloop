@@ -125,6 +125,11 @@ export function VariationPicker({ variations, brandColor, brandSecondaryColor, l
         </button>
       </div>
 
+      {/* Quality note */}
+      <p className="text-center text-xs mt-2 mb-1" style={{ color: 'var(--ink4)' }}>
+        Preview is scaled down — exported video is full 1080p HD
+      </p>
+
       {/* Confirm */}
       <button
         onClick={onConfirm}
