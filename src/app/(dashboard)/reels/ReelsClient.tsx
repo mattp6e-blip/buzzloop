@@ -313,40 +313,48 @@ export function ReelsClient({ reviews, businessId, businessName, industry, brand
         </div>
       )}
 
-      {themes && themes.length > 0 && !analyzing && (
+      {themes && themes.length > 0 && !analyzing && (() => {
+        const proofThemes   = themes.filter(t => !t.contentType || t.contentType === 'social_proof')
+        const varietyThemes = themes.filter(t => t.contentType && t.contentType !== 'social_proof')
+        const cardProps = (theme: ReelTheme) => ({
+          theme,
+          brandColor: activeBrandColor,
+          saved: savedThemeTitles.includes(theme.title),
+          isNew: seenThemes.size > 0 && !seenThemes.has(theme.title),
+          onClick: () => { markThemeSeen(theme.title); setSelectedTheme(theme) },
+        })
+
+        return (
         <div>
 
-          {/* Recommended — top 3 */}
-          <div className="mb-8">
-            <div className="flex flex-col gap-3">
-              {themes.slice(0, 3).map((theme, i) => (
-                <RecommendedCard
-                  key={theme.id}
-                  theme={theme}
-                  brandColor={activeBrandColor}
-                  rank={i + 1}
-                  saved={savedThemeTitles.includes(theme.title)}
-                  isNew={seenThemes.size > 0 && !seenThemes.has(theme.title)}
-                  onClick={() => { markThemeSeen(theme.title); setSelectedTheme(theme) }}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* More ideas */}
-          {themes.length > 3 && (
-            <div>
-              <h2 className="font-bold text-base mb-4" style={{ color: 'var(--ink)' }}>More ideas</h2>
+          {/* Social proof — top picks */}
+          {proofThemes.length > 0 && (
+            <div className="mb-8">
               <div className="flex flex-col gap-3">
-                {themes.slice(3).map(theme => (
-                  <ThemeCard
-                    key={theme.id}
-                    theme={theme}
-                    brandColor={activeBrandColor}
-                    saved={savedThemeTitles.includes(theme.title)}
-                    isNew={seenThemes.size > 0 && !seenThemes.has(theme.title)}
-                    onClick={() => { markThemeSeen(theme.title); setSelectedTheme(theme) }}
-                  />
+                {proofThemes.slice(0, 3).map((theme, i) => (
+                  <RecommendedCard key={theme.id} {...cardProps(theme)} rank={i + 1} />
+                ))}
+              </div>
+              {proofThemes.length > 3 && (
+                <div className="flex flex-col gap-3 mt-3">
+                  {proofThemes.slice(3).map(theme => (
+                    <ThemeCard key={theme.id} {...cardProps(theme)} />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Content variety */}
+          {varietyThemes.length > 0 && (
+            <div className="mb-8">
+              <div className="mb-4">
+                <h2 className="font-bold text-base" style={{ color: 'var(--ink)' }}>Grow your audience</h2>
+                <p className="text-sm mt-0.5" style={{ color: 'var(--ink3)' }}>Educational and experience content that builds trust between sales posts.</p>
+              </div>
+              <div className="flex flex-col gap-3">
+                {varietyThemes.map(theme => (
+                  <ThemeCard key={theme.id} {...cardProps(theme)} />
                 ))}
               </div>
             </div>
@@ -376,7 +384,8 @@ export function ReelsClient({ reviews, businessId, businessName, industry, brand
             ↺ Re-analyse (uses AI credits)
           </button>
         </div>
-      )}
+        )
+      })()}
     </div>
   )
 }
