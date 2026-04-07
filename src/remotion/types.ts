@@ -1,4 +1,5 @@
 import type { ReelScript } from '@/types'
+import type { ReelMotif } from './motifs'
 
 export type VisualTemplate = 'immersive' | 'collage' | 'editorial'
 
@@ -15,6 +16,8 @@ export interface ReelVariation {
   script: ReelScript
   hookPhoto?: string | null   // specific photo for hook slide
   ctaPhoto?: string | null    // specific photo for CTA slide
+  motif?: ReelMotif           // visual background animation
+  motifValue?: number         // numeric context (e.g. count for counter_up)
 }
 
 export interface ReelCompositionProps {

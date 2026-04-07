@@ -61,6 +61,8 @@ export function ReelComposition({
                   headline={variation.hookHeadline}
                   subline={variation.hookSubline}
                   photo={hookPhoto}
+                  motif={variation.motif}
+                  motifValue={variation.motifValue}
                   {...commonProps}
                 />
               )}
@@ -79,6 +81,8 @@ export function ReelComposition({
                   brandColor={brandColor}
                   industry={industry}
                   gbpPhotos={photos}
+                  motif={variation.motif}
+                  motifValue={variation.motifValue}
                 />
               )}
               {type === 'proof' && (

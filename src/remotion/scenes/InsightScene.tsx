@@ -1,6 +1,8 @@
 import { AbsoluteFill, useCurrentFrame, interpolate } from 'remotion'
 import { Background } from '../components/Background'
 import { AnimatedText } from '../components/AnimatedText'
+import { MotifLayer } from '../motifs'
+import type { ReelMotif } from '../motifs'
 
 interface InsightSceneProps {
   headline: string
@@ -8,15 +10,18 @@ interface InsightSceneProps {
   brandColor: string
   industry: string
   gbpPhotos: string[]
+  motif?: ReelMotif
+  motifValue?: number
 }
 
-export function InsightScene({ headline, subline, brandColor, industry }: InsightSceneProps) {
+export function InsightScene({ headline, subline, brandColor, industry, motif, motifValue }: InsightSceneProps) {
   const frame = useCurrentFrame()
   const lineWidth = interpolate(frame, [5, 35], [0, 100], { extrapolateRight: 'clamp' })
 
   return (
     <AbsoluteFill>
       <Background brandColor={brandColor} industry={industry} />
+      <MotifLayer motif={motif} brandColor={brandColor} value={motifValue} />
 
       <AbsoluteFill style={{
         display: 'flex',

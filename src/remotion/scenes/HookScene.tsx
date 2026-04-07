@@ -3,7 +3,9 @@ import { Background } from '../components/Background'
 import { PhotoLayer, CollageLayer } from '../components/PhotoLayer'
 import { AnimatedText } from '../components/AnimatedText'
 import { LogoMark } from '../components/LogoMark'
+import { MotifLayer } from '../motifs'
 import type { VisualTemplate } from '../types'
+import type { ReelMotif } from '../motifs'
 import { TEMPLATE_CONFIGS } from '../styleConfigs'
 
 interface HookSceneProps {
@@ -15,9 +17,11 @@ interface HookSceneProps {
   businessName: string
   industry: string
   photo?: string | null
+  motif?: ReelMotif
+  motifValue?: number
 }
 
-export function HookScene({ headline, subline, template, brandColor, logoUrl, businessName, industry, photo }: HookSceneProps) {
+export function HookScene({ headline, subline, template, brandColor, logoUrl, businessName, industry, photo, motif, motifValue }: HookSceneProps) {
   const frame = useCurrentFrame()
   const config = TEMPLATE_CONFIGS[template]
 
@@ -38,6 +42,9 @@ export function HookScene({ headline, subline, template, brandColor, logoUrl, bu
       ) : (
         <Background brandColor={brandColor} industry={industry} />
       )}
+
+      {/* Motif layer — sits above background, behind text */}
+      <MotifLayer motif={motif} brandColor={brandColor} value={motifValue} />
 
       <LogoMark logoUrl={logoUrl} businessName={businessName} placement={config.logo} color={brandColor} delay={10} />
 

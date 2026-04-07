@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import type { Review, ReelTheme, ReelScript } from '@/types'
 import type { ReelVariation, VisualTemplate } from '@/remotion/types'
+import type { ReelMotif } from '@/remotion/motifs'
 
 type Tone = 'story' | 'proof' | 'bold'
 
@@ -382,6 +383,53 @@ Return ONLY valid JSON:
 }`
 }
 
+// ── Motif selection ───────────────────────────────────────────────────────────
+
+const INDUSTRY_ICON: Record<string, ReelMotif> = {
+  dental:        'icon_tooth',
+  gym:           'icon_dumbbell',
+  restaurant:    'icon_fork_knife',
+  bar:           'icon_cocktail',
+  salon:         'icon_scissors',
+  veterinary:    'icon_paw',
+  lawyer:        'icon_scales',
+  optician:      'icon_eye',
+  hotel:         'icon_hotel_bed',
+  tattoo:        'icon_needle',
+  spa:           'light_rays',
+  physiotherapy: 'heartbeat',
+}
+
+function selectMotif(theme: ReelTheme, industry: string, hookHeadline: string): { motif: ReelMotif; motifValue?: number } {
+  const numMatch = hookHeadline.match(/\d+/)
+  const motifValue = numMatch ? parseInt(numMatch[0]) : undefined
+  const ct = theme.contentType ?? 'social_proof'
+
+  if (ct !== 'social_proof') {
+    switch (ct) {
+      case 'educational':    return { motif: 'steps_reveal' }
+      case 'myth_bust':      return { motif: 'split_screen' }
+      case 'experience':     return { motif: INDUSTRY_ICON[industry] ?? 'particles' }
+      case 'local_guide':    return { motif: 'pin_drop' }
+      case 'behind_scenes':  return { motif: 'checklist' }
+      case 'trust':          return { motif: 'years_timeline', motifValue }
+      default:               return { motif: 'none' }
+    }
+  }
+
+  // social_proof — pattern reels → crowd motif
+  if (theme.reelType === 'pattern') return { motif: 'crowd_fill' }
+
+  // story reels — detect framework from hook text
+  if (motifValue) return { motif: 'counter_up', motifValue }
+  if (/fly|flies|flew|drive|drove|travel|abroad|country|countries|miles|km/i.test(hookHeadline)) return { motif: 'flight_path' }
+  if (/year|month|every|always|since|back|streak/i.test(hookHeadline)) return { motif: 'streak_line' }
+  if (/asleep|didn.t|never|impossible|wrong|truth|actually|but/i.test(hookHeadline)) return { motif: 'split_screen' }
+  if (/best|top|perfect|★|star/i.test(hookHeadline)) return { motif: 'stars_fill' }
+
+  return { motif: INDUSTRY_ICON[industry] ?? 'radial_burst' }
+}
+
 // ── Generation ────────────────────────────────────────────────────────────────
 
 async function generateVariation(
@@ -542,9 +590,13 @@ export async function POST(req: NextRequest) {
   )).filter((v): v is ReelVariation => v !== null)
 
   // Assign photos with offset per variation so each reel looks different
+  // Assign motif based on theme + hook content
   variations.forEach((v, i) => {
     if (photos.length >= 1) v.hookPhoto = photos[i * 2 % photos.length]
     if (photos.length >= 2) v.ctaPhoto = photos[(i * 2 + 1) % photos.length]
+    const { motif, motifValue } = selectMotif(theme, industry, v.hookHeadline)
+    v.motif = motif
+    if (motifValue !== undefined) v.motifValue = motifValue
   })
 
   if (!variations.length) {
