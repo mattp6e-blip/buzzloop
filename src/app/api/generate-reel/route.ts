@@ -201,9 +201,10 @@ QUOTE SLIDES — rules:
 - Generic praise ("amazing", "incredible") never gets a quote slide
 
 PROOF SLIDE — rules:
-- Must follow logically from the story the hook + quotes just told
-- Base it on what these specific reviews say — not a generic stat
-- Examples: "4 customers mention the same 20-minute wait" / "4.9★ across ${reviews.length} reviews. ${reviews.length > 10 ? 'Same story.' : 'Every time.'}"
+- Must reference ONLY what the hook and quote slides in THIS reel actually showed — nothing the viewer hasn't seen
+- No new names, places, or facts that weren't in the quotes above
+- Distil the pattern the viewer just witnessed into one undeniable sentence
+- Examples: "3 people. Same story. They all came back." / "4.9★ across ${reviews.length} reviews. Every single one."
 
 CTA — two lines, both required:
 Line 1 (ctaHeadline): Callback to the specific story. Reference something from the hook or quotes.
