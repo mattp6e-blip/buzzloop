@@ -54,7 +54,7 @@ export function HookScene({ headline, subline, template, brandColor, logoUrl, bu
         display: 'flex',
         flexDirection: 'column',
         alignItems: isEditorial ? 'flex-start' : 'center',
-        justifyContent: 'flex-end',
+        justifyContent: (hasPhoto || isEditorial) ? 'flex-end' : 'center',
         padding: isEditorial ? '80px 72px 140px 80px' : '80px 72px 140px 72px',
         textAlign: isEditorial ? 'left' : 'center',
       }}>
