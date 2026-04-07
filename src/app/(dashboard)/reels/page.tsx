@@ -34,7 +34,7 @@ export default async function ReelsPage() {
       : null
 
   return (
-    <div className="p-8" style={{ maxWidth: 900 }}>
+    <div className="p-8" style={{ maxWidth: 1100 }}>
       <ReelsClient
         reviews={currentReviews}
         businessId={business.id}
