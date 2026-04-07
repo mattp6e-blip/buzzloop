@@ -91,107 +91,60 @@ For story reels: reviewIds = anchor + 1-2 supporting reviews. anchorReviewId = p
 For pattern reels: reviewIds = all reviews sharing the pattern (min 3). anchorReviewId omitted.`
 }
 
-// ── Content variety prompt (educational / experience / etc) ───────────────────
-
-const VARIETY_BY_INDUSTRY: Record<string, { type: string; title: string; hook: string; keyPhrase: string; emoji: string }[]> = {
-  dental: [
-    { type: 'educational', title: 'What actually happens during an implant', hook: 'What actually happens during an implant.', keyPhrase: 'dental implant procedure step by step', emoji: '🦷' },
-    { type: 'myth_bust',   title: 'The truth about dental pain in 2024',     hook: 'Most people avoid the dentist for this reason.',  keyPhrase: 'dental anxiety and pain myths', emoji: '💡' },
-  ],
-  clinic: [
-    { type: 'educational', title: 'What to expect at your first appointment', hook: 'What actually happens at your first visit.', keyPhrase: 'first clinic visit what to expect', emoji: '🏥' },
-    { type: 'myth_bust',   title: 'The most common health misconception',     hook: 'Most people get this completely wrong.',           keyPhrase: 'common health misconception', emoji: '💡' },
-  ],
-  physiotherapy: [
-    { type: 'educational', title: 'How physiotherapy actually speeds recovery', hook: 'Why your body heals faster with this.',    keyPhrase: 'physiotherapy recovery mechanism', emoji: '💪' },
-    { type: 'myth_bust',   title: 'Why you should not push through the pain',  hook: 'Stop telling yourself to push through it.',     keyPhrase: 'pain misconception in physio', emoji: '💡' },
-  ],
-  veterinary: [
-    { type: 'educational', title: 'Signs your pet is hiding pain from you', hook: 'Your pet is hiding this from you.',          keyPhrase: 'pet pain signs owners miss', emoji: '🐾' },
-    { type: 'myth_bust',   title: 'The biggest myth about pet dental health', hook: 'Most pet owners believe this. It is wrong.',     keyPhrase: 'pet dental health myths', emoji: '💡' },
-  ],
-  gym: [
-    { type: 'educational', title: 'The training mistake most beginners make', hook: 'The mistake 90% of beginners make on week one.', keyPhrase: 'beginner training mistake', emoji: '🏋️' },
-    { type: 'behind_scenes', title: 'How we build a training programme for you', hook: 'What goes into building your programme.',       keyPhrase: 'personalised training programme process', emoji: '📋' },
-  ],
-  salon: [
-    { type: 'educational',   title: 'How to make your colour last twice as long', hook: 'Your colour is fading faster than it should.', keyPhrase: 'hair colour maintenance at home', emoji: '✂️' },
-    { type: 'behind_scenes', title: 'What actually goes into a perfect balayage',  hook: 'What actually goes into a balayage.',          keyPhrase: 'balayage technique and craft', emoji: '🎨' },
-  ],
-  spa: [
-    { type: 'educational', title: 'What your body actually needs after a massage', hook: 'What to do in the hour after your massage.',  keyPhrase: 'post-massage body care', emoji: '🧘' },
-    { type: 'experience',  title: 'What our signature experience feels like',      hook: 'What the first five minutes feel like here.',  keyPhrase: 'signature spa experience', emoji: '✨' },
-  ],
-  restaurant: [
-    { type: 'behind_scenes', title: 'How our signature dish is actually made',  hook: 'What goes into our most ordered dish.',         keyPhrase: 'signature dish preparation', emoji: '👨‍🍳' },
-    { type: 'experience',    title: 'What a Friday night here actually looks like', hook: 'What a Friday night here actually looks like.', keyPhrase: 'restaurant atmosphere Friday night', emoji: '🍽️' },
-  ],
-  bar: [
-    { type: 'behind_scenes', title: 'How our signature cocktail is made',    hook: 'Three ingredients. One reason people come back.', keyPhrase: 'signature cocktail process', emoji: '🍸' },
-    { type: 'experience',    title: 'What our busiest night actually looks like', hook: 'What our Saturday night actually looks like.',  keyPhrase: 'bar atmosphere Saturday night', emoji: '🎉' },
-  ],
-  hotel: [
-    { type: 'local_guide', title: 'The spot our guests ask about every checkout', hook: 'The spot every single guest asks us about.',   keyPhrase: 'local hidden gem near hotel', emoji: '📍' },
-    { type: 'experience',  title: 'What our guests find every morning',           hook: 'What our guests wake up to every morning.',    keyPhrase: 'hotel morning guest experience', emoji: '🌅' },
-  ],
-  lawyer: [
-    { type: 'educational', title: 'What actually happens at your first legal consultation', hook: 'What actually happens at your first consultation.', keyPhrase: 'first legal consultation process', emoji: '⚖️' },
-    { type: 'myth_bust',   title: 'The biggest myth stopping people from getting help',     hook: 'Most people wait too long because of this.',       keyPhrase: 'legal help misconception', emoji: '💡' },
-  ],
-  tattoo: [
-    { type: 'educational',   title: 'How to make your tattoo heal perfectly',  hook: 'Most people ruin their tattoo in the first week.', keyPhrase: 'tattoo aftercare healing', emoji: '🎨' },
-    { type: 'behind_scenes', title: 'How a custom design actually comes together', hook: 'What goes into designing your tattoo.',           keyPhrase: 'custom tattoo design process', emoji: '✏️' },
-  ],
-  optician: [
-    { type: 'educational', title: 'Signs your vision prescription has changed',    hook: 'Your prescription changed. You just did not notice.', keyPhrase: 'vision prescription change signs', emoji: '👁️' },
-    { type: 'myth_bust',   title: 'The screen time myth your optician wants to bust', hook: 'Screens are not ruining your eyes. Here is what is.',  keyPhrase: 'screen time eye health myth', emoji: '💡' },
-  ],
-  other: [
-    { type: 'educational',   title: 'What most people do not know about this service', hook: 'What most people never ask about this.', keyPhrase: 'industry knowledge most customers miss', emoji: '📚' },
-    { type: 'behind_scenes', title: 'What goes into what we do',                       hook: 'What actually goes into this.',          keyPhrase: 'behind the scenes process', emoji: '🎬' },
-  ],
-}
+// ── Audience-first variety prompt ─────────────────────────────────────────────
 
 function getVarietyPrompt(industry: string, businessName: string, reviewList: string, language: string): string {
-  const templates = VARIETY_BY_INDUSTRY[industry] ?? VARIETY_BY_INDUSTRY.other
+  return `You are a content strategist who understands what makes strangers stop scrolling on Instagram and TikTok.
 
-  return `You are a content strategist for ${businessName} (${industry}). Generate exactly ${templates.length} content variety themes — educational and experience content that helps this business grow beyond social proof.
-
+Business: ${businessName} (${industry})
 LANGUAGE: Write every field in ${language}.
 
-REVIEWS (use these to find the most relevant closing quote for each theme):
+YOUR JOB: Generate 5 "Grow your audience" Reel ideas for this business. These are NOT review-based reels. They attract NEW potential customers who have never heard of this business.
+
+Think like someone at 11pm on their phone who is:
+- About to book their first visit but has an unspoken fear
+- Googling questions they're embarrassed to ask
+- Putting off a decision because of a myth or misconception
+- Curious about what actually happens behind the scenes
+- Would share this with a friend because it surprised them
+
+CONTENT TYPES — use a variety, don't repeat the same type twice:
+- educational: Step-by-step reveal of something most people misunderstand about ${industry}
+- myth_bust: A widespread belief that is wrong and holding people back from booking
+- experience: What it actually feels like for a nervous first-timer (sensory, specific)
+- behind_scenes: A process most customers never see that would reassure or impress them
+- trust: A number, credential, or fact that earns trust before the viewer even asks
+
+HOOK RULES:
+- Must work on a complete stranger with zero context about this business
+- Creates curiosity, names a fear, or states a surprising truth
+- Never sounds like an ad. Never names the business.
+- Max 8 words. Short sentences. No filler.
+
+GOOD hooks: "Most people wait too long. Here's the cost." / "What actually happens in the first 10 minutes." / "You're not supposed to feel anything. Most do."
+BAD hooks: "We offer a great experience." / "Come visit us today." / "Here's what we do."
+
+---
+
+REVIEWS — use these ONLY to find the best closing quote for each theme. Pick the 1 review whose quote emotionally validates what the reel teaches. Do NOT base the topic itself on the reviews.
 ${reviewList}
 
 ---
 
-Generate EXACTLY these ${templates.length} themes in this order:
-${templates.map((t, i) => `
-Theme ${i + 1}:
-- contentType: "${t.type}"
-- Suggested title: "${t.title}"
-- Suggested hook: "${t.hook}"
-- keyPhrase: "${t.keyPhrase}"
-- emoji: "${t.emoji}"
-- Adapt the title and hook to fit the specific business based on the reviews — keep the same angle but make it specific
-- reviewIds: pick the 1-2 review IDs most topically relevant to this theme
-- anchorReviewId: the single review whose quote would best close this reel emotionally`).join('\n')}
-
----
-
-Return ONLY valid JSON:
+Return ONLY valid JSON with exactly 5 themes:
 {
   "themes": [
     {
       "id": "unique-slug",
-      "title": "Adapted title (under 10 words)",
-      "hook": "Adapted hook (max 10 words)",
+      "title": "Reel idea as a scroll-stopping fact (under 10 words)",
+      "hook": "The hook — curiosity, fear, or surprising truth (max 8 words)",
       "reelType": "pattern",
-      "contentType": "${templates[0]?.type ?? 'educational'}",
-      "keyPhrase": "core topic",
-      "emoji": "ONE emoji",
+      "contentType": "educational | myth_bust | experience | behind_scenes | trust",
+      "keyPhrase": "the core topic in 4-6 words",
+      "emoji": "ONE relevant emoji",
       "reviewIds": ["id1"],
       "anchorReviewId": "id1",
-      "buzzReason": "One sentence explaining why this content helps this business grow"
+      "buzzReason": "One sentence: why would a stranger stop scrolling for this?"
     }
   ]
 }`
@@ -242,7 +195,7 @@ export async function POST(req: NextRequest) {
       }),
       client.messages.create({
         model: 'claude-opus-4-6',
-        max_tokens: 1500,
+        max_tokens: 2500,
         system: langSystem,
         messages: [{ role: 'user', content: getVarietyPrompt(industry, businessName, reviewList, language) }],
       }),
