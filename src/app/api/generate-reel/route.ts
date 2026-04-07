@@ -383,6 +383,46 @@ Return ONLY valid JSON:
 }`
 }
 
+// ── Quote validation ──────────────────────────────────────────────────────────
+// Ensures every quote slide contains real customer words, not AI paraphrase.
+// Strategy: check the first 20 chars of Claude's quote against all source reviews.
+// If not found verbatim, extract an actual sentence from the anchor review.
+
+function realExcerpt(text: string, maxWords = 18): string {
+  // Prefer a full sentence under maxWords; fallback to first maxWords words
+  const sentences = text.match(/[^.!?]+[.!?]?/g) ?? []
+  for (const s of sentences) {
+    const words = s.trim().split(/\s+/)
+    if (words.length >= 4 && words.length <= maxWords) return s.trim()
+  }
+  return text.trim().split(/\s+/).slice(0, maxWords).join(' ')
+}
+
+function validateQuotes(script: ReelScript, sourceReviews: Review[]): ReelScript {
+  const allTexts = sourceReviews.map(r => r.what_they_liked.toLowerCase())
+  return {
+    ...script,
+    slides: script.slides.map(slide => {
+      if (slide.type !== 'quote' || !slide.content.quote) return slide
+      const q = slide.content.quote.toLowerCase()
+      const fingerprint = q.replace(/[^a-z0-9 ]/g, '').slice(0, 24).trim()
+      const isReal = fingerprint.length > 8 && allTexts.some(t => t.replace(/[^a-z0-9 ]/g, '').includes(fingerprint))
+      if (isReal) return slide
+      // Claude fabricated or paraphrased — replace with a real excerpt
+      const anchor = sourceReviews[0]
+      if (!anchor) return slide
+      return {
+        ...slide,
+        content: {
+          ...slide.content,
+          quote: realExcerpt(anchor.what_they_liked),
+          author: anchor.customer_name ?? slide.content.author,
+        },
+      }
+    }),
+  }
+}
+
 // ── Motif selection ───────────────────────────────────────────────────────────
 
 const INDUSTRY_ICON: Record<string, ReelMotif> = {
@@ -513,12 +553,18 @@ async function generateVariation(
     }
 
     const config = TONE_CONFIGS[tone]
-    const script: ReelScript = {
+    const rawScript: ReelScript = {
       themeTitle: parsed.themeTitle as string,
       totalDuration: parsed.totalDuration as number,
       slides: parsed.slides as ReelScript['slides'],
       template: config.template,
     }
+
+    // Guarantee all quote slides contain real customer words
+    const quoteSourceReviews = isVariety
+      ? (closingReview ? [closingReview, ...reviews.slice(0, 3)] : reviews.slice(0, 4))
+      : reviews
+    const script = validateQuotes(rawScript, quoteSourceReviews)
 
     return {
       id: (['story', 'proof', 'bold'] as Tone[]).indexOf(tone) + 1,
