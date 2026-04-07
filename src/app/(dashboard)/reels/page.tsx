@@ -10,14 +10,14 @@ export default async function ReelsPage() {
 
   const { data: business } = await supabase
     .from('businesses')
-    .select('id, name, industry, city, brand_color, brand_font, brand_logo_url, brand_secondary_color, brand_personality, brand_extracted, website_url, reel_themes, reel_themes_review_count, google_connected')
+    .select('id, name, industry, city, brand_color, brand_font, brand_logo_url, brand_secondary_color, brand_personality, brand_extracted, website_url, reel_themes, reel_themes_review_count, google_connected, gbp_photos')
     .eq('user_id', user.id)
     .single()
 
   if (!business) redirect('/onboarding')
 
   const [{ data: reviews }, { data: savedPosts }] = await Promise.all([
-    supabase.from('reviews').select('*').eq('business_id', business.id).eq('star_rating', 5),
+    supabase.from('reviews').select('*').eq('business_id', business.id).eq('posted_to_google', true),
     supabase.from('social_posts').select('reel_theme').eq('business_id', business.id),
   ])
 
@@ -52,6 +52,7 @@ export default async function ReelsPage() {
         savedThemeTitles={[...savedThemeTitles] as string[]}
         city={business.city ?? null}
         googleConnected={business.google_connected ?? false}
+        gbpPhotos={(business.gbp_photos as string[] | null) ?? []}
       />
     </div>
   )

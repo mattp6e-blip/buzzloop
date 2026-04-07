@@ -1,7 +1,6 @@
 import { useCurrentFrame, useVideoConfig, interpolate, spring } from 'remotion'
-import type { VisualStyleConfig } from '../types'
 
-type TextAnim = VisualStyleConfig['textAnim'] | 'word-reveal'
+type TextAnim = 'fade-up' | 'scale-in' | 'slide-left' | 'typewriter' | 'word-reveal'
 
 interface AnimatedTextProps {
   text: string

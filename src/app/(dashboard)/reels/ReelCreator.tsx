@@ -22,30 +22,14 @@ interface Props {
   bookingWord?: string
   businessId: string
   city: string | null
+  gbpPhotos: string[]
+  language?: string
   onBack: () => void
   onScriptCached: (themeId: string, script: ReelScript, variations: ReelVariation[]) => void
 }
 
-function detectLanguage(reviews: Review[]): string {
-  const text = reviews.map(r => r.what_they_liked).join(' ').toLowerCase()
-  const markers: [string, string[]][] = [
-    ['English',    [' the ', ' and ', ' was ', ' they ', ' very ', ' great ', ' have ', ' this ', ' from ', ' with ']],
-    ['Spanish',    [' que ', ' los ', ' las ', ' del ', ' muy ', ' fue ', ' también ', ' están ', ' porque ', ' años ']],
-    ['French',     [' les ', ' des ', ' est ', ' dans ', ' sur ', ' très ', ' bien ', ' nous ', ' vous ', ' une ']],
-    ['German',     [' und ', ' die ', ' der ', ' das ', ' ist ', ' ich ', ' auch ', ' hat ', ' war ', ' sehr ']],
-    ['Italian',    [' che ', ' del ', ' sono ', ' nel ', ' dei ', ' tutto ', ' molto ', ' alla ', ' questo ']],
-    ['Portuguese', [' que ', ' com ', ' uma ', ' não ', ' dos ', ' muito ', ' também ', ' está ', ' para ']],
-    ['Dutch',      [' van ', ' het ', ' een ', ' dat ', ' zijn ', ' met ', ' voor ', ' ook ', ' dit ', ' maar ']],
-  ]
-  let best = 'English', bestScore = 0
-  for (const [lang, words] of markers) {
-    const score = words.filter(w => text.includes(w)).length
-    if (score > bestScore) { bestScore = score; best = lang }
-  }
-  return best
-}
 
-export function ReelCreator({ theme, reviews, businessName, industry, brandColor, brandFont, logoUrl, websiteUrl, brandPersonality, brandSecondaryColor, customerWord, serviceWord, bookingWord, businessId, city, onBack, onScriptCached }: Props) {
+export function ReelCreator({ theme, reviews, businessName, industry, brandColor, brandFont, logoUrl, websiteUrl, brandPersonality, brandSecondaryColor, customerWord, serviceWord, bookingWord, businessId, city, gbpPhotos, language = 'English', onBack, onScriptCached }: Props) {
   const [variations, setVariations]               = useState<ReelVariation[]>([])
   const [generating, setGenerating]               = useState(true)
   const [caption, setCaption]                     = useState('')
@@ -73,7 +57,7 @@ export function ReelCreator({ theme, reviews, businessName, industry, brandColor
     const res = await fetch('/api/generate-reel', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ theme, reviews: themeReviews, businessName, industry, brandPersonality, websiteUrl, customerWord, serviceWord, bookingWord, reelCategory: theme.reelCategory ?? 'social_proof', language: detectLanguage(themeReviews) }),
+      body: JSON.stringify({ theme, reviews: themeReviews, businessName, industry, language }),
     })
     const data = await res.json()
     const newVariations: ReelVariation[] = data.variations ?? []
@@ -109,7 +93,7 @@ export function ReelCreator({ theme, reviews, businessName, industry, brandColor
         bookingWord,
         websiteUrl,
         city: activeCity,
-        language: detectLanguage(sourceReviews),
+        language,
       }),
     })
     const data = await res.json()
@@ -135,7 +119,7 @@ export function ReelCreator({ theme, reviews, businessName, industry, brandColor
 
     const finalScript: ReelScript = {
       ...editedScript,
-      visualStyle: editedVariation.visualStyle,
+      template: editedVariation.template,
       slides: editedScript.slides.map(slide => {
         if (slide.type === 'hook') return { ...slide, content: { ...slide.content, headline: editedVariation.hookHeadline, subline: editedVariation.hookSubline } }
         if (slide.type === 'cta') return { ...slide, content: { ...slide.content, cta: editedVariation.ctaText } }
@@ -201,6 +185,7 @@ export function ReelCreator({ theme, reviews, businessName, industry, brandColor
           industry={industry}
           websiteUrl={websiteUrl}
           businessId={businessId}
+          gbpPhotos={gbpPhotos}
           caption={caption}
           onCaptionChange={v => { setCaption(v); setSaved(false) }}
           generatingCaption={generatingCaption}

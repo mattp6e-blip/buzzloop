@@ -1,25 +1,18 @@
 import type { ReelScript } from '@/types'
 
-export type VisualStyle = 'cinematic' | 'bold' | 'clean' | 'editorial'
-
-export interface VisualStyleConfig {
-  bg: 'dark-gradient' | 'brand-color' | 'light-minimal' | 'split'
-  card: 'floating' | 'fullscreen' | 'chat-bubble' | 'overlay'
-  textAnim: 'fade-up' | 'scale-in' | 'slide-left' | 'typewriter'
-  logo: 'corner' | 'center' | 'none'
-  transition: 'crossfade' | 'slide-up' | 'zoom' | 'wipe'
-}
+export type VisualTemplate = 'immersive' | 'collage' | 'editorial'
 
 export interface ReelVariation {
   id: number
-  label: string           // "Story", "Bold", "Authority"
+  label: string           // "Story", "Proof", "Bold"
   description: string     // "Emotional arc · most shared"
-  tone: 'story' | 'bold' | 'authority'
+  tone: 'story' | 'proof' | 'bold'
   hookHeadline: string
   hookSubline?: string
-  ctaText: string
-  visualStyle: VisualStyle
-  script: ReelScript      // each variation has its own independently generated script
+  ctaHeadline: string     // line 1: story callback
+  ctaText: string         // line 2: friction reduction + action
+  template: VisualTemplate
+  script: ReelScript
 }
 
 export interface ReelCompositionProps {
@@ -31,4 +24,5 @@ export interface ReelCompositionProps {
   businessName: string
   industry: string
   websiteUrl: string | null
+  gbpPhotos: string[]     // URLs from GBP, passed in for photo slides
 }

@@ -18,8 +18,9 @@ const HARMONIA_VARIATION: ReelVariation = {
   tone: 'bold',
   hookHeadline: 'People take a plane to see this dentist.',
   hookSubline: "Here's what they say.",
-  ctaText: "Book your first visit. Meet the team worth traveling for.",
-  visualStyle: 'cinematic',
+  ctaHeadline: "When did you last look forward to the dentist?",
+  ctaText: "Book your first visit. 30 minutes. Zero pressure.",
+  template: 'immersive',
   script: {
     themeTitle: "Patients travel far just to return",
     totalDuration: 29,
@@ -43,6 +44,7 @@ const HARMONIA_PROPS: ReelCompositionProps = {
   businessName: 'Harmonia Dental',
   industry: 'clinic',
   websiteUrl: 'harmoniadental.es',
+  gbpPhotos: [],
 }
 
 const TOTAL_FRAMES = Math.round(HARMONIA_VARIATION.script.totalDuration * REEL_FPS)

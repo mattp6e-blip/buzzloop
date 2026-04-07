@@ -65,10 +65,11 @@ function ReelPreviewModal({ script, brandColor, brandSecondaryColor, brandLogoUr
     label: '',
     description: '',
     tone: 'bold',
-    hookHeadline: hookSlide?.content.headline ?? '',
-    hookSubline:  hookSlide?.content.subline ?? undefined,
-    ctaText:      ctaSlide?.content.cta ?? '',
-    visualStyle:  (script.visualStyle as ReelVariation['visualStyle']) ?? 'cinematic',
+    hookHeadline:  hookSlide?.content.headline ?? '',
+    hookSubline:   hookSlide?.content.subline ?? undefined,
+    ctaHeadline:   ctaSlide?.content.headline ?? '',
+    ctaText:       ctaSlide?.content.cta ?? '',
+    template:      (script.template as ReelVariation['template']) ?? 'immersive',
     script,
   }
 
@@ -81,6 +82,7 @@ function ReelPreviewModal({ script, brandColor, brandSecondaryColor, brandLogoUr
     businessName,
     industry,
     websiteUrl: null,
+    gbpPhotos: [],
   }
 
   const PREVIEW_W = 340

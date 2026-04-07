@@ -7,6 +7,13 @@ interface GBPReview {
   createTime?: string
 }
 
+interface GBPMediaItem {
+  mediaFormat?: string
+  googleUrl?: string
+  thumbnailUrl?: string
+  dimensions?: { widthPixels?: number; heightPixels?: number }
+}
+
 async function refreshAccessToken(refreshToken: string): Promise<string | null> {
   const res = await fetch('https://oauth2.googleapis.com/token', {
     method: 'POST',
@@ -20,6 +27,32 @@ async function refreshAccessToken(refreshToken: string): Promise<string | null> 
   })
   const data = await res.json()
   return data.access_token ?? null
+}
+
+async function fetchGBPPhotos(
+  locationName: string,
+  accessToken: string,
+): Promise<string[]> {
+  try {
+    const res = await fetch(
+      `https://mybusiness.googleapis.com/v4/${locationName}/media?pageSize=50`,
+      { headers: { Authorization: `Bearer ${accessToken}` } }
+    )
+    const data = await res.json()
+    const items: GBPMediaItem[] = data.mediaItems ?? []
+
+    return items
+      .filter(item =>
+        item.mediaFormat === 'PHOTO' &&
+        item.googleUrl &&
+        // Only use photos with width >= 800px (quality filter)
+        (item.dimensions?.widthPixels ?? 0) >= 800
+      )
+      .map(item => item.googleUrl!)
+      .slice(0, 20) // cap at 20 photos
+  } catch {
+    return []
+  }
 }
 
 export async function syncGoogleReviews(
@@ -75,21 +108,29 @@ export async function syncGoogleReviews(
     }).eq('id', businessId)
   }
 
-  // Paginate through all reviews (cap at 200)
-  const allReviews: GBPReview[] = []
-  let pageToken: string | undefined
+  // Fetch GBP photos and reviews in parallel
+  const [photos, allReviews] = await Promise.all([
+    fetchGBPPhotos(locationName!, accessToken),
+    (async () => {
+      const reviews: GBPReview[] = []
+      let pageToken: string | undefined
+      do {
+        const url = new URL(`https://mybusiness.googleapis.com/v4/${locationName}/reviews`)
+        url.searchParams.set('pageSize', '50')
+        if (pageToken) url.searchParams.set('pageToken', pageToken)
+        const res = await fetch(url.toString(), { headers: { Authorization: `Bearer ${accessToken}` } })
+        const data = await res.json()
+        if (data.reviews?.length) reviews.push(...data.reviews)
+        pageToken = data.nextPageToken
+      } while (pageToken && reviews.length < 200)
+      return reviews
+    })(),
+  ])
 
-  do {
-    const url = new URL(`https://mybusiness.googleapis.com/v4/${locationName}/reviews`)
-    url.searchParams.set('pageSize', '50')
-    if (pageToken) url.searchParams.set('pageToken', pageToken)
-
-    const res = await fetch(url.toString(), { headers: { Authorization: `Bearer ${accessToken}` } })
-    const data = await res.json()
-
-    if (data.reviews?.length) allReviews.push(...data.reviews)
-    pageToken = data.nextPageToken
-  } while (pageToken && allReviews.length < 200)
+  // Store photos if we got any
+  if (photos.length > 0) {
+    await supabase.from('businesses').update({ gbp_photos: photos }).eq('id', businessId)
+  }
 
   // Keep 4+5 star reviews with substantive text
   const qualifying = allReviews.filter(r =>
@@ -97,7 +138,10 @@ export async function syncGoogleReviews(
     r.comment && r.comment.length >= 30
   )
 
-  if (!qualifying.length) return { imported: 0, total: 0 }
+  if (!qualifying.length) {
+    await supabase.from('businesses').update({ last_gbp_sync_at: new Date().toISOString() }).eq('id', businessId)
+    return { imported: 0, total: 0 }
+  }
 
   // Deduplicate against existing reviews
   const { data: existing } = await supabase
@@ -121,6 +165,18 @@ export async function syncGoogleReviews(
 
   if (toInsert.length > 0) {
     await supabase.from('reviews').insert(toInsert)
+  }
+
+  // Update sync timestamp
+  await supabase.from('businesses').update({ last_gbp_sync_at: new Date().toISOString() }).eq('id', businessId)
+
+  // Trigger remarkability scoring for new reviews (fire-and-forget)
+  if (toInsert.length > 0 && process.env.NEXT_PUBLIC_APP_URL) {
+    fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/score-reviews`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ businessId }),
+    }).catch(() => {})
   }
 
   return { imported: toInsert.length, total: qualifying.length }

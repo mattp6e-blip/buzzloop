@@ -1,92 +1,115 @@
 import { AbsoluteFill, useCurrentFrame, interpolate } from 'remotion'
 import { Background } from '../components/Background'
+import { PhotoLayer, CollageLayer } from '../components/PhotoLayer'
 import { AnimatedText } from '../components/AnimatedText'
 import { LogoMark } from '../components/LogoMark'
-import type { VisualStyleConfig } from '../types'
-import { getBgColors } from '../styleConfigs'
+import type { VisualTemplate } from '../types'
+import { TEMPLATE_CONFIGS } from '../styleConfigs'
 
 interface HookSceneProps {
   headline: string
   subline?: string
-  photoUrl?: string
-  visualStyle: VisualStyleConfig
+  template: VisualTemplate
   brandColor: string
-  brandSecondaryColor: string
   logoUrl: string | null
   businessName: string
   industry: string
+  gbpPhotos: string[]
 }
 
-export function HookScene({ headline, subline, photoUrl, visualStyle, brandColor, brandSecondaryColor, logoUrl, businessName, industry }: HookSceneProps) {
+export function HookScene({ headline, subline, template, brandColor, logoUrl, businessName, industry, gbpPhotos }: HookSceneProps) {
   const frame = useCurrentFrame()
-  const colors = getBgColors(visualStyle.bg, brandColor, brandSecondaryColor, industry)
+  const config = TEMPLATE_CONFIGS[template]
 
-  const isLight = !photoUrl && visualStyle.bg === 'light-minimal'
-  const textColor = isLight ? '#1a1a2e' : '#ffffff'
+  const hasPhotos = gbpPhotos.length > 0
+
+  // Accent bar animation
+  const barWidth = interpolate(frame, [10, 35], [0, 100], { extrapolateRight: 'clamp' })
 
   return (
     <AbsoluteFill>
-      {photoUrl ? (
-        <>
-          <AbsoluteFill>
-            <img src={photoUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          </AbsoluteFill>
-          <AbsoluteFill style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.6) 100%)' }} />
-        </>
+      {/* Background layer */}
+      {template === 'immersive' && hasPhotos ? (
+        <PhotoLayer url={gbpPhotos[0]} direction="zoom-in" overlay="bottom" overlayStrength={0.45} />
+      ) : template === 'collage' && gbpPhotos.length >= 2 ? (
+        <CollageLayer photos={gbpPhotos.slice(0, 4)} />
+      ) : template === 'editorial' && hasPhotos ? (
+        <EditorialSplit photo={gbpPhotos[0]} brandColor={brandColor} />
       ) : (
-        <Background bgStyle={visualStyle.bg} top={colors.top} bottom={colors.bottom} accent={colors.accent} industry={industry} />
+        <Background brandColor={brandColor} industry={industry} />
       )}
 
-      {/* Logo */}
-      <LogoMark logoUrl={logoUrl} businessName={businessName} placement={visualStyle.logo} color={colors.accent} delay={10} />
+      <LogoMark logoUrl={logoUrl} businessName={businessName} placement={config.logo} color={brandColor} delay={10} />
 
-      {/* Content — centred */}
       <AbsoluteFill style={{
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '80px 72px',
-        textAlign: 'center',
+        alignItems: template === 'editorial' ? 'flex-start' : 'center',
+        justifyContent: 'flex-end',
+        padding: template === 'editorial' ? '80px 64px 120px 64px' : '80px 72px 140px 72px',
+        textAlign: template === 'editorial' ? 'left' : 'center',
       }}>
         {/* Accent bar */}
         <div style={{
-          width: interpolate(frame, [10, 35], [0, 120], { extrapolateRight: 'clamp' }),
-          height: 6,
-          background: colors.accent,
+          width: barWidth,
+          height: 5,
+          background: brandColor,
           borderRadius: 3,
-          marginBottom: 44,
+          marginBottom: 32,
+          alignSelf: template === 'editorial' ? 'flex-start' : 'center',
         }} />
 
         <AnimatedText
           text={headline}
-          anim="word-reveal"
+          anim={config.textAnim}
           delay={15}
           style={{
-            fontSize: 76,
+            fontSize: 84,
             fontWeight: 900,
-            color: textColor,
+            color: '#ffffff',
             letterSpacing: '-0.03em',
-            lineHeight: 1.1,
+            lineHeight: 1.05,
           }}
         />
 
         {subline && (
           <AnimatedText
             text={subline}
-            anim={visualStyle.textAnim}
+            anim="fade-up"
             delay={30}
             style={{
-              fontSize: 42,
+              fontSize: 44,
               fontWeight: 400,
-              color: textColor,
-              opacity: 0.7,
-              marginTop: 28,
+              color: '#ffffff',
+              opacity: 0.65,
+              marginTop: 24,
               letterSpacing: '-0.01em',
             }}
           />
         )}
       </AbsoluteFill>
+    </AbsoluteFill>
+  )
+}
+
+function EditorialSplit({ photo, brandColor }: { photo: string; brandColor: string }) {
+  return (
+    <AbsoluteFill>
+      {/* Left: photo */}
+      <div style={{ position: 'absolute', left: 0, top: 0, width: '58%', height: '100%', overflow: 'hidden' }}>
+        <img src={photo} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        {/* Fade edge to right */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: 'linear-gradient(to right, transparent 50%, rgba(0,0,0,0.95) 100%)',
+        }} />
+      </div>
+      {/* Right: dark brand */}
+      <div style={{
+        position: 'absolute', right: 0, top: 0, width: '50%', height: '100%',
+        background: '#0a0a0f',
+        borderLeft: `4px solid ${brandColor}`,
+      }} />
     </AbsoluteFill>
   )
 }

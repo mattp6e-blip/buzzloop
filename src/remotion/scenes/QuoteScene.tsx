@@ -1,61 +1,153 @@
-import { AbsoluteFill } from 'remotion'
+import { AbsoluteFill, useCurrentFrame, interpolate, spring, useVideoConfig } from 'remotion'
 import { Background } from '../components/Background'
-import { ReviewCard } from '../components/ReviewCard'
+import { PhotoLayer } from '../components/PhotoLayer'
+import { AnimatedText } from '../components/AnimatedText'
 import { LogoMark } from '../components/LogoMark'
-import type { VisualStyleConfig } from '../types'
-import { getBgColors } from '../styleConfigs'
+import type { VisualTemplate } from '../types'
+import { TEMPLATE_CONFIGS } from '../styleConfigs'
 
 interface QuoteSceneProps {
   quote: string
   author?: string
-  rating?: number
   highlightWords?: string[]
-  photoUrl?: string
-  visualStyle: VisualStyleConfig
+  template: VisualTemplate
   brandColor: string
-  brandSecondaryColor: string
   logoUrl: string | null
   businessName: string
   industry: string
+  gbpPhotos: string[]
+  photoIndex?: number  // which photo to use (cycles through available)
 }
 
-export function QuoteScene({ quote, author, rating = 5, highlightWords = [], photoUrl, visualStyle, brandColor, brandSecondaryColor, logoUrl, businessName, industry }: QuoteSceneProps) {
-  const colors = getBgColors(visualStyle.bg, brandColor, brandSecondaryColor, industry)
-  const isLight = !photoUrl && visualStyle.bg === 'light-minimal'
-  const textColor = isLight ? '#1a1a2e' : '#ffffff'
+export function QuoteScene({ quote, author, highlightWords = [], template, brandColor, logoUrl, businessName, industry, gbpPhotos, photoIndex = 0 }: QuoteSceneProps) {
+  const frame = useCurrentFrame()
+  const { fps } = useVideoConfig()
+  const config = TEMPLATE_CONFIGS[template]
+
+  const hasPhotos = gbpPhotos.length > 0
+  const photo = gbpPhotos[photoIndex % gbpPhotos.length]
+
+  // Star rating animation
+  const starOpacity = interpolate(frame, [5, 20], [0, 1], { extrapolateRight: 'clamp' })
+  const starScale = spring({ frame, fps, config: { stiffness: 120, damping: 15 }, delay: 5 })
+
+  // Quote card entrance
+  const cardProgress = spring({ frame, fps, config: { stiffness: 80, damping: 14 }, delay: 8 })
+  const cardY = interpolate(cardProgress, [0, 1], [40, 0])
+  const cardOpacity = interpolate(cardProgress, [0, 1], [0, 1])
+
+  // Author fade
+  const authorOpacity = interpolate(frame, [25, 38], [0, 1], { extrapolateRight: 'clamp' })
 
   return (
     <AbsoluteFill>
-      {photoUrl ? (
+      {/* Background */}
+      {hasPhotos && template !== 'editorial' ? (
+        <PhotoLayer
+          url={photo}
+          direction={photoIndex % 2 === 0 ? 'zoom-in' : 'pan-left'}
+          overlay="bottom"
+          overlayStrength={0.55}
+        />
+      ) : template === 'editorial' && hasPhotos ? (
         <>
           <AbsoluteFill>
-            <img src={photoUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <img src={photo} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </AbsoluteFill>
-          <AbsoluteFill style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.65) 100%)' }} />
+          <AbsoluteFill style={{ background: 'rgba(0,0,0,0.72)' }} />
         </>
       ) : (
-        <Background bgStyle={visualStyle.bg} top={colors.top} bottom={colors.bottom} accent={colors.accent} industry={industry} />
+        <Background brandColor={brandColor} industry={industry} />
       )}
-      <LogoMark logoUrl={logoUrl} businessName={businessName} placement={visualStyle.logo} color={colors.accent} delay={5} />
+
+      <LogoMark logoUrl={logoUrl} businessName={businessName} placement={config.logo} color={brandColor} delay={5} />
 
       <AbsoluteFill style={{
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'center',
-        padding: '120px 64px',
+        justifyContent: 'flex-end',
+        padding: '80px 64px 140px 64px',
       }}>
-        <ReviewCard
-          quote={quote}
-          author={author}
-          rating={rating}
-          highlightWords={highlightWords}
-          cardStyle={visualStyle.card}
-          textColor={textColor}
-          accentColor={colors.accent}
-          bgColor={colors.top}
-          delay={8}
-        />
+        {/* Stars */}
+        <div style={{
+          display: 'flex',
+          gap: 8,
+          marginBottom: 28,
+          opacity: starOpacity,
+          transform: `scale(${starScale})`,
+          transformOrigin: 'left center',
+        }}>
+          {[1,2,3,4,5].map(i => (
+            <span key={i} style={{ fontSize: 32, color: brandColor }}>★</span>
+          ))}
+        </div>
+
+        {/* Quote */}
+        <div style={{
+          transform: `translateY(${cardY}px)`,
+          opacity: cardOpacity,
+        }}>
+          <QuoteText quote={quote} highlightWords={highlightWords} brandColor={brandColor} template={template} />
+        </div>
+
+        {/* Author */}
+        {author && (
+          <div style={{
+            marginTop: 28,
+            opacity: authorOpacity,
+            fontSize: 32,
+            fontWeight: 500,
+            color: 'rgba(255,255,255,0.55)',
+            letterSpacing: '0.02em',
+          }}>
+            — {author}
+          </div>
+        )}
       </AbsoluteFill>
     </AbsoluteFill>
+  )
+}
+
+function QuoteText({ quote, highlightWords, brandColor, template }: {
+  quote: string
+  highlightWords: string[]
+  brandColor: string
+  template: VisualTemplate
+}) {
+  const highlighted = new Set(highlightWords.map(w => w.toLowerCase()))
+  const words = quote.split(' ')
+
+  const fontSize = template === 'editorial' ? 72 : 58
+  const fontWeight = template === 'editorial' ? 900 : 700
+
+  return (
+    <div style={{
+      fontSize,
+      fontWeight,
+      color: '#ffffff',
+      letterSpacing: '-0.025em',
+      lineHeight: 1.2,
+      flexWrap: 'wrap',
+      display: 'flex',
+    }}>
+      {/* Opening quote mark */}
+      <span style={{ color: brandColor, marginRight: 4, fontWeight: 900, fontSize: fontSize * 1.4, lineHeight: 0.8, verticalAlign: 'top' }}>&ldquo;</span>
+      {words.map((word, i) => {
+        const clean = word.toLowerCase().replace(/[^a-z]/g, '')
+        const isHighlighted = highlighted.has(clean)
+        return (
+          <span
+            key={i}
+            style={{
+              color: isHighlighted ? brandColor : '#ffffff',
+              fontWeight: isHighlighted ? 900 : fontWeight,
+              marginRight: '0.25em',
+            }}
+          >
+            {word}
+          </span>
+        )
+      })}
+    </div>
   )
 }

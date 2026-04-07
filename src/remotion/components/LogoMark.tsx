@@ -1,10 +1,9 @@
 import { useCurrentFrame, interpolate, spring, useVideoConfig } from 'remotion'
-import type { VisualStyleConfig } from '../types'
 
 interface LogoMarkProps {
   logoUrl: string | null
   businessName: string
-  placement: VisualStyleConfig['logo']
+  placement: 'corner' | 'center' | 'none'
   color: string
   delay?: number
 }

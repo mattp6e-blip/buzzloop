@@ -31,6 +31,8 @@ export interface Business {
   brand_personality: string | null  // JSON string: ["professional", "caring", "premium"]
   brand_extracted: boolean
   staff_members: string[]
+  gbp_photos: string[]              // URLs of GBP media photos (800px+ only)
+  last_gbp_sync_at: string | null
 }
 
 export interface Review {
@@ -43,36 +45,38 @@ export interface Review {
   ai_draft: string
   posted_to_google: boolean
   created_at: string
+  remarkability_score: number | null
+  anchor_sentence: string | null
+  remarkability_signal: string | null
 }
 
 export interface ReelTheme {
   id: string
-  title: string        // "7 customers can't stop talking about the truffle pasta"
-  hook: string         // bold opening line for slide 1
-  category: 'dish' | 'staff' | 'service' | 'emotion' | 'outcome' | 'general'
-  reelCategory: 'social_proof' | 'educational' | 'faq'
-  keyPhrase: string    // the recurring word/phrase found in reviews
-  emoji: string        // representative emoji
+  title: string
+  hook: string
+  reelType: 'story' | 'pattern'    // story = single anchor review; pattern = shared signal across 3+
+  keyPhrase: string
+  emoji: string
   reviewIds: string[]
-  buzzScore?: number   // 1-100 estimated Instagram engagement potential
-  buzzReason?: string  // one-line plain-English explanation of the score
-  // Cached after first generation so navigating away doesn't re-generate
+  anchorReviewId?: string           // for story reels: the primary review
+  buzzScore?: number
+  buzzReason?: string
   cachedScript?: ReelScript
   cachedVariations?: import('@/remotion/types').ReelVariation[]
 }
 
 export interface ReelSlide {
   type: 'hook' | 'quote' | 'proof' | 'cta' | 'insight'
-  duration: number     // seconds
+  duration: number
   content: {
     headline?: string
     subline?: string
     quote?: string
-    highlightWords?: string[]  // words to emphasise in the quote
+    highlightWords?: string[]
     author?: string
-    stat?: string      // e.g. "4.9★ · 127 reviews"
+    stat?: string
     cta?: string
-    photoUrl?: string  // optional background photo (user-uploaded)
+    photoUrl?: string
   }
 }
 
@@ -80,7 +84,7 @@ export interface ReelScript {
   themeTitle: string
   totalDuration: number
   slides: ReelSlide[]
-  visualStyle?: string  // 'cinematic' | 'clean' — saved so library can replay correctly
+  template?: 'immersive' | 'collage' | 'editorial'
 }
 
 export interface SocialPost {

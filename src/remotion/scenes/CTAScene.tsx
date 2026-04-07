@@ -1,46 +1,45 @@
 import { AbsoluteFill, useCurrentFrame, useVideoConfig, interpolate, spring } from 'remotion'
 import { Background } from '../components/Background'
+import { PhotoLayer } from '../components/PhotoLayer'
 import { AnimatedText } from '../components/AnimatedText'
 import { LogoMark } from '../components/LogoMark'
-import type { VisualStyleConfig } from '../types'
-import { getBgColors } from '../styleConfigs'
+import type { VisualTemplate } from '../types'
+import { TEMPLATE_CONFIGS } from '../styleConfigs'
 
 interface CTASceneProps {
-  headline?: string | null
-  ctaText: string
+  ctaHeadline?: string | null   // line 1: story callback
+  ctaText: string               // line 2: friction reduction
   websiteUrl?: string | null
   businessName: string
   logoUrl: string | null
-  visualStyle: VisualStyleConfig
+  template: VisualTemplate
   brandColor: string
-  brandSecondaryColor: string
   industry: string
+  gbpPhotos: string[]
 }
 
-export function CTAScene({ headline, ctaText, websiteUrl, businessName, logoUrl, visualStyle, brandColor, brandSecondaryColor, industry }: CTASceneProps) {
+export function CTAScene({ ctaHeadline, ctaText, websiteUrl, businessName, logoUrl, template, brandColor, industry, gbpPhotos }: CTASceneProps) {
   const frame = useCurrentFrame()
   const { fps } = useVideoConfig()
-  const colors = getBgColors(visualStyle.bg, brandColor, brandSecondaryColor, industry)
-  const isLight = visualStyle.bg === 'light-minimal'
-  const textColor = isLight ? '#1a1a2e' : '#ffffff'
+  const config = TEMPLATE_CONFIGS[template]
 
-  // CTA button spring
-  const s = spring({ frame, fps, config: { stiffness: 100, damping: 14 } })
-  const btnScale = interpolate(s, [0, 1], [0.85, 1])
-  const btnOpacity = interpolate(frame, [0, 15], [0, 1], { extrapolateRight: 'clamp' })
+  const btnSpring = spring({ frame, fps, config: { stiffness: 100, damping: 14 }, delay: 25 })
+  const btnScale = interpolate(btnSpring, [0, 1], [0.85, 1])
+  const btnOpacity = interpolate(frame, [25, 38], [0, 1], { extrapolateRight: 'clamp' })
 
-  // URL fade in
-  const urlOpacity = interpolate(frame, [20, 35], [0, 1], { extrapolateRight: 'clamp' })
-  const urlY = interpolate(frame, [20, 35], [20, 0], { extrapolateRight: 'clamp' })
-
-  // Logo
-  const logoOpacity = interpolate(frame, [5, 22], [0, 1], { extrapolateRight: 'clamp' })
-
+  const urlOpacity = interpolate(frame, [35, 48], [0, 1], { extrapolateRight: 'clamp' })
   const cleanUrl = websiteUrl?.replace(/^https?:\/\//, '').replace(/\/$/, '') ?? null
+
+  // Use first photo for CTA — most inviting shot
+  const photo = gbpPhotos[0]
 
   return (
     <AbsoluteFill>
-      <Background bgStyle={visualStyle.bg} top={colors.top} bottom={colors.bottom} accent={colors.accent} industry={industry} />
+      {photo && template === 'immersive' ? (
+        <PhotoLayer url={photo} direction="pan-right" overlay="full" overlayStrength={0.6} />
+      ) : (
+        <Background brandColor={brandColor} industry={industry} />
+      )}
 
       <AbsoluteFill style={{
         display: 'flex',
@@ -51,63 +50,77 @@ export function CTAScene({ headline, ctaText, websiteUrl, businessName, logoUrl,
         textAlign: 'center',
         gap: 0,
       }}>
-        {/* Logo / brand name */}
-        <div style={{ opacity: logoOpacity, marginBottom: 52 }}>
-          {visualStyle.logo !== 'none' && (
-            <LogoMark logoUrl={logoUrl} businessName={businessName} placement="center" color={colors.accent} delay={0} />
-          )}
-        </div>
+        {/* Logo */}
+        {config.logo !== 'none' && (
+          <div style={{
+            opacity: interpolate(frame, [5, 20], [0, 1], { extrapolateRight: 'clamp' }),
+            marginBottom: 48,
+          }}>
+            <LogoMark logoUrl={logoUrl} businessName={businessName} placement="center" color={brandColor} delay={0} />
+          </div>
+        )}
 
-        {/* Closing question / headline */}
-        {headline && (
+        {/* Line 1: Story callback */}
+        {ctaHeadline && (
           <AnimatedText
-            text={headline}
+            text={ctaHeadline}
             anim="word-reveal"
             delay={8}
             style={{
-              fontSize: 44,
-              fontWeight: 600,
-              color: textColor,
-              opacity: 0.75,
+              fontSize: 46,
+              fontWeight: 500,
+              color: 'rgba(255,255,255,0.7)',
               letterSpacing: '-0.015em',
-              lineHeight: 1.25,
-              marginBottom: 28,
+              lineHeight: 1.3,
+              marginBottom: 20,
             }}
           />
         )}
 
-        {/* CTA text */}
+        {/* Line 2: Friction reduction */}
         <AnimatedText
           text={ctaText}
-          anim={visualStyle.textAnim}
+          anim="fade-up"
           delay={18}
           style={{
-            fontSize: 60,
+            fontSize: 62,
             fontWeight: 800,
-            color: textColor,
+            color: '#ffffff',
             letterSpacing: '-0.025em',
-            lineHeight: 1.2,
+            lineHeight: 1.15,
             marginBottom: 52,
           }}
         />
 
-        {/* CTA button pill */}
+        {/* CTA button */}
         <div style={{
           transform: `scale(${btnScale})`,
           opacity: btnOpacity,
-          background: colors.accent,
+          background: brandColor,
           borderRadius: 100,
           padding: '28px 72px',
           fontSize: 36,
           fontWeight: 700,
-          color: isLight ? '#ffffff' : '#000000',
+          color: '#ffffff',
           letterSpacing: '-0.01em',
-          boxShadow: `0 20px 50px ${colors.accent}50`,
-          marginBottom: 60,
+          boxShadow: `0 20px 50px ${brandColor}50`,
+          marginBottom: cleanUrl ? 40 : 0,
         }}>
           {getCtaButtonLabel(industry)}
         </div>
 
+        {/* Website */}
+        {cleanUrl && (
+          <div style={{
+            opacity: urlOpacity,
+            fontSize: 28,
+            fontWeight: 400,
+            color: 'rgba(255,255,255,0.4)',
+            letterSpacing: '0.02em',
+          }}>
+            {cleanUrl}
+          </div>
+        )}
       </AbsoluteFill>
     </AbsoluteFill>
   )
@@ -115,13 +128,16 @@ export function CTAScene({ headline, ctaText, websiteUrl, businessName, logoUrl,
 
 function getCtaButtonLabel(industry: string): string {
   const labels: Record<string, string> = {
-    dental: 'Book appointment →',
-    clinic: 'Book appointment →',
-    restaurant: 'Reserve a table →',
-    gym: 'Start your trial →',
-    salon: 'Book now →',
-    spa: 'Book your session →',
-    retail: 'Shop now →',
+    dental:        'Book appointment →',
+    clinic:        'Book appointment →',
+    restaurant:    'Reserve a table →',
+    gym:           'Start your trial →',
+    salon:         'Book now →',
+    spa:           'Book your session →',
+    hotel:         'Check availability →',
+    bar:           'Reserve a table →',
+    physiotherapy: 'Book appointment →',
+    veterinary:    'Book appointment →',
   }
   return labels[industry] ?? 'Get started →'
 }

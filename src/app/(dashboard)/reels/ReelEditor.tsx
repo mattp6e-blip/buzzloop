@@ -27,6 +27,7 @@ interface Props {
   cityMissing: boolean
   savingCity: boolean
   onCitySave: (city: string) => void
+  gbpPhotos: string[]
   onSave: (script: ReelScript, variation: ReelVariation) => void
   onBack: () => void
   saving: boolean
@@ -51,14 +52,14 @@ const SLIDE_ICONS: Record<string, string> = {
 }
 
 const TONE_ICONS: Record<string, string> = {
-  story:     '❤',
-  bold:      '⚡',
-  authority: '✦',
+  story: '❤',
+  proof: '✦',
+  bold:  '⚡',
 }
 
 export function ReelEditor({
   variations, script, variation, brandColor, brandSecondaryColor, logoUrl, businessName,
-  industry, websiteUrl, businessId, caption, onCaptionChange, generatingCaption,
+  industry, websiteUrl, businessId, gbpPhotos, caption, onCaptionChange, generatingCaption,
   onRegenerateCaption, cityMissing, savingCity, onCitySave, onSave, onBack, saving, saved, saveError,
 }: Props) {
   const [activeVariationIdx, setActiveVariationIdx] = useState(() =>
@@ -109,6 +110,7 @@ export function ReelEditor({
     businessName,
     industry,
     websiteUrl,
+    gbpPhotos,
   }
 
   const totalFrames = Math.round(editedScript.totalDuration * REEL_FPS)

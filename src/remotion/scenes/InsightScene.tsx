@@ -1,29 +1,22 @@
 import { AbsoluteFill, useCurrentFrame, interpolate } from 'remotion'
 import { Background } from '../components/Background'
 import { AnimatedText } from '../components/AnimatedText'
-import type { VisualStyleConfig } from '../types'
-import { getBgColors } from '../styleConfigs'
 
 interface InsightSceneProps {
   headline: string
   subline?: string
-  visualStyle: VisualStyleConfig
   brandColor: string
-  brandSecondaryColor: string
   industry: string
+  gbpPhotos: string[]
 }
 
-export function InsightScene({ headline, subline, visualStyle, brandColor, brandSecondaryColor, industry }: InsightSceneProps) {
+export function InsightScene({ headline, subline, brandColor, industry }: InsightSceneProps) {
   const frame = useCurrentFrame()
-  const colors = getBgColors(visualStyle.bg, brandColor, brandSecondaryColor, industry)
-  const isLight = visualStyle.bg === 'light-minimal'
-  const textColor = isLight ? '#1a1a2e' : '#ffffff'
-
   const lineWidth = interpolate(frame, [5, 35], [0, 100], { extrapolateRight: 'clamp' })
 
   return (
     <AbsoluteFill>
-      <Background bgStyle={visualStyle.bg} top={colors.top} bottom={colors.bottom} accent={colors.accent} industry={industry} />
+      <Background brandColor={brandColor} industry={industry} />
 
       <AbsoluteFill style={{
         display: 'flex',
@@ -33,11 +26,10 @@ export function InsightScene({ headline, subline, visualStyle, brandColor, brand
         padding: '80px 72px',
         textAlign: 'center',
       }}>
-        {/* Top accent line — shorter than hook bar, feels like a "section break" */}
         <div style={{
           width: lineWidth,
           height: 3,
-          background: colors.accent,
+          background: brandColor,
           borderRadius: 2,
           marginBottom: 52,
           opacity: 0.6,
@@ -50,7 +42,7 @@ export function InsightScene({ headline, subline, visualStyle, brandColor, brand
           style={{
             fontSize: 68,
             fontWeight: 900,
-            color: textColor,
+            color: '#ffffff',
             letterSpacing: '-0.03em',
             lineHeight: 1.1,
           }}
@@ -64,8 +56,7 @@ export function InsightScene({ headline, subline, visualStyle, brandColor, brand
             style={{
               fontSize: 38,
               fontWeight: 400,
-              color: textColor,
-              opacity: 0.65,
+              color: 'rgba(255,255,255,0.65)',
               marginTop: 36,
               letterSpacing: '-0.01em',
               lineHeight: 1.35,
@@ -73,11 +64,10 @@ export function InsightScene({ headline, subline, visualStyle, brandColor, brand
           />
         )}
 
-        {/* Bottom accent line — mirrors top, creates a "framed" feel */}
         <div style={{
           width: interpolate(frame, [30, 55], [0, 60], { extrapolateRight: 'clamp' }),
           height: 3,
-          background: colors.accent,
+          background: brandColor,
           borderRadius: 2,
           marginTop: 52,
           opacity: 0.3,

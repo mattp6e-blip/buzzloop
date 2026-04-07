@@ -5,272 +5,155 @@ import type { Review, ReelTheme } from '@/types'
 
 const client = new Anthropic()
 
-// Which reel categories to analyse per industry
-const CATEGORY_MAP: Record<string, ('social_proof' | 'educational' | 'faq')[]> = {
-  restaurant: ['social_proof'],
-  gym:        ['social_proof', 'educational', 'faq'],
-  salon:      ['social_proof', 'educational', 'faq'],
-  dental:     ['social_proof', 'educational', 'faq'],
-  clinic:     ['social_proof', 'educational', 'faq'],
-  spa:        ['social_proof', 'educational', 'faq'],
-  retail:     ['social_proof'],
-  other:      ['social_proof'],
-}
-
-function scoreReview(text: string, rating: number): number {
-  const t = text.toLowerCase()
-  let score = rating * 2 + Math.min(text.split(' ').length / 8, 10)
-  const storyWords = ['scared', 'nervous', 'terrified', 'afraid', 'fear', 'complex', 'years', 'finally', 'changed', 'life', 'no longer']
-  const emotionalWords = ['smile', 'incredible', 'amazing', 'blessed', 'grateful', 'delighted', 'thrilled', 'love']
-  score += storyWords.filter(w => t.includes(w)).length * 3
-  score += emotionalWords.filter(w => t.includes(w)).length * 2
-  return score
-}
-
 function buildReviewList(reviews: Review[]): string {
-  return reviews.map(r =>
-    `[ID: ${r.id}] ${r.star_rating}★ — "${r.what_they_liked}"${r.customer_name ? ` — ${r.customer_name}` : ''}`
-  ).join('\n')
+  return reviews.map(r => {
+    const anchor = r.anchor_sentence ? ` [ANCHOR: "${r.anchor_sentence}"]` : ''
+    return `[ID: ${r.id}] ${r.star_rating}★ — "${r.what_they_liked}"${r.customer_name ? ` — ${r.customer_name}` : ''}${anchor}`
+  }).join('\n')
 }
 
-function getSocialProofPrompt(reviewList: string, industry: string, businessName: string): string {
-  return `You are a world-class Instagram Reel director. Find 4–6 powerful Reel themes in these reviews for ${businessName} (${industry}). Each theme must be a SHARED EXPERIENCE across multiple reviews — not a detail from just one.
+function getAnalysisPrompt(reviewList: string, industry: string, businessName: string, reviewCount: number, language: string): string {
+  return `You are the creative director and strategist behind the highest-performing local business Instagram Reels. Your job is to find the reel ideas that will genuinely stop someone's scroll and make them want to visit this business.
 
-LANGUAGE: Detect the language of the review quotes provided (ignore the business name and city — those are not language signals). Write every field of your JSON response in that same language. Never respond in English if the reviews are not in English.
+Business: ${businessName} (${industry})
+Total qualifying reviews: ${reviewCount}
 
-REVIEWS:
+REVIEWS (sorted by remarkability — strongest raw material first):
 ${reviewList}
 
-HOW TO BUILD A GOOD THEME:
+---
 
-A theme is a shared emotional truth that multiple customers experienced. Group reviews by what they have in common at the EMOTIONAL level, not just keywords.
+LANGUAGE: Write every field of your JSON in ${language}. Do not translate or change language.
 
-Step 1: Read all reviews. Find groups of 3+ that share the same core emotional experience.
-Step 2: Ask: what is the ONE sentence that is true for ALL reviews in this group?
-Step 3: That common truth becomes the hook territory.
+---
 
-THE BEST THEME TYPES (ranked by Reel potential):
+YOUR TASK: Find the best reel ideas in these reviews. Each idea is one of two types:
 
-1. FEAR → RELIEF: Multiple customers mention being scared/terrified/anxious before, but had a great experience. The shared truth: this is the place that cured their fear. Hook: "She cancelled every appointment for years. Then she found this place."
+## TYPE 1 — STORY REEL
+Built around ONE extraordinary review. The anchor sentence is so specific and surprising that it can carry a full reel on its own.
 
-2. EXTREME LOYALTY: Multiple customers went out of their way — travelled far, bring the whole family, return again and again despite having options closer. The shared truth: worth any effort. Hook: "He drives 90 minutes. Every time."
+What makes an anchor sentence extraordinary:
+- Behavioral proof (flew from abroad, drove 2 hours, extended their stay, chose this over a free/closer option)
+- Expectation violation (fell asleep in the dentist chair, fixed in 20 min what 3 others couldn't, didn't feel a thing)
+- Specific number + context (37 years, every Friday for 6 years, 4 cancellations before finally coming)
+- Unexpected advocate (child chose it, expert with all options chose this, skeptic converted)
 
-3. COMPLEX MADE EASY: Multiple customers had something they expected to be hard, painful, or complicated — and it wasn't. The shared truth: the thing they dreaded turned out to be nothing. Hook: "She expected the worst. Was back to normal that afternoon."
+The hook for a Story reel comes directly from the anchor sentence. Customer is the subject — never the business.
+GOOD: "She flies from Norway. Free dentistry there."
+BAD: "Our patients travel from around the world to see us."
 
-4. TRANSFORMATION: Multiple customers describe how the experience changed something meaningful — confidence, health, daily life, how they feel about themselves. Hook: "She hid it for years. Not anymore."
+## TYPE 2 — PATTERN REEL
+Built around a SHARED SIGNAL across 3+ reviews. Multiple customers noticed the same specific thing.
 
-5. STAFF MENTIONED BY NAME: Multiple reviews mention the same person(s) as exceptional. The shared truth: specific people make all the difference. Hook: "Everyone keeps asking for the same person."
+What makes a strong pattern:
+- Same staff member mentioned by name across reviews (not just "the staff was great")
+- Same service/treatment mentioned with consistent detail
+- Same unexpected behavior repeated (multiple people mentioning they came back after trying competitors)
+- Same emotional journey that multiple reviewers describe with specific detail
 
-CRITICAL: Every review in reviewIds must genuinely share the theme. 3 tightly matched reviews beats 6 loose ones. The hook must be true for ALL the reviews in the group, not just the best one.
+The hook for a Pattern reel reveals the shared truth as a surprising fact.
+GOOD: "Three different people. Same story. They all came back."
+BAD: "Our customers love the experience."
 
-Return ONLY a valid JSON array:
-[
-  {
-    "id": "unique-slug",
-    "title": "The shared truth across all these reviews as a scroll-stopping fact (under 10 words)",
-    "hook": "5-7 word opener — must be true for ALL reviews in the group, not just one",
-    "category": "emotion|outcome|staff|service|general",
-    "reelCategory": "social_proof",
-    "keyPhrase": "the shared emotional experience connecting all these reviews",
-    "emoji": "exactly ONE emoji character — never more than one",
-    "reviewIds": ["id1", "id2", "id3"],
-    "buzzScore": 85,
-    "buzzReason": "One plain-English sentence (max 12 words) explaining why this will perform well on Instagram"
-  }
-]
+---
 
-BUZZ SCORE RULES (1-100):
-- 80-100: Transformation arcs (fear→relief, anxiety→confidence), extreme loyalty (travelled far, came back repeatedly), multiple reviews sharing the same surprising or emotional truth
-- 60-79: Specific staff mentioned by name across reviews, clear before/after outcome, vivid personal stories with specific detail
-- 40-59: Comfort, atmosphere, or value patterns that are positive but not emotionally charged
-- Below 40: Generic praise with no emotional specificity or hook potential
+BUZZ SCORE (1-100) — measures hook potential only:
+90-100: The hook writes itself. Behavioral proof or expectation violation so strong a stranger stops scrolling.
+75-89: Strong specific material. Needs light shaping but the raw content is there.
+60-74: Good material but hook requires more work to land. Supporting evidence is solid.
+Below 60: Interesting but no single hook moment.
 
-BUZZ REASON examples:
-- "3 customers share a fear→relief arc — stops the scroll immediately"
-- "Customers travelled far just to come back — extreme loyalty hook"
-- "Same staff member praised by 5 reviewers — personal and trustworthy"
-- "Vivid transformation stories with before/after emotional arc"
+---
 
-Return 4–6 themes ranked by buzzScore descending, strongest first.`
+IMPORTANT:
+- Only include themes where you can write a hook that does NOT name the business or sound like an ad
+- Story reels need one extraordinary anchor — do not include if anchor sentence is generic
+- Pattern reels need 3+ reviews genuinely sharing the signal — do not force patterns
+- Return 4-8 themes maximum, ranked by buzzScore descending
+- Quality over quantity — 4 strong themes beats 8 mediocre ones
+
+Return ONLY valid JSON with this exact shape:
+{
+  "language": "English",
+  "themes": [
+    {
+      "id": "unique-slug",
+      "title": "The reel idea as a scroll-stopping fact (under 10 words)",
+      "hook": "The specific hook — customer as subject, no business name (max 8 words)",
+      "reelType": "story | pattern",
+      "keyPhrase": "the specific thing that makes this remarkable",
+      "emoji": "ONE emoji",
+      "reviewIds": ["id1", "id2"],
+      "anchorReviewId": "id1",
+      "buzzScore": 85,
+      "buzzReason": "One sentence, max 12 words, explaining why this stops the scroll"
+    }
+  ]
 }
 
-function getEducationalPrompt(reviewList: string, industry: string, businessName: string): string {
-  return `You are finding Educational Reel opportunities in these reviews for a ${industry} business called "${businessName}".
-
-LANGUAGE: Detect the language of the review quotes provided (ignore the business name and city — those are not language signals). Write every field of your JSON response in that same language. Never respond in English if the reviews are not in English.
-
-Educational reels teach viewers something they didn't know, while using real customer experiences as living proof. The reviews are evidence — not the main content.
-
-REVIEWS:
-${reviewList}
-
-Look for signals in these reviews:
-- Procedures, treatments, or services customers describe in detail
-- Things customers say they "didn't know", "were surprised by", or "didn't expect"
-- Implied knowledge gaps ("I thought X but actually Y")
-- Outcomes most people outside this business's customers wouldn't know are possible
-- Common misconceptions customers had before their visit that turned out to be wrong
-
-Each theme must represent a topic where:
-1. Multiple reviews touch on it (directly or indirectly)
-2. Most people would NOT know this before visiting
-3. Knowing it would make someone MORE likely to book
-
-EDUCATIONAL REEL STRUCTURE: bold contrarian hook → key insight → customer voice (validation) → CTA
-
-HOOKS THAT WORK FOR EDUCATIONAL REELS:
-- "Most people don't know [specific fact] is even possible"
-- "You've been avoiding [service] for the wrong reason"
-- "What [professionals] wish everyone knew before their first visit"
-- "[Specific outcome] is possible. Most people just don't know where to go."
-- "The one thing causing [common problem most people have]"
-
-Return ONLY a valid JSON array:
-[
-  {
-    "id": "edu-unique-slug",
-    "title": "Educational hook as a scroll-stopping statement (under 10 words)",
-    "hook": "The contrarian educational claim (5-7 words)",
-    "category": "service|outcome|general",
-    "reelCategory": "educational",
-    "keyPhrase": "the insight or topic that makes this educational",
-    "emoji": "exactly ONE emoji character — never more than one",
-    "reviewIds": ["id1", "id2"],
-    "buzzScore": 78,
-    "buzzReason": "One plain-English sentence (max 12 words) explaining why this educates AND converts"
-  }
-]
-
-BUZZ SCORE RULES for educational (1-100):
-- 80-100: Directly addresses a knowledge gap that stops people from booking. Would make a non-customer stop and think "I didn't know that."
-- 60-79: Genuinely useful and specific to this business's expertise
-- 40-59: Interesting but low booking intent
-- Below 40: Too niche or too obvious
-
-Return 1–3 themes. Return empty array [] if no genuine educational opportunities exist in these reviews. Do NOT force themes — quality over quantity.`
-}
-
-function getFaqPrompt(reviewList: string, industry: string, businessName: string): string {
-  return `You are finding FAQ / Myth-busting Reel opportunities in these reviews for a ${industry} business called "${businessName}".
-
-LANGUAGE: Detect the language of the review quotes provided (ignore the business name and city — those are not language signals). Write every field of your JSON response in that same language. Never respond in English if the reviews are not in English.
-
-FAQ reels directly address the fears, concerns, and misconceptions that prevent people from booking. They are the most direct path from hesitation to action.
-
-REVIEWS:
-${reviewList}
-
-Look for signals in these reviews:
-- Words suggesting pre-visit anxiety: "scared", "nervous", "terrified", "worried", "thought", "expected", "dreaded", "avoided"
-- Things customers say were "better than expected" or "not as bad as I thought"
-- Common objections customers overcame: pain, cost, time, complexity, embarrassment
-- Questions the reviews implicitly answer ("does it hurt?", "is it worth it?", "how long does it take?")
-- Fears that turned out to be unfounded
-
-Each theme must represent a genuine fear or misconception that multiple reviews directly or indirectly address.
-
-FAQ REEL STRUCTURE: hook (the fear/myth stated boldly) → the real answer → customer validation → CTA
-
-HOOKS THAT WORK FOR FAQ REELS:
-- "Does [service] actually hurt?" (direct fear question)
-- "Everyone thinks [myth about the service]. They're wrong."
-- "The #1 reason people avoid [this type of business]"
-- "I was [scared/skeptical]. Then this happened."
-- "[Service] sounds [scary/expensive/complicated]. Here's the truth."
-
-Return ONLY a valid JSON array:
-[
-  {
-    "id": "faq-unique-slug",
-    "title": "The myth or fear as a bold scroll-stopping question (under 10 words)",
-    "hook": "The fear or myth stated directly (5-7 words)",
-    "category": "emotion|service|general",
-    "reelCategory": "faq",
-    "keyPhrase": "the specific fear or misconception this reel busts",
-    "emoji": "exactly ONE emoji character — never more than one",
-    "reviewIds": ["id1", "id2", "id3"],
-    "buzzScore": 82,
-    "buzzReason": "One plain-English sentence (max 12 words) explaining why this fear is a real booking barrier"
-  }
-]
-
-BUZZ SCORE RULES for FAQ (1-100):
-- 80-100: Addresses a fear that actively stops people from booking. High emotional stakes. Would make a hesitant non-customer feel "ok, maybe I should try this."
-- 60-79: Reduces hesitation meaningfully for a real segment of people
-- 40-59: Answers a question but low purchase-barrier impact
-- Below 40: FAQ with no meaningful effect on booking decision
-
-Return 1–3 themes. Return empty array [] if no clear fear or misconception patterns exist. Do NOT invent fears that aren't in the reviews.`
-}
-
-async function runAnalysis(
-  prompt: string,
-  category: 'social_proof' | 'educational' | 'faq'
-): Promise<ReelTheme[]> {
-  try {
-    const message = await client.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 2000,
-      messages: [{ role: 'user', content: prompt }],
-    })
-    const text = (message.content[0] as { text: string }).text
-    const match = text.match(/\[[\s\S]*\]/)
-    if (!match) return []
-    const themes = JSON.parse(match[0]) as ReelTheme[]
-    // Ensure reelCategory is set correctly regardless of what the AI returned
-    return themes.map(t => ({ ...t, reelCategory: category }))
-  } catch {
-    return []
-  }
+For story reels: reviewIds contains the anchor + 1-2 supporting reviews. anchorReviewId is the primary.
+For pattern reels: reviewIds contains all reviews sharing the pattern (min 3). anchorReviewId is null or omitted.`
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const { reviews, businessId, industry = 'other', businessName = '' }: {
+    const { reviews: rawReviews, businessId, industry = 'other', businessName = '', language = 'English' }: {
       reviews: Review[]
       businessId: string
       industry?: string
       businessName?: string
+      language?: string
     } = await req.json()
 
-    if (!reviews?.length) {
+    if (!rawReviews?.length) {
       return NextResponse.json({ themes: [] })
     }
 
-    const topReviews = [...reviews]
-      .sort((a, b) => scoreReview(b.what_they_liked ?? '', b.star_rating) - scoreReview(a.what_they_liked ?? '', a.star_rating))
-      .slice(0, 20)
+    // Use GBP reviews only
+    const gbpReviews = rawReviews.filter(r => r.posted_to_google)
+    if (!gbpReviews.length) return NextResponse.json({ themes: [] })
 
+    // Sort by remarkability score (scored reviews first, then unscored by length as proxy)
+    const sorted = [...gbpReviews].sort((a, b) => {
+      const aScore = a.remarkability_score ?? (a.what_they_liked.length > 100 ? 30 : 10)
+      const bScore = b.remarkability_score ?? (b.what_they_liked.length > 100 ? 30 : 10)
+      return bScore - aScore
+    })
+
+    // Tiered input: feed top reviews based on total count
+    const inputCap = sorted.length <= 10 ? sorted.length
+      : sorted.length <= 30 ? Math.min(sorted.length, 20)
+      : sorted.length <= 100 ? 40
+      : 60
+
+    const topReviews = sorted.slice(0, inputCap)
     const reviewList = buildReviewList(topReviews)
-    const baseCategories = CATEGORY_MAP[industry] ?? ['social_proof']
-    // Gate educational + faq — need enough material to find real patterns
-    const categories = topReviews.length >= 15
-      ? baseCategories
-      : baseCategories.filter(c => c === 'social_proof')
 
-    // Run all applicable category analyses in parallel
-    const results = await Promise.all(
-      categories.map(cat => {
-        if (cat === 'social_proof') return runAnalysis(getSocialProofPrompt(reviewList, industry, businessName), 'social_proof')
-        if (cat === 'educational') return runAnalysis(getEducationalPrompt(reviewList, industry, businessName), 'educational')
-        if (cat === 'faq')         return runAnalysis(getFaqPrompt(reviewList, industry, businessName), 'faq')
-        return Promise.resolve([] as ReelTheme[])
-      })
-    )
+    const message = await client.messages.create({
+      model: 'claude-opus-4-6',
+      max_tokens: 3000,
+      system: `You must respond in ${language} only. Every word of your JSON output must be in ${language}. This is non-negotiable regardless of the business name or location.`,
+      messages: [{ role: 'user', content: getAnalysisPrompt(reviewList, industry, businessName, gbpReviews.length, language) }],
+    })
 
-    // Merge all themes and sort by buzzScore descending
-    const allThemes = results.flat().sort((a, b) => (b.buzzScore ?? 0) - (a.buzzScore ?? 0))
+    const text = (message.content[0] as { text: string }).text
+    const match = text.match(/\{[\s\S]*\}/)
+    if (!match) return NextResponse.json({ themes: [] })
+
+    const parsed = JSON.parse(match[0])
+    const themes: ReelTheme[] = parsed.themes ?? (Array.isArray(parsed) ? parsed : [])
+    const sorted_themes = themes.sort((a, b) => (b.buzzScore ?? 0) - (a.buzzScore ?? 0))
 
     // Cache in DB
-    if (businessId && allThemes.length > 0) {
+    if (businessId && sorted_themes.length > 0) {
       const supabase = await createClient()
       await supabase.from('businesses').update({
-        reel_themes: allThemes,
-        reel_themes_review_count: reviews.length,
+        reel_themes: sorted_themes,
+        reel_themes_review_count: gbpReviews.length,
       }).eq('id', businessId)
     }
 
-    return NextResponse.json({ themes: allThemes })
+    return NextResponse.json({ themes: sorted_themes, language })
   } catch (err) {
     console.error('[analyze-reviews]', err)
     return NextResponse.json({ error: String(err) }, { status: 500 })

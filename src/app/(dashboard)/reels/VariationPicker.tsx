@@ -23,8 +23,8 @@ interface VariationPickerProps {
 
 const TONE_ICONS: Record<string, string> = {
   story: '❤',
-  bold: '⚡',
-  authority: '✦',
+  proof: '✦',
+  bold:  '⚡',
 }
 
 export function VariationPicker({ variations, brandColor, brandSecondaryColor, logoUrl, businessName, industry, websiteUrl, onSelect, onConfirm }: VariationPickerProps) {
@@ -52,6 +52,7 @@ export function VariationPicker({ variations, brandColor, brandSecondaryColor, l
     businessName,
     industry,
     websiteUrl,
+    gbpPhotos: [],
   })
 
   const activeVariation = variations.find(v => v.id === selectedId) ?? variations[0]

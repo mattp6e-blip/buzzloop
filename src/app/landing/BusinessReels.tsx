@@ -15,8 +15,9 @@ const RESTAURANT_VARIATION: ReelVariation = {
   id: 1, label: 'Bold', description: 'High energy · most reach', tone: 'bold',
   hookHeadline: 'People drive across the city just to eat here.',
   hookSubline: "Here's what keeps them coming back.",
-  ctaText: "Some restaurants you visit once. This isn't one of them. Book now.",
-  visualStyle: 'cinematic',
+  ctaHeadline: "Some restaurants you visit once.",
+  ctaText: "This isn't one of them. Book your table tonight.",
+  template: 'immersive',
   script: {
     themeTitle: "The restaurant worth the drive",
     totalDuration: 29,
@@ -40,6 +41,7 @@ const RESTAURANT_PROPS: ReelCompositionProps = {
   businessName: 'Mas Vell',
   industry: 'restaurant',
   websiteUrl: 'masvell.com',
+  gbpPhotos: [],
 }
 
 // ── Esthetics clinic ──────────────────────────────────────────────────────────
@@ -47,8 +49,9 @@ const ESTHETICS_VARIATION: ReelVariation = {
   id: 2, label: 'Story', description: 'Emotional arc · most shared', tone: 'story',
   hookHeadline: "Customers don't just come back. They bring their friends.",
   hookSubline: "Here's what they say.",
-  ctaText: "Your skin deserves this. Book a consultation today.",
-  visualStyle: 'editorial',
+  ctaHeadline: "Your skin deserves this.",
+  ctaText: "Book a consultation. 20 minutes. See for yourself.",
+  template: 'editorial',
   script: {
     themeTitle: "The clinic everyone tells their friends about",
     totalDuration: 29,
@@ -72,15 +75,17 @@ const ESTHETICS_PROPS: ReelCompositionProps = {
   businessName: 'Lumière Studio',
   industry: 'clinic',
   websiteUrl: 'lumierestudio.com',
+  gbpPhotos: [],
 }
 
 // ── Gym ───────────────────────────────────────────────────────────────────────
 const GYM_VARIATION: ReelVariation = {
-  id: 3, label: 'Authority', description: 'Credibility · most converts', tone: 'authority',
+  id: 3, label: 'Proof', description: 'Evidence-led · most saved', tone: 'proof',
   hookHeadline: 'This gym changed how I think about fitness.',
   hookSubline: "Here's what members say.",
-  ctaText: "Stop starting over. Join the gym you'll actually stick with.",
-  visualStyle: 'bold',
+  ctaHeadline: "Stop starting over.",
+  ctaText: "Join the gym you'll actually stick with. First week free.",
+  template: 'collage',
   script: {
     themeTitle: "The gym you actually stick with",
     totalDuration: 29,
@@ -104,6 +109,7 @@ const GYM_PROPS: ReelCompositionProps = {
   businessName: 'Iron & Co.',
   industry: 'gym',
   websiteUrl: 'ironandco.com',
+  gbpPhotos: [],
 }
 
 const BUSINESSES = [

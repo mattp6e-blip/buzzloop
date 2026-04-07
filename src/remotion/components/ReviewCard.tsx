@@ -1,13 +1,14 @@
 import { useCurrentFrame, useVideoConfig, interpolate, spring } from 'remotion'
 import { AnimatedText, AnimatedStars } from './AnimatedText'
-import type { VisualStyleConfig } from '../types'
+
+type CardStyle = 'floating' | 'fullscreen' | 'chat-bubble' | 'overlay'
 
 interface ReviewCardProps {
   quote: string
   author?: string
   rating?: number
   highlightWords?: string[]
-  cardStyle: VisualStyleConfig['card']
+  cardStyle: CardStyle
   textColor: string
   accentColor: string
   bgColor: string

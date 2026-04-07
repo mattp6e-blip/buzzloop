@@ -6,6 +6,24 @@ import { createClient } from '@/lib/supabase/client'
 import type { Review, ReelTheme, ReelScript } from '@/types'
 import type { ReelVariation } from '@/remotion/types'
 
+function detectLanguage(reviews: Review[]): string {
+  const text = reviews.map(r => r.what_they_liked).join(' ').toLowerCase()
+  const markers: [string, string[]][] = [
+    ['English',    [' the ', ' and ', ' was ', ' they ', ' very ', ' great ', ' have ', ' this ', ' from ', ' with ']],
+    ['Spanish',    [' que ', ' los ', ' las ', ' del ', ' muy ', ' fue ', ' también ', ' están ', ' porque ', ' años ']],
+    ['French',     [' les ', ' des ', ' est ', ' dans ', ' sur ', ' très ', ' bien ', ' nous ', ' vous ', ' une ']],
+    ['German',     [' und ', ' die ', ' der ', ' das ', ' ist ', ' ich ', ' auch ', ' hat ', ' war ', ' sehr ']],
+    ['Italian',    [' che ', ' del ', ' sono ', ' nel ', ' dei ', ' tutto ', ' molto ', ' alla ', ' questo ']],
+    ['Portuguese', [' que ', ' com ', ' uma ', ' não ', ' dos ', ' muito ', ' também ', ' está ', ' para ']],
+  ]
+  let best = 'English', bestScore = 0
+  for (const [lang, words] of markers) {
+    const score = words.filter(w => text.includes(w)).length
+    if (score > bestScore) { bestScore = score; best = lang }
+  }
+  return best
+}
+
 interface Props {
   reviews: Review[]
   businessId: string
@@ -24,18 +42,20 @@ interface Props {
   savedThemeTitles: string[]
   city: string | null
   googleConnected: boolean
+  gbpPhotos: string[]
 }
 
 function localCacheKey(businessId: string, reviewCount: number) {
   return `reel_themes_${businessId}_${reviewCount}`
 }
 
-export function ReelsClient({ reviews, businessId, businessName, industry, brandColor, brandFont, brandLogoUrl, brandPersonality, brandSecondaryColor, websiteUrl, brandExtracted, cachedThemes, savedPostsCount, savedThemeTitles, city, googleConnected }: Props) {
+export function ReelsClient({ reviews, businessId, businessName, industry, brandColor, brandFont, brandLogoUrl, brandPersonality, brandSecondaryColor, websiteUrl, brandExtracted, cachedThemes, savedPostsCount, savedThemeTitles, city, googleConnected, gbpPhotos }: Props) {
   const [themes, setThemes]               = useState<ReelTheme[] | null>(null)
   const [analyzing, setAnalyzing]         = useState(false)
   const [selectedTheme, setSelectedTheme] = useState<ReelTheme | null>(null)
   const [error, setError]                 = useState<string | null>(null)
-  const [seenThemes, setSeenThemes] = useState<Set<string>>(new Set())
+  const [seenThemes, setSeenThemes]       = useState<Set<string>>(new Set())
+  const [reelLanguage, setReelLanguage]   = useState<string>('English')
 
   const [extractedBrand, setExtractedBrand] = useState<{
     logoUrl: string | null
@@ -109,7 +129,7 @@ export function ReelsClient({ reviews, businessId, businessName, industry, brand
       const stored = localStorage.getItem(key)
       if (stored) {
         const parsed: ReelTheme[] = JSON.parse(stored)
-        if (parsed.length > 0 && parsed[0].buzzScore !== undefined && parsed[0].reelCategory !== undefined) {
+        if (parsed.length > 0 && parsed[0].buzzScore !== undefined && parsed[0].reelType !== undefined) {
           setThemes(parsed)
           return
         }
@@ -117,7 +137,7 @@ export function ReelsClient({ reviews, businessId, businessName, industry, brand
     } catch {}
 
     // 2. DB cache fallback — same check
-    if (cachedThemes && cachedThemes[0]?.buzzScore !== undefined && cachedThemes[0]?.reelCategory !== undefined) {
+    if (cachedThemes && cachedThemes[0]?.buzzScore !== undefined && cachedThemes[0]?.reelType !== undefined) {
       setThemes(cachedThemes)
       return
     }
@@ -133,11 +153,12 @@ export function ReelsClient({ reviews, businessId, businessName, industry, brand
       const res = await fetch('/api/analyze-reviews', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reviews, businessId, industry, businessName }),
+        body: JSON.stringify({ reviews, businessId, industry, businessName, language: detectLanguage(reviews) }),
       })
       const data = await res.json()
       if (data.themes?.length) {
         setThemes(data.themes)
+        if (data.language) setReelLanguage(data.language)
         try {
           Object.keys(localStorage)
             .filter(k => k.startsWith(`reel_themes_${businessId}_`))
@@ -181,12 +202,15 @@ export function ReelsClient({ reviews, businessId, businessName, industry, brand
     })
   }
 
-  function forceReanalyze() {
+  async function forceReanalyze() {
     try {
       Object.keys(localStorage)
         .filter(k => k.startsWith(`reel_themes_${businessId}_`))
         .forEach(k => localStorage.removeItem(k))
     } catch {}
+    // Clear DB cache so it doesn't reload on next mount
+    const supabase = createClient()
+    await supabase.from('businesses').update({ reel_themes: null, reel_themes_review_count: 0 }).eq('id', businessId)
     setThemes(null)
     analyze()
   }
@@ -214,6 +238,8 @@ export function ReelsClient({ reviews, businessId, businessName, industry, brand
         bookingWord={extractedBrand?.bookingWord}
         businessId={businessId}
         city={city}
+        gbpPhotos={gbpPhotos}
+        language={reelLanguage}
         onBack={() => setSelectedTheme(null)}
         onScriptCached={handleScriptCached}
       />
@@ -476,14 +502,14 @@ function ThemeCard({ theme, brandColor, saved, isNew, onClick }: {
                 🔥 {score}
               </span>
             )}
-            {theme.reelCategory === 'educational' && (
+            {theme.reelType === 'story' && (
               <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: '#e0f2fe', color: '#0369a1' }}>
-                Educational
+                Story
               </span>
             )}
-            {theme.reelCategory === 'faq' && (
+            {theme.reelType === 'pattern' && (
               <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: '#fff7ed', color: '#c2410c' }}>
-                FAQ
+                Pattern
               </span>
             )}
             <span className="text-xs" style={{ color: 'var(--ink4)' }}>
