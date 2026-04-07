@@ -65,7 +65,7 @@ export function QuoteScene({ quote, author, highlightWords = [], template, brand
       <AbsoluteFill style={{
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'flex-end',
+        justifyContent: hasPhotos ? 'flex-end' : 'center',
         padding: '80px 64px 140px 64px',
       }}>
         {/* Stars */}
