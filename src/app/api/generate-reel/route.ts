@@ -556,7 +556,6 @@ export async function POST(req: NextRequest) {
 
   const isVariety = theme.contentType && theme.contentType !== 'social_proof'
   const lang = language ?? 'English'
-  const photos = allPhotos ?? []
 
   // For variety themes: find the best closing review (topically relevant > highest score)
   const themeReviewIds = new Set(theme.reviewIds)
@@ -589,11 +588,8 @@ export async function POST(req: NextRequest) {
     tones.map(tone => generateVariation(tone, theme, anchorSentence, reviewTexts, businessName, industry, gbpReviews, lang, isVariety ? closingReview : undefined))
   )).filter((v): v is ReelVariation => v !== null)
 
-  // Assign photos with offset per variation so each reel looks different
   // Assign motif based on theme + hook content
-  variations.forEach((v, i) => {
-    if (photos.length >= 1) v.hookPhoto = photos[i * 2 % photos.length]
-    if (photos.length >= 2) v.ctaPhoto = photos[(i * 2 + 1) % photos.length]
+  variations.forEach(v => {
     const { motif, motifValue } = selectMotif(theme, industry, v.hookHeadline)
     v.motif = motif
     if (motifValue !== undefined) v.motifValue = motifValue

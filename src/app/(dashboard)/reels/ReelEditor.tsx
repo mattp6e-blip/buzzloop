@@ -57,8 +57,7 @@ const TONE_ICONS: Record<string, string> = {
   bold:  '⚡',
 }
 
-// Player display width — larger = sharper photos
-const PREVIEW_W = 380
+const PREVIEW_W = 280
 const PREVIEW_H = Math.round(PREVIEW_W * REEL_HEIGHT / REEL_WIDTH)
 
 export function ReelEditor({
@@ -72,7 +71,6 @@ export function ReelEditor({
   const [editedScript, setEditedScript]       = useState<ReelScript>(() => JSON.parse(JSON.stringify(script)))
   const [editedVariation, setEditedVariation] = useState<ReelVariation>(() => ({ ...variation }))
   const [activeSlide, setActiveSlide]         = useState(0)
-  const [showPhotoPicker, setShowPhotoPicker] = useState<'hook' | 'cta' | null>(null)
   const [cityInput, setCityInput]             = useState('')
   const cityInputRef                          = useRef<HTMLInputElement>(null)
 
@@ -90,11 +88,6 @@ export function ReelEditor({
       ...prev,
       slides: prev.slides.map((s, i) => i === index ? { ...s, content: { ...s.content, ...patch } } : s),
     }))
-  }
-
-  function setPhoto(slot: 'hook' | 'cta', url: string | null) {
-    setEditedVariation(v => ({ ...v, [slot === 'hook' ? 'hookPhoto' : 'ctaPhoto']: url }))
-    setShowPhotoPicker(null)
   }
 
   const playerProps: ReelCompositionProps = {
@@ -121,13 +114,11 @@ export function ReelEditor({
 
   const activeItem = slideListItems[activeSlide]
   const activeSlideData = editedScript.slides[activeSlide]
-  const photoSlot = activeSlideData.type === 'hook' ? 'hook' : activeSlideData.type === 'cta' ? 'cta' : null
-  const currentPhoto = photoSlot === 'hook' ? editedVariation.hookPhoto : photoSlot === 'cta' ? editedVariation.ctaPhoto : null
 
   return (
     <div style={{ display: 'flex', gap: 40, alignItems: 'flex-start' }}>
 
-      {/* ── Left: large phone preview ── */}
+      {/* ── Left: phone preview ── */}
       <div style={{ width: PREVIEW_W, flexShrink: 0 }}>
 
         {/* Tone tabs */}
@@ -366,37 +357,6 @@ export function ReelEditor({
               </>
             )}
 
-            {/* Photo picker for hook + CTA slides */}
-            {photoSlot && (
-              <div>
-                <label className="text-xs font-semibold block mb-1.5" style={{ color: 'var(--ink3)' }}>Background photo</label>
-                {currentPhoto ? (
-                  <div className="flex items-center gap-3 p-2.5 rounded-xl border" style={{ borderColor: 'var(--border)' }}>
-                    <img src={currentPhoto} className="rounded-lg object-cover flex-shrink-0" style={{ width: 52, height: 52 }} />
-                    <div className="flex-1 min-w-0">
-                      <button
-                        onClick={() => setShowPhotoPicker(photoSlot)}
-                        className="text-xs font-semibold block hover:opacity-70"
-                        style={{ color: brandColor }}
-                      >Change photo</button>
-                      <button
-                        onClick={() => setPhoto(photoSlot, null)}
-                        className="text-xs block mt-0.5 hover:opacity-70"
-                        style={{ color: 'var(--ink4)' }}
-                      >Remove</button>
-                    </div>
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => setShowPhotoPicker(photoSlot)}
-                    className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border text-xs font-medium transition-all hover:bg-[var(--bg2)]"
-                    style={{ borderColor: 'var(--border)', borderStyle: 'dashed', color: 'var(--ink3)' }}
-                  >
-                    {gbpPhotos.length > 0 ? '⊞ Pick a photo from your library' : '⊞ Add photos in Media tab first'}
-                  </button>
-                )}
-              </div>
-            )}
 
           </div>
         </div>
@@ -493,46 +453,6 @@ export function ReelEditor({
         </div>
       </div>
 
-      {/* Photo picker modal */}
-      {showPhotoPicker && gbpPhotos.length > 0 && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center"
-          style={{ background: 'rgba(0,0,0,0.6)' }}
-          onClick={() => setShowPhotoPicker(null)}
-        >
-          <div
-            className="rounded-2xl p-5"
-            style={{ background: 'var(--surface)', width: 460, maxHeight: '80vh', overflow: 'auto', boxShadow: '0 24px 60px rgba(0,0,0,0.3)' }}
-            onClick={e => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-bold" style={{ color: 'var(--ink)' }}>
-                {showPhotoPicker === 'hook' ? 'Hook slide photo' : 'CTA slide photo'}
-              </p>
-              <button onClick={() => setShowPhotoPicker(null)} className="text-sm hover:opacity-70" style={{ color: 'var(--ink4)' }}>✕</button>
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              {gbpPhotos.map((url, i) => {
-                const isSelected = (showPhotoPicker === 'hook' ? editedVariation.hookPhoto : editedVariation.ctaPhoto) === url
-                return (
-                  <button
-                    key={i}
-                    onClick={() => setPhoto(showPhotoPicker, url)}
-                    className="rounded-xl overflow-hidden transition-all"
-                    style={{
-                      aspectRatio: '1/1',
-                      outline: isSelected ? `3px solid ${brandColor}` : '3px solid transparent',
-                      outlineOffset: 2,
-                    }}
-                  >
-                    <img src={url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

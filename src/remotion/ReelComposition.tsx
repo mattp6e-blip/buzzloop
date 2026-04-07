@@ -26,9 +26,9 @@ export function ReelComposition({
   const template = variation.template ?? 'immersive'
   const photos = gbpPhotos ?? []
 
-  // Use assigned photos from variation, fall back to pool
-  const hookPhoto = variation.hookPhoto ?? photos[0] ?? null
-  const ctaPhoto = variation.ctaPhoto ?? photos[1] ?? photos[0] ?? null
+  // Use only explicitly assigned photos (no auto-fallback to pool)
+  const hookPhoto = variation.hookPhoto ?? null
+  const ctaPhoto = variation.ctaPhoto ?? null
 
   // Build scene timeline
   let cursor = 0
