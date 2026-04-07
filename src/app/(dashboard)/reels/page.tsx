@@ -10,7 +10,7 @@ export default async function ReelsPage() {
 
   const { data: business } = await supabase
     .from('businesses')
-    .select('id, name, industry, city, brand_color, brand_font, brand_logo_url, brand_secondary_color, brand_personality, brand_extracted, website_url, reel_themes, reel_themes_review_count, google_connected, gbp_photos')
+    .select('id, name, industry, city, brand_color, brand_font, brand_logo_url, brand_secondary_color, brand_personality, brand_extracted, website_url, reel_themes, reel_themes_review_count, google_connected, gbp_photos, uploaded_photos')
     .eq('user_id', user.id)
     .single()
 
@@ -52,7 +52,10 @@ export default async function ReelsPage() {
         savedThemeTitles={[...savedThemeTitles] as string[]}
         city={business.city ?? null}
         googleConnected={business.google_connected ?? false}
-        gbpPhotos={(business.gbp_photos as string[] | null) ?? []}
+        gbpPhotos={[
+          ...((business.gbp_photos as string[] | null) ?? []),
+          ...((business.uploaded_photos as string[] | null) ?? []),
+        ]}
       />
     </div>
   )

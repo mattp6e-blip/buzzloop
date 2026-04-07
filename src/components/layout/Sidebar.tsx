@@ -11,6 +11,7 @@ const NAV = [
   { href: '/qr', label: 'QR Code', icon: '▦' },
   { href: '/reels', label: 'Reels', icon: '✦' },
   { href: '/content', label: 'Content', icon: '❐' },
+  { href: '/media', label: 'Media', icon: '⊞' },
   { href: '/settings', label: 'Settings', icon: '⚙' },
 ]
 
