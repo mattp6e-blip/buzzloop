@@ -50,11 +50,21 @@ export interface Review {
   remarkability_signal: string | null
 }
 
+export type ReelContentType =
+  | 'social_proof'    // review-based (story or pattern)
+  | 'educational'     // how a procedure/product/service works
+  | 'myth_bust'       // address a common fear or misconception
+  | 'experience'      // atmosphere, vibe, signature moment
+  | 'local_guide'     // local recommendations (hotel/restaurant)
+  | 'behind_scenes'   // how something is made or done
+  | 'trust'           // credentials, years, expertise
+
 export interface ReelTheme {
   id: string
   title: string
   hook: string
   reelType: 'story' | 'pattern'    // story = single anchor review; pattern = shared signal across 3+
+  contentType?: ReelContentType     // defaults to 'social_proof' if absent
   keyPhrase: string
   emoji: string
   reviewIds: string[]

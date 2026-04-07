@@ -454,6 +454,38 @@ function RecommendedCard({ theme, brandColor, rank, saved, isNew, onClick }: {
   )
 }
 
+// ── Content type badge ─────────────────────────────────────────
+
+const CONTENT_TYPE_META: Record<string, { label: string; bg: string; color: string }> = {
+  social_proof:   { label: 'Social Proof', bg: '#e0f2fe', color: '#0369a1' },
+  educational:    { label: '📚 Educational', bg: '#ede9fe', color: '#6d28d9' },
+  myth_bust:      { label: '💡 Myth Bust', bg: '#fef3c7', color: '#92400e' },
+  experience:     { label: '✨ Experience', bg: '#fff7ed', color: '#c2410c' },
+  local_guide:    { label: '📍 Local Guide', bg: '#f0fdf4', color: '#15803d' },
+  behind_scenes:  { label: '🎬 Behind the Scenes', bg: '#fdf4ff', color: '#86198f' },
+  trust:          { label: '⭐ Trust', bg: '#f8fafc', color: '#475569' },
+}
+
+function ContentTypeBadge({ theme }: { theme: ReelTheme }) {
+  const ct = theme.contentType ?? 'social_proof'
+  const meta = CONTENT_TYPE_META[ct]
+  if (!meta) return null
+
+  if (ct === 'social_proof') {
+    // Keep existing story/pattern badges for social proof
+    if (theme.reelType === 'story') {
+      return <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: '#e0f2fe', color: '#0369a1' }}>Story</span>
+    }
+    return <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: '#fff7ed', color: '#c2410c' }}>Pattern</span>
+  }
+
+  return (
+    <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: meta.bg, color: meta.color }}>
+      {meta.label}
+    </span>
+  )
+}
+
 // ── Theme card ─────────────────────────────────────────────────
 
 function ThemeCard({ theme, brandColor, saved, isNew, onClick }: {
@@ -502,16 +534,7 @@ function ThemeCard({ theme, brandColor, saved, isNew, onClick }: {
                 🔥 {score}
               </span>
             )}
-            {theme.reelType === 'story' && (
-              <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: '#e0f2fe', color: '#0369a1' }}>
-                Story
-              </span>
-            )}
-            {theme.reelType === 'pattern' && (
-              <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: '#fff7ed', color: '#c2410c' }}>
-                Pattern
-              </span>
-            )}
+            <ContentTypeBadge theme={theme} />
             <span className="text-xs" style={{ color: 'var(--ink4)' }}>
               {theme.reviewIds.length} review{theme.reviewIds.length !== 1 ? 's' : ''}
             </span>

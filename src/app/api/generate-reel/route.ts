@@ -65,7 +65,152 @@ const HOOK_FRAMEWORKS = `SIX PROVEN HOOK FRAMEWORKS — match the anchor materia
 
 const client = new Anthropic()
 
-// ── PASS 1: Hook generation ──────────────────────────────────────────────────
+// ── PASS 1: Hook generation — educational/variety themes ─────────────────────
+
+function getVarietyHookPrompt(
+  tone: Tone,
+  theme: ReelTheme,
+  businessName: string,
+  industry: string,
+  language: string,
+): string {
+  const toneInstructions: Record<Tone, string> = {
+    story: `TONE — Story: Make the viewer feel something. Frame the topic as a human moment or journey. Draw in curiosity with warmth.`,
+    proof: `TONE — Proof: Make the hook feel undeniable. Lead with a specific, verifiable fact or number. The viewer thinks "I didn't know that."`,
+    bold: `TONE — Bold: Pattern-interrupt. The most surprising, counterintuitive, or blunt version of the truth. Short. No softening.`,
+  }
+
+  const hookByType: Record<string, string> = {
+    educational:   `QUESTION or STEP: Ask the question the viewer secretly has, or promise a step-by-step reveal.\nGOOD: "What actually happens during an implant. Step by step." / "Nobody explains what Invisalign feels like. We will."`,
+    myth_bust:     `FEAR ACKNOWLEDGMENT: Name the common fear or misconception, then pivot.\nGOOD: "Most people avoid implants because of this." / "You think it hurts. Here's the truth."`,
+    experience:    `SENSORY MOMENT: Put the viewer inside the experience in one sentence.\nGOOD: "What our guests find on their pillow every morning." / "What a Friday night here actually looks like."`,
+    local_guide:   `INSIDER REVEAL: Frame as local knowledge most visitors miss.\nGOOD: "The spot our guests ask about every single checkout." / "Three hidden gems. Only our guests know."`,
+    behind_scenes: `CRAFT REVEAL: Make the process feel fascinating and unexpected.\nGOOD: "What goes into our signature dish. It's not what you think." / "How we actually mix this cocktail."`,
+    trust:         `PROOF OF TIME: A number or fact that earns trust before the viewer asks.\nGOOD: "20 years. 2,000 patients. Here's what we've learned." / "The thing we've never changed in 15 years."`,
+  }
+
+  const typeGuide = hookByType[theme.contentType ?? 'educational'] ?? hookByType.educational
+
+  return `You are writing the hook for an Instagram Reel. Your only job is to write ONE perfect hook.
+
+LANGUAGE: Write in ${language}.
+
+Business: ${businessName} (${industry})
+Reel theme: ${theme.title}
+Content type: ${theme.contentType}
+Key topic: ${theme.keyPhrase}
+
+${toneInstructions[tone]}
+
+HOOK GUIDE FOR THIS CONTENT TYPE:
+${typeGuide}
+
+RULES:
+1. Max 10 words
+2. Never name the business or sound like an ad
+3. The viewer should feel curious, surprised, or seen
+
+Return ONLY valid JSON:
+{
+  "hookHeadline": "The hook (max 10 words)",
+  "hookSubline": "Optional 6-word context line, or null"
+}`
+}
+
+// ── PASS 2: Full reel — educational/variety themes ────────────────────────────
+
+function getVarietyReelPrompt(
+  tone: Tone,
+  theme: ReelTheme,
+  hookHeadline: string,
+  hookSubline: string | null,
+  closingReview: string,
+  closingAuthor: string | null,
+  businessName: string,
+  industry: string,
+  language: string,
+): string {
+  const durationSeconds = TONE_CONFIGS[tone].durationSeconds
+
+  const toneInstructions: Record<Tone, string> = {
+    story: `TONE — Story (${durationSeconds}s): Educational journey. Hook poses the question. Each insight builds understanding. The closing review is the emotional proof that it works. CTA feels like a natural next step.`,
+    proof: `TONE — Proof (${durationSeconds}s): Evidence-led education. Each insight is a verifiable fact. The closing review confirms the theory with a real human. CTA is a confident invitation.`,
+    bold: `TONE — Bold (${durationSeconds}s): Fast, punchy education. Cut to the most surprising insight. One closing quote. Move fast.`,
+  }
+
+  const insightCount = tone === 'bold' ? 1 : 2
+
+  return `You are completing an Instagram Reel about ${theme.contentType?.replace('_', ' ')} content. The hook has been written. Build the educational content around it.
+
+LANGUAGE: Write in ${language}.
+
+Business: ${businessName} (${industry})
+Reel theme: ${theme.title}
+Content type: ${theme.contentType}
+Key topic: ${theme.keyPhrase}
+
+THE HOOK (do NOT change):
+Headline: "${hookHeadline}"
+${hookSubline ? `Subline: "${hookSubline}"` : ''}
+
+${toneInstructions[tone]}
+
+---
+
+SLIDE STRUCTURE:
+- hook: 3s — already written above
+${tone === 'bold'
+  ? `- insight: 4s — the single most surprising or counterintuitive fact about the topic`
+  : `- insight: 4s — first key point (most surprising or counterintuitive)
+- insight: 4s — second key point (deepens understanding or changes perception)`}
+- quote: 4s — closing emotional proof (verbatim from the review below)
+- cta: ${tone === 'bold' ? 5 : 6}s — call to action
+
+CLOSING REVIEW (use verbatim for the quote slide — pick the best 18-word excerpt):
+"${closingReview}"${closingAuthor ? ` — ${closingAuthor}` : ''}
+
+---
+
+INSIGHT SLIDES — rules:
+- Each insight is a SHORT, punchy statement (max 10 words)
+- Surprising, specific, or counterintuitive — something the viewer didn't know
+- Never generic ("it's important to...") — always specific ("most people feel nothing after 20 minutes")
+- highlightWords: the 1-2 words that carry the most weight
+
+QUOTE SLIDE — rules:
+- Verbatim excerpt from the closing review above — max 18 words
+- Choose the excerpt that emotionally validates what the insights just taught
+- highlightWords: the 1-2 words with the most weight
+
+CTA — two lines:
+Line 1 (ctaHeadline): Callback to the topic. Bridge from the education to taking action.
+  - "Now you know what to expect. Come find out for yourself."
+  - "The implant that took 45 minutes. See if you qualify."
+  NEVER generic: "Book your appointment today"
+
+Line 2 (ctaText): Friction reduction. Make the next step feel smaller than expected.
+  - "One free consultation. No commitment."
+  - "Message us your question. We reply same day."
+
+Return ONLY valid JSON:
+{
+  "themeTitle": "${theme.title}",
+  "totalDuration": ${durationSeconds},
+  "ctaHeadline": "Topic callback — specific",
+  "ctaText": "Friction reduction",
+  "slides": [
+    { "type": "hook", "duration": 3, "content": { "headline": "${hookHeadline}", "subline": ${hookSubline ? `"${hookSubline}"` : 'null'} } },
+    ${insightCount === 2
+      ? `{ "type": "insight", "duration": 4, "content": { "headline": "First insight (max 10 words)", "highlightWords": ["word1"] } },
+    { "type": "insight", "duration": 4, "content": { "headline": "Second insight (max 10 words)", "highlightWords": ["word1"] } },`
+      : `{ "type": "insight", "duration": 4, "content": { "headline": "The sharpest insight (max 10 words)", "highlightWords": ["word1"] } },`}
+    { "type": "quote", "duration": 4, "content": { "quote": "Verbatim excerpt (max 18 words)", "highlightWords": ["word1"], "author": "${closingAuthor ?? 'null'}" } },
+    { "type": "cta", "duration": ${tone === 'bold' ? 5 : 6}, "content": { "headline": "Topic callback", "cta": "Friction reduction" } }
+  ]
+}`
+}
+
+// ── PASS 1: Hook generation — social proof themes ────────────────────────────
 
 function getHookPrompt(
   tone: Tone,
@@ -248,39 +393,82 @@ async function generateVariation(
   industry: string,
   reviews: Review[],
   language: string,
+  closingReview?: Review,
 ): Promise<ReelVariation | null> {
   try {
     const langSystem = `You must respond in ${language} only. Every word of your JSON output must be in ${language}. This is non-negotiable regardless of the business name or location.`
+    const isVariety = theme.contentType && theme.contentType !== 'social_proof'
 
-    // Pass 1 — hook only
-    const hookMessage = await client.messages.create({
-      model: 'claude-opus-4-6',
-      max_tokens: 300,
-      system: langSystem,
-      messages: [{ role: 'user', content: getHookPrompt(tone, theme, anchorSentence, reviewTexts, businessName, industry, language) }],
-    })
-    const hookText = (hookMessage.content[0] as { text: string }).text
-    const hookMatch = hookText.match(/\{[\s\S]*\}/)
-    if (!hookMatch) return null
-    const hook = JSON.parse(hookMatch[0]) as { hookHeadline: string; hookSubline: string | null; framework: string }
+    let hookHeadline: string
+    let hookSubline: string | null
 
-    // Pass 2 — full reel anchored to hook
-    const reelMessage = await client.messages.create({
-      model: 'claude-opus-4-6',
-      max_tokens: 1500,
-      system: langSystem,
-      messages: [{ role: 'user', content: getReelPrompt(tone, theme, hook.hookHeadline, hook.hookSubline ?? null, reviewTexts, businessName, industry, reviews, language) }],
-    })
-    const reelText = (reelMessage.content[0] as { text: string }).text
-    const reelMatch = reelText.match(/\{[\s\S]*\}/)
-    if (!reelMatch) return null
-    const parsed = JSON.parse(reelMatch[0])
+    if (isVariety) {
+      // Pass 1 — topic-based hook for educational/variety themes
+      const hookMessage = await client.messages.create({
+        model: 'claude-opus-4-6',
+        max_tokens: 300,
+        system: langSystem,
+        messages: [{ role: 'user', content: getVarietyHookPrompt(tone, theme, businessName, industry, language) }],
+      })
+      const hookText = (hookMessage.content[0] as { text: string }).text
+      const hookMatch = hookText.match(/\{[\s\S]*\}/)
+      if (!hookMatch) return null
+      const hook = JSON.parse(hookMatch[0]) as { hookHeadline: string; hookSubline: string | null }
+      hookHeadline = hook.hookHeadline
+      hookSubline = hook.hookSubline ?? null
+    } else {
+      // Pass 1 — quote-based hook for social proof themes
+      const hookMessage = await client.messages.create({
+        model: 'claude-opus-4-6',
+        max_tokens: 300,
+        system: langSystem,
+        messages: [{ role: 'user', content: getHookPrompt(tone, theme, anchorSentence, reviewTexts, businessName, industry, language) }],
+      })
+      const hookText = (hookMessage.content[0] as { text: string }).text
+      const hookMatch = hookText.match(/\{[\s\S]*\}/)
+      if (!hookMatch) return null
+      const hook = JSON.parse(hookMatch[0]) as { hookHeadline: string; hookSubline: string | null; framework: string }
+      hookHeadline = hook.hookHeadline
+      hookSubline = hook.hookSubline ?? null
+    }
+
+    // Pass 2 — full reel
+    let parsed: Record<string, unknown>
+    if (isVariety) {
+      const closing = closingReview ?? reviews[0]
+      const reelMessage = await client.messages.create({
+        model: 'claude-opus-4-6',
+        max_tokens: 1500,
+        system: langSystem,
+        messages: [{ role: 'user', content: getVarietyReelPrompt(
+          tone, theme, hookHeadline, hookSubline,
+          closing?.what_they_liked ?? theme.keyPhrase,
+          closing?.customer_name ?? null,
+          businessName, industry, language,
+        ) }],
+      })
+      const reelText = (reelMessage.content[0] as { text: string }).text
+      const reelMatch = reelText.match(/\{[\s\S]*\}/)
+      if (!reelMatch) return null
+      parsed = JSON.parse(reelMatch[0])
+    } else {
+      const reelMessage = await client.messages.create({
+        model: 'claude-opus-4-6',
+        max_tokens: 1500,
+        system: langSystem,
+        messages: [{ role: 'user', content: getReelPrompt(tone, theme, hookHeadline, hookSubline, reviewTexts, businessName, industry, reviews, language) }],
+      })
+      const reelText = (reelMessage.content[0] as { text: string }).text
+      const reelMatch = reelText.match(/\{[\s\S]*\}/)
+      if (!reelMatch) return null
+      parsed = JSON.parse(reelMatch[0])
+    }
 
     const config = TONE_CONFIGS[tone]
     const script: ReelScript = {
-      themeTitle: parsed.themeTitle,
-      totalDuration: parsed.totalDuration,
-      slides: parsed.slides,
+      themeTitle: parsed.themeTitle as string,
+      totalDuration: parsed.totalDuration as number,
+      slides: parsed.slides as ReelScript['slides'],
       template: config.template,
     }
 
@@ -289,10 +477,10 @@ async function generateVariation(
       label: config.label,
       description: config.description,
       tone,
-      hookHeadline: hook.hookHeadline,
-      hookSubline: hook.hookSubline ?? undefined,
-      ctaHeadline: parsed.ctaHeadline ?? '',
-      ctaText: parsed.ctaText ?? '',
+      hookHeadline,
+      hookSubline: hookSubline ?? undefined,
+      ctaHeadline: parsed.ctaHeadline as string ?? '',
+      ctaText: parsed.ctaText as string ?? '',
       template: config.template,
       script,
     }
@@ -318,7 +506,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'No GBP reviews available' }, { status: 400 })
   }
 
-  // Find the anchor sentence — from anchor review if story type, else best available
+  const isVariety = theme.contentType && theme.contentType !== 'social_proof'
+  const lang = language ?? 'English'
+  const photos = allPhotos ?? []
+
+  // For variety themes: find the best closing review (topically relevant > highest score)
+  const themeReviewIds = new Set(theme.reviewIds)
+  const themeReviews = gbpReviews.filter(r => themeReviewIds.has(r.id))
+  const closingReview = theme.anchorReviewId
+    ? gbpReviews.find(r => r.id === theme.anchorReviewId)
+    : themeReviews[0] ?? gbpReviews.sort((a, b) => (b.remarkability_score ?? 0) - (a.remarkability_score ?? 0))[0]
+
+  // For social proof themes: find anchor + build review context
   const anchorReview = theme.anchorReviewId
     ? gbpReviews.find(r => r.id === theme.anchorReviewId)
     : gbpReviews.sort((a, b) => (b.remarkability_score ?? 0) - (a.remarkability_score ?? 0))[0]
@@ -327,24 +526,19 @@ export async function POST(req: NextRequest) {
     ?? anchorReview?.what_they_liked.slice(0, 150)
     ?? theme.keyPhrase
 
-  // Build review context — anchor first, then supporting reviews
-  const supportingIds = new Set(theme.reviewIds)
   const contextReviews = [
     ...(anchorReview ? [anchorReview] : []),
-    ...gbpReviews.filter(r => supportingIds.has(r.id) && r.id !== anchorReview?.id),
+    ...gbpReviews.filter(r => themeReviewIds.has(r.id) && r.id !== anchorReview?.id),
   ].slice(0, 6)
 
   const reviewTexts = contextReviews.map((r, i) =>
     `Quote ${i + 1}: "${r.what_they_liked}"${r.customer_name ? ` — ${r.customer_name}` : ''}`
   ).join('\n')
 
-  const lang = language ?? 'English'
-  const photos = allPhotos ?? []
-
   // Generate all three tones in parallel (each tone runs 2 Opus calls internally)
   const tones: Tone[] = ['story', 'proof', 'bold']
   const variations = (await Promise.all(
-    tones.map((tone, i) => generateVariation(tone, theme, anchorSentence, reviewTexts, businessName, industry, gbpReviews, lang))
+    tones.map(tone => generateVariation(tone, theme, anchorSentence, reviewTexts, businessName, industry, gbpReviews, lang, isVariety ? closingReview : undefined))
   )).filter((v): v is ReelVariation => v !== null)
 
   // Assign photos with offset per variation so each reel looks different

@@ -12,8 +12,27 @@ function buildReviewList(reviews: Review[]): string {
   }).join('\n')
 }
 
+const CONTENT_VARIETY_BY_INDUSTRY: Record<string, string> = {
+  dental:        'educational (what happens during a specific procedure e.g. implants, whitening, Invisalign), myth_bust (common fears about dental treatment e.g. pain, cost, needles)',
+  clinic:        'educational (how a treatment or diagnostic process works), myth_bust (common misconceptions about the condition or treatment)',
+  physiotherapy: 'educational (how a specific technique or recovery process works), myth_bust (why people avoid physio when they shouldn\'t)',
+  veterinary:    'educational (what to expect at a specific visit type), myth_bust (common pet health misconceptions)',
+  gym:           'educational (a specific training technique or nutrition principle), behind_scenes (how coaches build a training program)',
+  salon:         'educational (how to maintain a specific style or treatment at home), behind_scenes (the craft behind a specific technique)',
+  spa:           'educational (what a specific treatment actually does for your body), experience (what the signature experience feels like)',
+  restaurant:    'behind_scenes (how a signature dish or ingredient is prepared), experience (what a specific occasion or atmosphere feels like)',
+  bar:           'behind_scenes (how a signature cocktail is made), experience (what a Friday night or special event looks like)',
+  hotel:         'local_guide (hidden local spots your guests always ask about), experience (what your signature guest moment looks like)',
+  lawyer:        'educational (what to expect in a specific legal process), myth_bust (common misconceptions that stop people from getting help)',
+  tattoo:        'educational (the healing process and aftercare), behind_scenes (how a specific style or design comes together)',
+  optician:      'educational (how a specific eye condition or lens technology works), myth_bust (common misconceptions about eye health)',
+  other:         'educational (something specific to your industry that most customers don\'t know), behind_scenes (how something distinctive about your service is done)',
+}
+
 function getAnalysisPrompt(reviewList: string, industry: string, businessName: string, reviewCount: number, language: string): string {
-  return `You are the creative director and strategist behind the highest-performing local business Instagram Reels. Your job is to find the reel ideas that will genuinely stop someone's scroll and make them want to visit this business.
+  const varietyGuide = CONTENT_VARIETY_BY_INDUSTRY[industry] ?? CONTENT_VARIETY_BY_INDUSTRY.other
+
+  return `You are the creative director and strategist behind the highest-performing local business Instagram Reels. Your job is to build a full content plan — a mix of review-based social proof AND educational/experience content — that genuinely helps this business grow.
 
 Business: ${businessName} (${industry})
 Total qualifying reviews: ${reviewCount}
@@ -27,72 +46,90 @@ LANGUAGE: Write every field of your JSON in ${language}. Do not translate or cha
 
 ---
 
-YOUR TASK: Find the best reel ideas in these reviews. Each idea is one of two types:
+## PART 1 — SOCIAL PROOF THEMES (2-3 themes, from reviews)
 
-## TYPE 1 — STORY REEL
-Built around ONE extraordinary review. The anchor sentence is so specific and surprising that it can carry a full reel on its own.
+Find the best review-based reel ideas. Each is one of two types:
+
+### TYPE: story
+Built around ONE extraordinary review. The anchor sentence is so specific and surprising it can carry a full reel on its own.
 
 What makes an anchor sentence extraordinary:
-- Behavioral proof (flew from abroad, drove 2 hours, extended their stay, chose this over a free/closer option)
-- Expectation violation (fell asleep in the dentist chair, fixed in 20 min what 3 others couldn't, didn't feel a thing)
-- Specific number + context (37 years, every Friday for 6 years, 4 cancellations before finally coming)
+- Behavioral proof (flew from abroad, drove 2 hours, chose this over a free/closer option)
+- Expectation violation (fell asleep in the dentist chair, fixed in 20 min what 3 others couldn't)
+- Specific number + context (37 years, every Friday for 6 years, 4 cancellations before coming)
 - Unexpected advocate (child chose it, expert with all options chose this, skeptic converted)
 
-The hook for a Story reel comes directly from the anchor sentence. Customer is the subject — never the business.
+Hook: customer as subject, never the business.
 GOOD: "She flies from Norway. Free dentistry there."
-BAD: "Our patients travel from around the world to see us."
+BAD: "Our patients travel from around the world."
 
-## TYPE 2 — PATTERN REEL
+### TYPE: pattern
 Built around a SHARED SIGNAL across 3+ reviews. Multiple customers noticed the same specific thing.
 
-What makes a strong pattern:
-- Same staff member mentioned by name across reviews (not just "the staff was great")
-- Same service/treatment mentioned with consistent detail
-- Same unexpected behavior repeated (multiple people mentioning they came back after trying competitors)
-- Same emotional journey that multiple reviewers describe with specific detail
-
-The hook for a Pattern reel reveals the shared truth as a surprising fact.
+Hook: reveals the shared truth as a surprising fact.
 GOOD: "Three different people. Same story. They all came back."
 BAD: "Our customers love the experience."
 
+For social proof themes: set contentType to "social_proof".
+
 ---
 
-BUZZ SCORE (1-100) — measures hook potential only:
-90-100: The hook writes itself. Behavioral proof or expectation violation so strong a stranger stops scrolling.
+## PART 2 — CONTENT VARIETY THEMES (2-3 themes, NOT from reviews)
+
+These themes help the business grow beyond social proof. They educate, inspire, and differentiate.
+For ${industry}, the best variety themes are: ${varietyGuide}
+
+Rules for content variety themes:
+- hook: A question, surprising fact, or common misconception — NOT a customer quote
+- reviewIds: The 1-2 most topically relevant reviews (used as closing emotional proof, not the main story)
+- anchorReviewId: The single most relevant review for this topic (the one whose quote best closes the reel)
+- buzzScore: Omit or set to 72
+- contentType: one of "educational" | "myth_bust" | "experience" | "local_guide" | "behind_scenes" | "trust"
+- reelType: use "pattern" for variety themes
+
+GOOD educational hook: "What actually happens during an implant. Step by step."
+GOOD myth_bust hook: "Most people avoid implants because of this. Let's talk."
+GOOD experience hook: "What our guests find on their pillow every morning."
+BAD: "We offer the best dental care in the city."
+
+---
+
+BUZZ SCORE for social proof themes (1-100):
+90-100: The hook writes itself. Behavioral proof or expectation violation so strong a stranger stops.
 75-89: Strong specific material. Needs light shaping but the raw content is there.
-60-74: Good material but hook requires more work to land. Supporting evidence is solid.
-Below 60: Interesting but no single hook moment.
+60-74: Good material but hook requires more work to land.
 
 ---
 
 IMPORTANT:
-- Only include themes where you can write a hook that does NOT name the business or sound like an ad
-- Story reels need one extraordinary anchor — do not include if anchor sentence is generic
-- Pattern reels need 3+ reviews genuinely sharing the signal — do not force patterns
-- Return 4-8 themes maximum, ranked by buzzScore descending
-- Quality over quantity — 4 strong themes beats 8 mediocre ones
+- Social proof: only include if the anchor or pattern is genuinely remarkable
+- Content variety: always include 2-3 — they're guaranteed value even with few reviews
+- Total themes: 5-7 (mix of both parts)
+- List social proof themes first (highest buzz score), then content variety
 
-Return ONLY valid JSON with this exact shape:
+Return ONLY valid JSON:
 {
   "language": "English",
   "themes": [
     {
       "id": "unique-slug",
       "title": "The reel idea as a scroll-stopping fact (under 10 words)",
-      "hook": "The specific hook — customer as subject, no business name (max 8 words)",
+      "hook": "The specific hook (max 8 words)",
       "reelType": "story | pattern",
-      "keyPhrase": "the specific thing that makes this remarkable",
+      "contentType": "social_proof | educational | myth_bust | experience | local_guide | behind_scenes | trust",
+      "keyPhrase": "the core topic or remarkable thing",
       "emoji": "ONE emoji",
       "reviewIds": ["id1", "id2"],
       "anchorReviewId": "id1",
       "buzzScore": 85,
-      "buzzReason": "One sentence, max 12 words, explaining why this stops the scroll"
+      "buzzReason": "One sentence, max 12 words, explaining the hook potential"
     }
   ]
 }
 
-For story reels: reviewIds contains the anchor + 1-2 supporting reviews. anchorReviewId is the primary.
-For pattern reels: reviewIds contains all reviews sharing the pattern (min 3). anchorReviewId is null or omitted.`
+For story reels: reviewIds contains anchor + 1-2 supporting. anchorReviewId is the primary.
+For pattern reels: reviewIds contains all reviews sharing the pattern (min 3). anchorReviewId omitted.
+For content variety: reviewIds contains 1-2 topically relevant reviews. anchorReviewId is the best closing quote.`
 }
 
 export async function POST(req: NextRequest) {
