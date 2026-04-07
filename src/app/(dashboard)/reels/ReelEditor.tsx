@@ -407,29 +407,6 @@ export function ReelEditor({
                     </button>
                   )}
 
-                  {/* Photo picker modal */}
-                  {showPhotoPicker === photoSlot && gbpPhotos.length > 0 && (
-                    <div className="mt-2 p-3 rounded-xl border" style={{ borderColor: 'var(--border)', background: 'var(--bg2)' }}>
-                      <p className="text-xs font-semibold mb-2" style={{ color: 'var(--ink3)' }}>Your photos</p>
-                      <div className="grid grid-cols-4 gap-1.5">
-                        {gbpPhotos.map((url, i) => (
-                          <button
-                            key={i}
-                            onClick={() => setPhoto(photoSlot, url)}
-                            className="rounded-lg overflow-hidden hover:ring-2 transition-all"
-                            style={{ aspectRatio: '1/1', outlineColor: brandColor }}
-                          >
-                            <img src={url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                          </button>
-                        ))}
-                      </div>
-                      <button
-                        onClick={() => setShowPhotoPicker(null)}
-                        className="text-xs mt-2 hover:opacity-70"
-                        style={{ color: 'var(--ink4)' }}
-                      >Cancel</button>
-                    </div>
-                  )}
                 </div>
               )}
 
@@ -525,6 +502,47 @@ export function ReelEditor({
           </div>
         </div>
       </div>
+
+      {/* Photo picker modal */}
+      {showPhotoPicker && gbpPhotos.length > 0 && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          style={{ background: 'rgba(0,0,0,0.6)' }}
+          onClick={() => setShowPhotoPicker(null)}
+        >
+          <div
+            className="rounded-2xl p-5"
+            style={{ background: 'var(--surface)', width: 420, maxHeight: '80vh', overflow: 'auto', boxShadow: '0 24px 60px rgba(0,0,0,0.3)' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-sm font-bold" style={{ color: 'var(--ink)' }}>
+                {showPhotoPicker === 'hook' ? 'Hook slide photo' : 'CTA slide photo'}
+              </p>
+              <button onClick={() => setShowPhotoPicker(null)} className="text-sm hover:opacity-70" style={{ color: 'var(--ink4)' }}>✕</button>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              {gbpPhotos.map((url, i) => {
+                const isSelected = (showPhotoPicker === 'hook' ? editedVariation.hookPhoto : editedVariation.ctaPhoto) === url
+                return (
+                  <button
+                    key={i}
+                    onClick={() => setPhoto(showPhotoPicker, url)}
+                    className="rounded-xl overflow-hidden transition-all"
+                    style={{
+                      aspectRatio: '1/1',
+                      outline: isSelected ? `3px solid ${brandColor}` : '3px solid transparent',
+                      outlineOffset: 2,
+                    }}
+                  >
+                    <img src={url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
