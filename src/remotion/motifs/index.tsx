@@ -81,7 +81,7 @@ export function MotifLayer({ motif, brandColor, value }: {
 
 // ── Helper ────────────────────────────────────────────────────────────────────
 
-function fi(frame: number, a = 0, b = 12) {
+function fi(frame: number, a = 0, b = 8) {
   return interpolate(frame, [a, b], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })
 }
 
@@ -178,7 +178,7 @@ function CounterUp({ brandColor, value = 100 }: { brandColor: string; value?: nu
   const { fps } = useVideoConfig()
   const sp = spring({ frame, fps, config: { stiffness: 28, damping: 18 } })
   const count = Math.round(interpolate(sp, [0, 1], [0, value]))
-  const opacity = fi(frame, 0, 18) * 0.11
+  const opacity = fi(frame, 0, 18) * 0.28
   return (
     <AbsoluteFill style={{ alignItems: 'center', justifyContent: 'center', display: 'flex', opacity }}>
       <div style={{
@@ -276,7 +276,7 @@ function StarsFill({ brandColor }: { brandColor: string }) {
 function CrowdFill({ brandColor }: { brandColor: string }) {
   const frame = useCurrentFrame()
   const { durationInFrames } = useVideoConfig()
-  const opacity = fi(frame) * 0.42
+  const opacity = fi(frame) * 0.62
   const cols = 14, rows = 7
   return (
     <AbsoluteFill style={{ opacity }}>
@@ -593,7 +593,7 @@ function PinDrop({ brandColor }: { brandColor: string }) {
 
 function CitySkyline({ brandColor }: { brandColor: string }) {
   const frame = useCurrentFrame()
-  const opacity = fi(frame) * 0.22
+  const opacity = fi(frame) * 0.55
   const slideUp = interpolate(frame, [0, 28], [90, 0], { extrapolateRight: 'clamp' })
 
   // Building data: [x, y-top, width, height]
@@ -759,12 +759,12 @@ function IconMotif({ brandColor, emoji }: { brandColor: string; emoji: string })
   const { fps } = useVideoConfig()
   const sp = spring({ frame, fps, config: { stiffness: 55, damping: 18 } })
   const scale = interpolate(sp, [0, 1], [0.55, 1])
-  const opacity = interpolate(sp, [0, 0.28], [0, 0.13])
+  const opacity = interpolate(sp, [0, 0.28], [0, 0.32])
   return (
     <AbsoluteFill style={{ alignItems: 'center', justifyContent: 'center', display: 'flex', opacity }}>
       <div style={{
         fontSize: 500, transform: `scale(${scale})`,
-        filter: `drop-shadow(0 0 70px ${brandColor}38)`,
+        filter: `drop-shadow(0 0 70px ${brandColor}60)`,
         userSelect: 'none', lineHeight: 1,
       }}>{emoji}</div>
     </AbsoluteFill>
