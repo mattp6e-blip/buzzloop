@@ -42,8 +42,8 @@ export function ReelCreator({ theme, reviews, businessName, industry, brandColor
   const [savingCity, setSavingCity]               = useState(false)
 
   useEffect(() => {
-    // Use cache only if it has motif data — older caches lack motif and show no animation
-    if (theme.cachedVariations?.length && theme.cachedVariations[0]?.script && theme.cachedVariations[0]?.motif) {
+    // Use cache only if it has motif data and no photos (photo-having caches predate removal)
+    if (theme.cachedVariations?.length && theme.cachedVariations[0]?.script && theme.cachedVariations[0]?.motif && !theme.cachedVariations[0]?.hookPhoto) {
       setVariations(theme.cachedVariations)
       setGenerating(false)
       generateCaption(reviews.filter(r => theme.reviewIds.includes(r.id)))

@@ -27,8 +27,10 @@ export function HookScene({ headline, subline, template, brandColor, logoUrl, bu
 
   const hasPhoto = !!photo
 
-  // Accent bar animation
+  // Accent bar — only for non-editorial
   const barWidth = interpolate(frame, [10, 35], [0, 100], { extrapolateRight: 'clamp' })
+
+  const isEditorial = template === 'editorial'
 
   return (
     <AbsoluteFill>
@@ -37,8 +39,8 @@ export function HookScene({ headline, subline, template, brandColor, logoUrl, bu
         <PhotoLayer url={photo!} direction="zoom-in" overlay="bottom" overlayStrength={0.45} />
       ) : template === 'collage' && hasPhoto ? (
         <CollageLayer photos={[photo!]} />
-      ) : template === 'editorial' && hasPhoto ? (
-        <EditorialSplit photo={photo!} brandColor={brandColor} />
+      ) : isEditorial ? (
+        <EditorialBackground brandColor={brandColor} frame={frame} />
       ) : (
         <Background brandColor={brandColor} industry={industry} />
       )}
@@ -51,31 +53,32 @@ export function HookScene({ headline, subline, template, brandColor, logoUrl, bu
       <AbsoluteFill style={{
         display: 'flex',
         flexDirection: 'column',
-        alignItems: template === 'editorial' ? 'flex-start' : 'center',
-        justifyContent: hasPhoto ? 'flex-end' : 'center',
-        padding: template === 'editorial' ? '80px 64px 120px 64px' : '80px 72px 140px 72px',
-        textAlign: template === 'editorial' ? 'left' : 'center',
+        alignItems: isEditorial ? 'flex-start' : 'center',
+        justifyContent: 'flex-end',
+        padding: isEditorial ? '80px 72px 140px 80px' : '80px 72px 140px 72px',
+        textAlign: isEditorial ? 'left' : 'center',
       }}>
-        {/* Accent bar */}
-        <div style={{
-          width: barWidth,
-          height: 5,
-          background: brandColor,
-          borderRadius: 3,
-          marginBottom: 32,
-          alignSelf: template === 'editorial' ? 'flex-start' : 'center',
-        }} />
+        {!isEditorial && (
+          <div style={{
+            width: barWidth,
+            height: 5,
+            background: brandColor,
+            borderRadius: 3,
+            marginBottom: 32,
+            alignSelf: 'center',
+          }} />
+        )}
 
         <AnimatedText
           text={headline}
           anim={config.textAnim}
           delay={15}
           style={{
-            fontSize: 84,
+            fontSize: isEditorial ? 96 : 84,
             fontWeight: 900,
             color: '#ffffff',
-            letterSpacing: '-0.03em',
-            lineHeight: 1.05,
+            letterSpacing: isEditorial ? '-0.04em' : '-0.03em',
+            lineHeight: 1.0,
           }}
         />
 
@@ -99,23 +102,22 @@ export function HookScene({ headline, subline, template, brandColor, logoUrl, bu
   )
 }
 
-function EditorialSplit({ photo, brandColor }: { photo: string; brandColor: string }) {
+function EditorialBackground({ brandColor, frame }: { brandColor: string; frame: number }) {
+  const stripeH = interpolate(frame, [4, 28], [0, 1920], { extrapolateRight: 'clamp' })
+  const ruleW   = interpolate(frame, [18, 42], [0, 920], { extrapolateRight: 'clamp' })
   return (
-    <AbsoluteFill>
-      {/* Left: photo */}
-      <div style={{ position: 'absolute', left: 0, top: 0, width: '58%', height: '100%', overflow: 'hidden' }}>
-        <img src={photo} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-        {/* Fade edge to right */}
-        <div style={{
-          position: 'absolute', inset: 0,
-          background: 'linear-gradient(to right, transparent 50%, rgba(0,0,0,0.95) 100%)',
-        }} />
-      </div>
-      {/* Right: dark brand */}
+    <AbsoluteFill style={{ background: '#08080d' }}>
+      {/* Vertical brand stripe down left edge */}
       <div style={{
-        position: 'absolute', right: 0, top: 0, width: '50%', height: '100%',
-        background: '#0a0a0f',
-        borderLeft: `4px solid ${brandColor}`,
+        position: 'absolute', left: 0, top: 0,
+        width: 7, height: stripeH,
+        background: brandColor,
+      }} />
+      {/* Horizontal rule above text area */}
+      <div style={{
+        position: 'absolute', left: 80, bottom: 300,
+        width: ruleW, height: 1.5,
+        background: `${brandColor}55`,
       }} />
     </AbsoluteFill>
   )
