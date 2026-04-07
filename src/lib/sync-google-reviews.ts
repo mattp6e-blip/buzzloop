@@ -48,7 +48,11 @@ async function fetchGBPPhotos(
         // Only use photos with width >= 800px (quality filter)
         (item.dimensions?.widthPixels ?? 0) >= 800
       )
-      .map(item => item.googleUrl!)
+      .map(item => {
+        // Append high-res size param to Google CDN URLs (serves full 1600px instead of thumbnail)
+        const url = item.googleUrl!
+        return url.includes('googleusercontent.com') ? url.replace(/=s\d+[^&]*$/, '') + '=s1600' : url
+      })
       .slice(0, 20) // cap at 20 photos
   } catch {
     return []

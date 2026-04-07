@@ -9,9 +9,15 @@ interface PhotoLayerProps {
   overlayStrength?: number  // 0-1, default 0.5
 }
 
+function hiResUrl(url: string): string {
+  if (!url.includes('googleusercontent.com')) return url
+  return url.replace(/=s\d+[^&]*$/, '') + '=s1600'
+}
+
 export function PhotoLayer({ url, direction = 'zoom-in', overlay = 'bottom', overlayStrength = 0.5 }: PhotoLayerProps) {
   const frame = useCurrentFrame()
   const { durationInFrames } = useVideoConfig()
+  url = hiResUrl(url)
 
   const progress = interpolate(frame, [0, durationInFrames], [0, 1], {
     extrapolateLeft: 'clamp',
