@@ -5,7 +5,7 @@ import type { Review, ReelTheme } from '@/types'
 
 const client = new Anthropic()
 
-function buildReviewList(reviews: Review[]): string {
+export function buildReviewList(reviews: Review[]): string {
   return reviews.map(r => {
     const anchor = r.anchor_sentence ? ` [ANCHOR: "${r.anchor_sentence}"]` : ''
     return `[ID: ${r.id}] ${r.star_rating}★ — "${r.what_they_liked}"${r.customer_name ? ` — ${r.customer_name}` : ''}${anchor}`
@@ -14,7 +14,7 @@ function buildReviewList(reviews: Review[]): string {
 
 // ── Social proof prompt (review-based) ───────────────────────────────────────
 
-function getAnalysisPrompt(reviewList: string, industry: string, businessName: string, reviewCount: number, language: string): string {
+export function getAnalysisPrompt(reviewList: string, industry: string, businessName: string, reviewCount: number, language: string): string {
   return `You are the creative director behind the highest-performing local business Instagram Reels. Find the reel ideas that will genuinely stop someone's scroll.
 
 Business: ${businessName} (${industry})
@@ -93,7 +93,7 @@ For pattern reels: reviewIds = all reviews sharing the pattern (min 3). anchorRe
 
 // ── Audience-first variety prompt ─────────────────────────────────────────────
 
-function getVarietyPrompt(industry: string, businessName: string, reviewList: string, language: string): string {
+export function getVarietyPrompt(industry: string, businessName: string, reviewList: string, language: string): string {
   return `You are a content strategist who understands what makes strangers stop scrolling on Instagram and TikTok.
 
 Business: ${businessName} (${industry})

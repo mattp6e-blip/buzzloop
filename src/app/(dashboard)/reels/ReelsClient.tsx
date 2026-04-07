@@ -306,10 +306,7 @@ export function ReelsClient({ reviews, businessId, businessName, industry, brand
 
       {error && !analyzing && (
         <div className="rounded-2xl border p-8 text-center" style={{ borderColor: 'var(--border)', background: 'white' }}>
-          <p className="text-sm mb-3" style={{ color: 'var(--ink3)' }}>{error}</p>
-          <button onClick={forceReanalyze} className="text-xs font-semibold hover:opacity-70" style={{ color: 'var(--accent)' }}>
-            Try again
-          </button>
+          <p className="text-sm" style={{ color: 'var(--ink3)' }}>{error}</p>
         </div>
       )}
 
@@ -376,13 +373,6 @@ export function ReelsClient({ reviews, businessId, businessName, industry, brand
             </a>
           )}
 
-          <button
-            onClick={forceReanalyze}
-            className="mt-6 text-xs hover:opacity-70 transition-opacity"
-            style={{ color: 'var(--ink4)' }}
-          >
-            ↺ Re-analyse (uses AI credits)
-          </button>
         </div>
         )
       })()}
