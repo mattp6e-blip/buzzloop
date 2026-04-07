@@ -13,6 +13,8 @@ export interface ReelVariation {
   ctaText: string         // line 2: friction reduction + action
   template: VisualTemplate
   script: ReelScript
+  hookPhoto?: string | null   // specific photo for hook slide
+  ctaPhoto?: string | null    // specific photo for CTA slide
 }
 
 export interface ReelCompositionProps {
@@ -24,5 +26,5 @@ export interface ReelCompositionProps {
   businessName: string
   industry: string
   websiteUrl: string | null
-  gbpPhotos: string[]     // URLs from GBP, passed in for photo slides
+  gbpPhotos: string[]     // full pool — used as fallback only
 }

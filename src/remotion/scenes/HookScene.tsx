@@ -14,14 +14,14 @@ interface HookSceneProps {
   logoUrl: string | null
   businessName: string
   industry: string
-  gbpPhotos: string[]
+  photo?: string | null
 }
 
-export function HookScene({ headline, subline, template, brandColor, logoUrl, businessName, industry, gbpPhotos }: HookSceneProps) {
+export function HookScene({ headline, subline, template, brandColor, logoUrl, businessName, industry, photo }: HookSceneProps) {
   const frame = useCurrentFrame()
   const config = TEMPLATE_CONFIGS[template]
 
-  const hasPhotos = gbpPhotos.length > 0
+  const hasPhoto = !!photo
 
   // Accent bar animation
   const barWidth = interpolate(frame, [10, 35], [0, 100], { extrapolateRight: 'clamp' })
@@ -29,12 +29,12 @@ export function HookScene({ headline, subline, template, brandColor, logoUrl, bu
   return (
     <AbsoluteFill>
       {/* Background layer */}
-      {template === 'immersive' && hasPhotos ? (
-        <PhotoLayer url={gbpPhotos[0]} direction="zoom-in" overlay="bottom" overlayStrength={0.45} />
-      ) : template === 'collage' && gbpPhotos.length >= 2 ? (
-        <CollageLayer photos={gbpPhotos.slice(0, 4)} />
-      ) : template === 'editorial' && hasPhotos ? (
-        <EditorialSplit photo={gbpPhotos[0]} brandColor={brandColor} />
+      {template === 'immersive' && hasPhoto ? (
+        <PhotoLayer url={photo!} direction="zoom-in" overlay="bottom" overlayStrength={0.45} />
+      ) : template === 'collage' && hasPhoto ? (
+        <CollageLayer photos={[photo!]} />
+      ) : template === 'editorial' && hasPhoto ? (
+        <EditorialSplit photo={photo!} brandColor={brandColor} />
       ) : (
         <Background brandColor={brandColor} industry={industry} />
       )}
@@ -45,7 +45,7 @@ export function HookScene({ headline, subline, template, brandColor, logoUrl, bu
         display: 'flex',
         flexDirection: 'column',
         alignItems: template === 'editorial' ? 'flex-start' : 'center',
-        justifyContent: hasPhotos ? 'flex-end' : 'center',
+        justifyContent: hasPhoto ? 'flex-end' : 'center',
         padding: template === 'editorial' ? '80px 64px 120px 64px' : '80px 72px 140px 72px',
         textAlign: template === 'editorial' ? 'left' : 'center',
       }}>

@@ -14,10 +14,9 @@ interface ProofSceneProps {
   logoUrl: string | null
   businessName: string
   industry: string
-  gbpPhotos: string[]
 }
 
-export function ProofScene({ stat, headline, template, brandColor, logoUrl, businessName, industry, gbpPhotos }: ProofSceneProps) {
+export function ProofScene({ stat, headline, template, brandColor, logoUrl, businessName, industry }: ProofSceneProps) {
   const frame = useCurrentFrame()
   const { fps } = useVideoConfig()
   const config = TEMPLATE_CONFIGS[template]

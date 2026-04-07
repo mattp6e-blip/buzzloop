@@ -15,10 +15,10 @@ interface CTASceneProps {
   template: VisualTemplate
   brandColor: string
   industry: string
-  gbpPhotos: string[]
+  photo?: string | null
 }
 
-export function CTAScene({ ctaHeadline, ctaText, websiteUrl, businessName, logoUrl, template, brandColor, industry, gbpPhotos }: CTASceneProps) {
+export function CTAScene({ ctaHeadline, ctaText, websiteUrl, businessName, logoUrl, template, brandColor, industry, photo }: CTASceneProps) {
   const frame = useCurrentFrame()
   const { fps } = useVideoConfig()
   const config = TEMPLATE_CONFIGS[template]
@@ -29,9 +29,6 @@ export function CTAScene({ ctaHeadline, ctaText, websiteUrl, businessName, logoU
 
   const urlOpacity = interpolate(frame, [35, 48], [0, 1], { extrapolateRight: 'clamp' })
   const cleanUrl = websiteUrl?.replace(/^https?:\/\//, '').replace(/\/$/, '') ?? null
-
-  // Use first photo for CTA — most inviting shot
-  const photo = gbpPhotos[0]
 
   return (
     <AbsoluteFill>

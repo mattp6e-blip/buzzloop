@@ -57,7 +57,7 @@ export function ReelCreator({ theme, reviews, businessName, industry, brandColor
     const res = await fetch('/api/generate-reel', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ theme, reviews: themeReviews, businessName, industry, language }),
+      body: JSON.stringify({ theme, reviews: themeReviews, businessName, industry, language, allPhotos: gbpPhotos }),
     })
     const data = await res.json()
     const newVariations: ReelVariation[] = data.variations ?? []

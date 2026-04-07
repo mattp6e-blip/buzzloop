@@ -68,7 +68,7 @@ export function ReelEditor({
   const [editedScript, setEditedScript]       = useState<ReelScript>(() => JSON.parse(JSON.stringify(script)))
   const [editedVariation, setEditedVariation] = useState<ReelVariation>(() => ({ ...variation }))
   const [activeSlide, setActiveSlide]         = useState(0)
-  const [uploadingSlot, setUploadingSlot]     = useState<number | null>(null)
+  const [showPhotoPicker, setShowPhotoPicker] = useState<'hook' | 'cta' | null>(null)
   const [cityInput, setCityInput]             = useState('')
   const cityInputRef                          = useRef<HTMLInputElement>(null)
 
@@ -88,17 +88,9 @@ export function ReelEditor({
     }))
   }
 
-  async function handlePhotoUpload(slideIndex: number, file: File) {
-    setUploadingSlot(slideIndex)
-    const formData = new FormData()
-    formData.append('file', file)
-    formData.append('businessId', businessId)
-    try {
-      const res = await fetch('/api/upload-reel-photo', { method: 'POST', body: formData })
-      const data = await res.json()
-      if (data.publicUrl) updateSlide(slideIndex, { photoUrl: data.publicUrl })
-    } catch {}
-    setUploadingSlot(null)
+  function setPhoto(slot: 'hook' | 'cta', url: string | null) {
+    setEditedVariation(v => ({ ...v, [slot === 'hook' ? 'hookPhoto' : 'ctaPhoto']: url }))
+    setShowPhotoPicker(null)
   }
 
   const playerProps: ReelCompositionProps = {
@@ -125,7 +117,8 @@ export function ReelEditor({
 
   const activeItem = slideListItems[activeSlide]
   const activeSlideData = editedScript.slides[activeSlide]
-  const canHavePhoto = activeSlideData.type === 'hook' || activeSlideData.type === 'quote'
+  const photoSlot = activeSlideData.type === 'hook' ? 'hook' : activeSlideData.type === 'cta' ? 'cta' : null
+  const currentPhoto = photoSlot === 'hook' ? editedVariation.hookPhoto : photoSlot === 'cta' ? editedVariation.ctaPhoto : null
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 160px)', minHeight: 600 }}>
@@ -384,51 +377,58 @@ export function ReelEditor({
                 </>
               )}
 
-              {/* Background photo */}
-              {canHavePhoto && (
+              {/* Photo picker for hook + CTA slides */}
+              {photoSlot && (
                 <div>
-                  <label className="text-xs font-semibold block mb-1.5" style={{ color: 'var(--ink3)' }}>Background photo <span style={{ fontWeight: 400 }}>(optional)</span></label>
-                  {activeSlideData.content.photoUrl ? (
-                    <div className="flex items-center gap-3 p-3 rounded-xl border" style={{ borderColor: 'var(--border)' }}>
-                      <img src={activeSlideData.content.photoUrl} className="w-14 h-14 rounded-lg object-cover flex-shrink-0" />
+                  <label className="text-xs font-semibold block mb-1.5" style={{ color: 'var(--ink3)' }}>Background photo</label>
+                  {currentPhoto ? (
+                    <div className="flex items-center gap-3 p-2.5 rounded-xl border" style={{ borderColor: 'var(--border)' }}>
+                      <img src={currentPhoto} className="rounded-lg object-cover flex-shrink-0" style={{ width: 52, height: 52 }} />
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-medium" style={{ color: 'var(--ink2)' }}>Photo set</p>
-                        <p className="text-xs" style={{ color: 'var(--ink4)' }}>Replaces gradient background</p>
+                        <button
+                          onClick={() => setShowPhotoPicker(photoSlot)}
+                          className="text-xs font-semibold block hover:opacity-70"
+                          style={{ color: brandColor }}
+                        >Change photo</button>
+                        <button
+                          onClick={() => setPhoto(photoSlot, null)}
+                          className="text-xs block mt-0.5 hover:opacity-70"
+                          style={{ color: 'var(--ink4)' }}
+                        >Remove</button>
                       </div>
-                      <button
-                        onClick={() => updateSlide(activeSlide, { photoUrl: undefined })}
-                        className="text-xs px-2.5 py-1 rounded-lg flex-shrink-0 hover:opacity-70"
-                        style={{ color: 'var(--ink4)', background: 'var(--bg2)' }}
-                      >
-                        Remove
-                      </button>
                     </div>
                   ) : (
-                    <label className="cursor-pointer">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={e => e.target.files?.[0] && handlePhotoUpload(activeSlide, e.target.files[0])}
-                      />
-                      <div
-                        className="flex items-center gap-2 px-3 py-2.5 rounded-xl border text-xs font-medium w-full justify-center transition-all hover:bg-[var(--bg2)]"
-                        style={{
-                          borderColor: uploadingSlot === activeSlide ? brandColor : 'var(--border)',
-                          borderStyle: 'dashed',
-                          color: uploadingSlot === activeSlide ? brandColor : 'var(--ink3)',
-                        }}
-                      >
-                        {uploadingSlot === activeSlide ? (
-                          <>
-                            <span className="inline-block w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                            Uploading...
-                          </>
-                        ) : (
-                          <>📷 Add background photo</>
-                        )}
+                    <button
+                      onClick={() => setShowPhotoPicker(photoSlot)}
+                      className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border text-xs font-medium transition-all hover:bg-[var(--bg2)]"
+                      style={{ borderColor: 'var(--border)', borderStyle: 'dashed', color: 'var(--ink3)' }}
+                    >
+                      {gbpPhotos.length > 0 ? '⊞ Pick a photo from your library' : '⊞ Add photos in Media tab first'}
+                    </button>
+                  )}
+
+                  {/* Photo picker modal */}
+                  {showPhotoPicker === photoSlot && gbpPhotos.length > 0 && (
+                    <div className="mt-2 p-3 rounded-xl border" style={{ borderColor: 'var(--border)', background: 'var(--bg2)' }}>
+                      <p className="text-xs font-semibold mb-2" style={{ color: 'var(--ink3)' }}>Your photos</p>
+                      <div className="grid grid-cols-4 gap-1.5">
+                        {gbpPhotos.map((url, i) => (
+                          <button
+                            key={i}
+                            onClick={() => setPhoto(photoSlot, url)}
+                            className="rounded-lg overflow-hidden hover:ring-2 transition-all"
+                            style={{ aspectRatio: '1/1', outlineColor: brandColor }}
+                          >
+                            <img src={url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          </button>
+                        ))}
                       </div>
-                    </label>
+                      <button
+                        onClick={() => setShowPhotoPicker(null)}
+                        className="text-xs mt-2 hover:opacity-70"
+                        style={{ color: 'var(--ink4)' }}
+                      >Cancel</button>
+                    </div>
                   )}
                 </div>
               )}

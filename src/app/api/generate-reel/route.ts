@@ -304,12 +304,13 @@ async function generateVariation(
 // ── Route handler ─────────────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
-  const { theme, reviews, businessName, industry, language }: {
+  const { theme, reviews, businessName, industry, language, allPhotos }: {
     theme: ReelTheme
     reviews: Review[]
     businessName: string
     industry: string
     language?: string
+    allPhotos?: string[]
   } = await req.json()
 
   const gbpReviews = reviews.filter(r => r.posted_to_google)
@@ -338,12 +339,19 @@ export async function POST(req: NextRequest) {
   ).join('\n')
 
   const lang = language ?? 'English'
+  const photos = allPhotos ?? []
 
   // Generate all three tones in parallel (each tone runs 2 Opus calls internally)
   const tones: Tone[] = ['story', 'proof', 'bold']
   const variations = (await Promise.all(
-    tones.map(tone => generateVariation(tone, theme, anchorSentence, reviewTexts, businessName, industry, gbpReviews, lang))
+    tones.map((tone, i) => generateVariation(tone, theme, anchorSentence, reviewTexts, businessName, industry, gbpReviews, lang))
   )).filter((v): v is ReelVariation => v !== null)
+
+  // Assign photos with offset per variation so each reel looks different
+  variations.forEach((v, i) => {
+    if (photos.length >= 1) v.hookPhoto = photos[i * 2 % photos.length]
+    if (photos.length >= 2) v.ctaPhoto = photos[(i * 2 + 1) % photos.length]
+  })
 
   if (!variations.length) {
     return NextResponse.json({ error: 'Failed to generate reel variations' }, { status: 500 })

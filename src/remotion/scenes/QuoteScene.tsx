@@ -1,6 +1,5 @@
 import { AbsoluteFill, useCurrentFrame, interpolate, spring, useVideoConfig } from 'remotion'
 import { Background } from '../components/Background'
-import { PhotoLayer } from '../components/PhotoLayer'
 import { AnimatedText } from '../components/AnimatedText'
 import { LogoMark } from '../components/LogoMark'
 import type { VisualTemplate } from '../types'
@@ -15,17 +14,14 @@ interface QuoteSceneProps {
   logoUrl: string | null
   businessName: string
   industry: string
-  gbpPhotos: string[]
-  photoIndex?: number  // which photo to use (cycles through available)
 }
 
-export function QuoteScene({ quote, author, highlightWords = [], template, brandColor, logoUrl, businessName, industry, gbpPhotos, photoIndex = 0 }: QuoteSceneProps) {
+export function QuoteScene({ quote, author, highlightWords = [], template, brandColor, logoUrl, businessName, industry }: QuoteSceneProps) {
   const frame = useCurrentFrame()
   const { fps } = useVideoConfig()
   const config = TEMPLATE_CONFIGS[template]
 
   const hasPhotos = false // Quote slides always dark — photos only on Hook + CTA
-  const photo = gbpPhotos[photoIndex % gbpPhotos.length]
 
   // Star rating animation
   const starOpacity = interpolate(frame, [5, 20], [0, 1], { extrapolateRight: 'clamp' })
@@ -41,24 +37,8 @@ export function QuoteScene({ quote, author, highlightWords = [], template, brand
 
   return (
     <AbsoluteFill>
-      {/* Background */}
-      {hasPhotos && template !== 'editorial' ? (
-        <PhotoLayer
-          url={photo}
-          direction={photoIndex % 2 === 0 ? 'zoom-in' : 'pan-left'}
-          overlay="bottom"
-          overlayStrength={0.55}
-        />
-      ) : template === 'editorial' && hasPhotos ? (
-        <>
-          <AbsoluteFill>
-            <img src={photo} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          </AbsoluteFill>
-          <AbsoluteFill style={{ background: 'rgba(0,0,0,0.72)' }} />
-        </>
-      ) : (
-        <Background brandColor={brandColor} industry={industry} />
-      )}
+      {/* Background — always dark for quote slides */}
+      <Background brandColor={brandColor} industry={industry} />
 
       <LogoMark logoUrl={logoUrl} businessName={businessName} placement={config.logo} color={brandColor} delay={5} />
 

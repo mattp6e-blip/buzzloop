@@ -26,6 +26,10 @@ export function ReelComposition({
   const template = variation.template ?? 'immersive'
   const photos = gbpPhotos ?? []
 
+  // Use assigned photos from variation, fall back to pool
+  const hookPhoto = variation.hookPhoto ?? photos[0] ?? null
+  const ctaPhoto = variation.ctaPhoto ?? photos[1] ?? photos[0] ?? null
+
   // Build scene timeline
   let cursor = 0
   const scenes: { from: number; dur: number; type: string; index: number }[] = []
@@ -41,19 +45,13 @@ export function ReelComposition({
     return Math.min(fadeIn, fadeOut)
   }
 
-  // Track how many quote slides we've seen (to cycle photos)
-  let quoteCount = 0
-
-  const commonProps = { template, brandColor, logoUrl, businessName, industry, gbpPhotos: photos }
+  const commonProps = { template, brandColor, logoUrl, businessName, industry }
 
   return (
     <AbsoluteFill style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, sans-serif' }}>
       {scenes.map(({ from, dur, type, index }) => {
         const slide = script.slides[index]
         const opacity = getSceneOpacity(from, dur)
-
-        // Increment quote counter before rendering (for photo cycling)
-        const qIdx = type === 'quote' ? quoteCount++ : 0
 
         return (
           <Sequence key={index} from={from} durationInFrames={dur}>
@@ -62,6 +60,7 @@ export function ReelComposition({
                 <HookScene
                   headline={variation.hookHeadline}
                   subline={variation.hookSubline}
+                  photo={hookPhoto}
                   {...commonProps}
                 />
               )}
@@ -70,7 +69,6 @@ export function ReelComposition({
                   quote={slide.content.quote ?? ''}
                   author={slide.content.author}
                   highlightWords={slide.content.highlightWords ?? []}
-                  photoIndex={qIdx + 1}  // offset from hook photo
                   {...commonProps}
                 />
               )}
@@ -100,7 +98,7 @@ export function ReelComposition({
                   template={template}
                   brandColor={brandColor}
                   industry={industry}
-                  gbpPhotos={photos}
+                  photo={ctaPhoto}
                 />
               )}
             </AbsoluteFill>
