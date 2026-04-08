@@ -38,8 +38,8 @@ export async function POST(req: NextRequest) {
     if (!contacts?.length) return NextResponse.json({ error: 'No contacts provided' }, { status: 400 })
 
     const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
-    const reviewUrl = `${process.env.NEXT_PUBLIC_APP_URL}/r/${business.slug}`
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL!
+    const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? '').trim()
+    const reviewUrl = `${appUrl}/r/${business.slug}`
 
     let sent = 0
     let failed = 0
@@ -103,7 +103,9 @@ export async function POST(req: NextRequest) {
           .update({ status: 'failed' })
           .eq('id', record.id)
         failed++
-        errors.push(`${number}: ${String(err)}`)
+        const msg = String(err)
+        const clean = msg.includes('Invalid') ? `${number}: invalid phone number` : `${number}: failed to send`
+        errors.push(clean)
       }
     }
 

@@ -24,7 +24,7 @@ export default async function QRPage({ searchParams }: { searchParams: Promise<{
 
   if (!business) redirect('/onboarding')
 
-  const reviewUrl = `${process.env.NEXT_PUBLIC_APP_URL}/r/${business.slug}`
+  const reviewUrl = `${(process.env.NEXT_PUBLIC_APP_URL ?? '').trim()}/r/${business.slug}`
   const brandColor = business.brand_color ?? '#6366f1'
 
   // Fetch outreach stats (table may not exist yet — handle gracefully)
