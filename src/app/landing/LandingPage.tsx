@@ -71,26 +71,26 @@ function StatBar() {
 const HOW_STEPS = [
   {
     n: '01',
-    title: 'Turn happy customers into reviews — zero effort',
-    body: ['Turn every happy customer into a 5-star Google review — ', <strong key="k">in under 10 seconds.</strong>, ' Branded QR code, smart review page, zero friction.'],
+    title: 'Get reviews automatically — zero awkwardness',
+    body: ['A branded QR code turns every happy customer into a 5-star Google review ', <strong key="k">in under 10 seconds.</strong>, ' No manual asking. No staff friction. Just reviews coming in.'],
     flywheel: false,
   },
   {
     n: '02',
-    title: 'Turn reviews into content that sells',
-    body: ['Your reviews become ', <strong key="k">scroll-stopping Reels</strong>, ' — crafted to drive engagement, built to win new customers.'],
+    title: 'Rank higher on Google Maps',
+    body: ['More recent reviews = ', <strong key="k">better Google ranking</strong>, ' = more customers finding you over competitors. Every new review is a direct signal to Google that your business is active and trusted.'],
     flywheel: false,
   },
   {
     n: '03',
-    title: 'Fresh content, on autopilot',
-    body: ['We keep remixing your best reviews into fresh Reels — so you ', <strong key="k">never run out of content</strong>, ' to post.'],
+    title: 'Turn your best reviews into Reels',
+    body: ['AI reads your reviews, finds what makes people choose you, and turns it into ', <strong key="k">scroll-stopping video content</strong>, ' — branded, professional, ready to post.'],
     flywheel: false,
   },
   {
     n: '04',
     title: 'A growth loop that runs itself',
-    body: ['New Reels bring new customers. New customers leave reviews. Better reviews improve your ranking — ', <span key="bl" style={{ color: 'var(--accent)', fontWeight: 700 }}>Buzzloop</span>, ' keeps it spinning.'],
+    body: ['More reviews improve your ranking. More ranking brings new customers. New customers leave reviews. Better content brings even more — ', <span key="bl" style={{ color: 'var(--accent)', fontWeight: 700 }}>Buzzloop</span>, ' keeps the loop spinning.'],
     flywheel: true,
   },
 ]
@@ -206,29 +206,24 @@ export function LandingPage() {
           <div style={{ flex: '1 1 480px', minWidth: 0 }}>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold mb-8"
               style={{ background: 'var(--accent-bg)', color: 'var(--accent)', border: '1px solid var(--accent-border)' }}>
-              ⚡ Turn local reviews into local customers
+              ⚡ The review growth system for local businesses
             </div>
 
-            <h1 className="font-bold mb-5" style={{ letterSpacing: '-0.03em', lineHeight: 1.1 }}>
-              <span style={{ display: 'block', fontSize: 'clamp(1.8rem, 2.8vw, 2.8rem)', color: 'var(--ink)', marginBottom: 8, textWrap: 'balance' } as React.CSSProperties}>
-                Your 5-star Google reviews are a goldmine.
+            <h1 className="font-bold mb-5" style={{ letterSpacing: '-0.03em', lineHeight: 1.08 }}>
+              <span style={{ display: 'block', fontSize: 'clamp(2rem, 3.2vw, 3.2rem)', color: 'var(--ink)', marginBottom: 6, textWrap: 'balance' } as React.CSSProperties}>
+                More Google reviews.
               </span>
-              <span style={{ display: 'block', fontSize: 'clamp(1.2rem, 1.9vw, 1.9rem)', color: 'var(--ink)', fontWeight: 600, opacity: 0.85, textWrap: 'balance' } as React.CSSProperties}>
-                We turn them into{' '}
-                <span style={{
-                  background: 'linear-gradient(90deg, #833AB4 0%, #E1306C 50%, #F77737 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text',
-                  fontWeight: 800,
-                }}>Reels</span>
-                {' '}that bring you more customers.
+              <span style={{ display: 'block', fontSize: 'clamp(2rem, 3.2vw, 3.2rem)', color: 'var(--ink)', marginBottom: 6, textWrap: 'balance' } as React.CSSProperties}>
+                Higher ranking.
+              </span>
+              <span style={{ display: 'block', fontSize: 'clamp(2rem, 3.2vw, 3.2rem)', color: 'var(--accent)', textWrap: 'balance' } as React.CSSProperties}>
+                More customers.
               </span>
             </h1>
 
             <p className="text-lg leading-relaxed mb-10"
               style={{ color: 'var(--ink3)', maxWidth: 480 }}>
-              Your happiest customers already wrote your best ads. You're just not using them yet.
+              Most local businesses lose customers every day to competitors with more recent reviews — and never fix it because asking manually never sticks. Buzzloop makes it automatic.
             </p>
 
             <div className="flex items-center gap-3 flex-wrap mb-5">
@@ -267,6 +262,19 @@ export function LandingPage() {
       {/* ── Stats bar ───────────────────────────── */}
       <StatBar />
 
+      {/* ── Urgency strip ───────────────────────── */}
+      <section className="py-16 px-6" style={{ background: '#fafaf8' }}>
+        <div className="max-w-3xl mx-auto text-center">
+          <p className="font-bold mb-6" style={{ fontSize: 'clamp(1.3rem, 2.5vw, 1.9rem)', letterSpacing: '-0.025em', color: 'var(--ink)', lineHeight: 1.35 }}>
+            87% of customers check Google before visiting a local business.{' '}
+            <span style={{ color: 'var(--ink3)', fontWeight: 500 }}>45% only trust reviews from the last month.</span>
+          </p>
+          <p style={{ fontSize: 16, color: 'var(--ink3)', lineHeight: 1.7, maxWidth: 560, margin: '0 auto' }}>
+            Every week without a new review is a week your competitor — with fresher ones — is taking customers that should be yours.
+          </p>
+        </div>
+      </section>
+
       <HowItWorks />
 
       <BusinessReels />
@@ -283,16 +291,16 @@ export function LandingPage() {
           <div className="grid gap-6" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
             {[
               {
-                quote: "In 6 weeks we tripled our Google reviews and our Instagram started actually bringing people through the door. For a restaurant, that's everything.",
-                name: 'Carlos', business: 'Mas Vell', industry: 'Restaurant', initial: 'C',
-                color: '#c0392b', logo: '/logo-masvell.png', logoHeight: 22, logoBg: false,
-                stat: '3× more Google reviews in 6 weeks', offset: 0,
-              },
-              {
                 quote: "Reviews were our biggest frustration for years. Now they come in automatically. And the Reels are the kind of content we could never have made ourselves.",
                 name: 'Laura', business: 'Harmonia Dental', industry: 'Dental clinic', initial: 'L',
                 color: '#00b0e0', logo: '/logo-harmonia.png', logoHeight: 48, logoBg: false,
                 stat: '70 to 200 reviews in 2 months', offset: 0,
+              },
+              {
+                quote: "In 6 weeks we tripled our Google reviews and our Instagram started actually bringing people through the door. For a restaurant, that's everything.",
+                name: 'Carlos', business: 'Mas Vell', industry: 'Restaurant', initial: 'C',
+                color: '#c0392b', logo: '/logo-masvell.png', logoHeight: 22, logoBg: false,
+                stat: '3× more Google reviews in 6 weeks', offset: 0,
               },
               {
                 quote: "Between patients, there's no time for marketing. We tried agencies but got average results. The educational content it creates actually brings in new patients.",
@@ -353,7 +361,7 @@ export function LandingPage() {
             style={{ background: 'var(--accent)' }}>⚡</div>
           <h2 className="font-bold mb-4 text-white"
             style={{ fontSize: 'clamp(1.8rem, 4vw, 3rem)', letterSpacing: '-0.025em' }}>
-            Start turning reviews<br />into customers today
+            Start getting more Google reviews today
           </h2>
           <p className="text-base mb-10" style={{ color: 'rgba(255,255,255,0.5)' }}>
             Free to start. No credit card required. Set up in 5 minutes.
