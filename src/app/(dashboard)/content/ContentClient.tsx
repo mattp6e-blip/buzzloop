@@ -216,7 +216,8 @@ function ReelCard({ post, brandColor, brandSecondaryColor, brandLogoUrl, busines
     }
 
     try {
-      const res = await fetch('/api/render-reel', {
+      const renderUrl = (process.env.NEXT_PUBLIC_RENDER_SERVICE_URL ?? '') + '/api/render-reel'
+      const res = await fetch(renderUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
