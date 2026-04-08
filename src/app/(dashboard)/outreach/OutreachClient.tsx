@@ -76,8 +76,7 @@ export function OutreachClient({
   const contacts = inputMode === 'manual' ? manualContacts : csvContacts
   const hasNames = contacts.some(c => c.name)
   const sampleName = contacts.find(c => c.name)?.name
-  const previewUrl = `${reviewUrl.replace(process.env.NEXT_PUBLIC_APP_URL ?? '', '') || reviewUrl}` // show short for preview
-  const previewMessage = buildPreview(businessName, `buzzloop.co/go/[id]`, sampleName)
+  const previewMessage = buildPreview(businessName, reviewUrl, sampleName)
 
   function handleCSVFile(file: File) {
     const reader = new FileReader()
@@ -292,7 +291,7 @@ export function OutreachClient({
             {previewMessage}
           </div>
           <p className="text-xs mt-2" style={{ color: 'var(--ink4)' }}>
-            Each message gets a unique tracking link so you can see who clicked and who left a review.
+            The link will be wrapped in a unique tracking URL per recipient so you can see who clicked and who left a review.
           </p>
         </div>
 
