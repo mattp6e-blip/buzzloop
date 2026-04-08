@@ -7,7 +7,8 @@ function RemotionRoot() {
   return (
     <Composition
       id="Reel"
-      component={ReelComposition as React.ComponentType<Record<string, unknown>>}
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      component={ReelComposition as any}
       fps={REEL_FPS}
       width={REEL_WIDTH}
       height={REEL_HEIGHT}
