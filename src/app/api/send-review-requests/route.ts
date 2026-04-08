@@ -52,7 +52,8 @@ export async function POST(req: NextRequest) {
       const fname = firstName(contact.name)
       const greeting = fname ? `Hi ${fname}! ` : ''
 
-      // Insert DB record first to get the trackable ID
+      const shortId = Math.random().toString(36).slice(2, 10)
+
       const { data: record } = await supabase
         .from('outreach_messages')
         .insert({
@@ -62,14 +63,17 @@ export async function POST(req: NextRequest) {
           channel,
           status: 'sent',
           review_url: reviewUrl,
+          short_id: shortId,
         })
         .select('id')
         .single()
 
       if (!record) { failed++; continue }
 
-      const trackUrl = `${appUrl}/go/${record.id}`
-      const message = `${greeting}Thanks for visiting ${business.name}! We'd love your honest review — it takes 30 seconds: ${trackUrl}\n\nReply STOP to opt out.`
+      const trackUrl = `${appUrl}/go/${shortId}`
+      const message = greeting
+        ? `${greeting}${business.name} - quick Google review? ${trackUrl}\n\nSTOP to opt out.`
+        : `${business.name} - quick Google review? ${trackUrl}\n\nSTOP to opt out.`
 
       const sends: Promise<unknown>[] = []
 

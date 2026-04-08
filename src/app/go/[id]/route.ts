@@ -8,7 +8,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   const { data: msg } = await supabase
     .from('outreach_messages')
     .select('id, review_url, clicked_at')
-    .eq('id', id)
+    .eq('short_id', id)
     .single()
 
   if (!msg) {

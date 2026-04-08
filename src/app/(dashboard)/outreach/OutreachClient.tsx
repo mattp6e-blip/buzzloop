@@ -44,8 +44,10 @@ function parseCSV(text: string): Contact[] {
 }
 
 function buildPreview(businessName: string, trackUrl: string, sampleName?: string): string {
-  const greeting = sampleName ? `Hi ${sampleName.trim().split(/\s+/)[0]}! ` : ''
-  return `${greeting}Thanks for visiting ${businessName}! We'd love your honest review — it takes 30 seconds: ${trackUrl}\n\nReply STOP to opt out.`
+  const name = sampleName?.trim().split(/\s+/)[0]
+  return name
+    ? `Hi ${name}! ${businessName} - quick Google review? ${trackUrl}\n\nSTOP to opt out.`
+    : `${businessName} - quick Google review? ${trackUrl}\n\nSTOP to opt out.`
 }
 
 export function OutreachClient({
