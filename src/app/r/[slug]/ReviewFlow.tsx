@@ -83,9 +83,10 @@ interface Props {
   googleBusinessUrl: string | null
   staffMembers: string[]
   customQuestions?: ReviewQuestion[] | null
+  outreachRef?: string | null
 }
 
-export function ReviewFlow({ businessId, businessName, industry, brandColor, googleBusinessUrl, staffMembers, customQuestions }: Props) {
+export function ReviewFlow({ businessId, businessName, industry, brandColor, googleBusinessUrl, staffMembers, customQuestions, outreachRef }: Props) {
   const [step, setStep]               = useState<Step>('rating')
   const [starRating, setStarRating]   = useState(0)
   const [hoveredStar, setHoveredStar] = useState(0)
@@ -159,6 +160,15 @@ export function ReviewFlow({ businessId, businessName, industry, brandColor, goo
       staff_name: staffName.trim() || null,
       ai_draft: generatedDraft,
     })
+
+    // Track outreach conversion
+    if (outreachRef) {
+      fetch('/api/track-conversion', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: outreachRef }),
+      }).catch(() => {})
+    }
 
     setStep('draft')
   }
