@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
         .select('id')
         .single()
 
-      if (!record) { failed++; continue }
+      if (!record) { failed++; errors.push(`${number}: failed to save record (check DB migration)`); continue }
 
       const trackUrl = `${appUrl}/go/${shortId}`
       const message = greeting
