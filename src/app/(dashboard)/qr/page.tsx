@@ -4,7 +4,7 @@ import { QRDisplay } from './QRDisplay'
 import { PrintTemplates } from './PrintTemplates'
 import { CopyButton } from './CopyButton'
 import { GoogleUrlBanner } from './GoogleUrlBanner'
-
+import { CustomerJourney, QuestionsEditor } from './FlowPreview'
 
 export default async function QRPage() {
   const supabase = await createClient()
@@ -23,18 +23,18 @@ export default async function QRPage() {
   const brandColor = business.brand_color ?? '#6366f1'
 
   return (
-    <div className="p-8" style={{ maxWidth: 1100 }}>
+    <div className="p-8" style={{ maxWidth: 900 }}>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--ink)' }}>Your QR Code</h1>
+        <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--ink)' }}>Get Reviews</h1>
         <p className="text-sm" style={{ color: 'var(--ink3)' }}>
-          Print it, place it, and let customers do the rest.
+          Share your QR code — customers leave a review in under 10 seconds.
         </p>
       </div>
 
       <GoogleUrlBanner googleConnected={!!business.google_connected} />
 
-      {/* Top section — QR + templates side by side */}
-      <div className="grid grid-cols-2 gap-6 mb-8">
+      {/* QR code + print tools */}
+      <div className="grid grid-cols-2 gap-6 mb-6">
         <QRDisplay
           reviewUrl={reviewUrl}
           businessName={business.name}
@@ -48,8 +48,6 @@ export default async function QRPage() {
             businessName={business.name}
             brandColor={brandColor}
           />
-
-          {/* Review link */}
           <div className="bg-white rounded-2xl border p-5" style={{ borderColor: 'var(--border)' }}>
             <p className="text-sm font-bold mb-1" style={{ color: 'var(--ink)' }}>Share the link directly</p>
             <p className="text-xs mb-3" style={{ color: 'var(--ink3)' }}>
@@ -68,51 +66,35 @@ export default async function QRPage() {
         </div>
       </div>
 
-      {/* Tips from customers */}
+      {/* What happens after they scan */}
+      <div className="mb-6">
+        <CustomerJourney brandColor={brandColor} slug={business.slug} />
+      </div>
+
+      {/* Real questions — editable */}
+      <div className="mb-8">
+        <QuestionsEditor
+          industry={business.industry}
+          brandColor={brandColor}
+          initialQuestions={business.custom_questions ?? null}
+        />
+      </div>
+
+      {/* Tips */}
       <div>
         <div className="mb-5">
-          <h2 className="text-lg font-bold mb-1" style={{ color: 'var(--ink)' }}>What's working for other businesses</h2>
+          <h2 className="text-lg font-bold mb-1" style={{ color: 'var(--ink)' }}>What&apos;s working for other businesses</h2>
           <p className="text-sm" style={{ color: 'var(--ink3)' }}>Real tips from Buzzloop customers on getting more reviews.</p>
         </div>
 
         <div className="grid grid-cols-3 gap-4">
           {[
-            {
-              quote: "We taped the card to the back of the payment terminal. Every single customer sees it right as they're tapping their card.",
-              author: 'Marco',
-              business: 'Barbershop, Milan',
-              emoji: '✂️',
-            },
-            {
-              quote: "I tell staff to say 'it takes 10 seconds' when they hand the card over. That one line doubled our scan rate.",
-              author: 'Priya',
-              business: 'Dental clinic, London',
-              emoji: '🦷',
-            },
-            {
-              quote: "We put a tent card on every table. After a good meal, people are happy — that's exactly when to ask.",
-              author: 'Sofia',
-              business: 'Restaurant, Barcelona',
-              emoji: '🍽️',
-            },
-            {
-              quote: "I print the pocket cards and keep them by the till. When someone says they loved it, I hand one over and ask in person.",
-              author: 'James',
-              business: 'Gym, Dublin',
-              emoji: '💪',
-            },
-            {
-              quote: "Put it near the exit, not the entrance. Customers leaving happy are the ones who'll actually leave a review.",
-              author: 'Leila',
-              business: 'Spa, Amsterdam',
-              emoji: '🌿',
-            },
-            {
-              quote: "We share the link in our WhatsApp status after busy weekends. Regulars who loved the service always click it.",
-              author: 'Carlos',
-              business: 'Cocktail bar, Madrid',
-              emoji: '🍸',
-            },
+            { quote: "We taped the card to the back of the payment terminal. Every single customer sees it right as they're tapping their card.", author: 'Marco', business: 'Barbershop, Milan', emoji: '✂️' },
+            { quote: "I tell staff to say 'it takes 10 seconds' when they hand the card over. That one line doubled our scan rate.", author: 'Priya', business: 'Dental clinic, London', emoji: '🦷' },
+            { quote: "We put a tent card on every table. After a good meal, people are happy — that's exactly when to ask.", author: 'Sofia', business: 'Restaurant, Barcelona', emoji: '🍽️' },
+            { quote: "I print the pocket cards and keep them by the till. When someone says they loved it, I hand one over and ask in person.", author: 'James', business: 'Gym, Dublin', emoji: '💪' },
+            { quote: "Put it near the exit, not the entrance. Customers leaving happy are the ones who'll actually leave a review.", author: 'Leila', business: 'Spa, Amsterdam', emoji: '🌿' },
+            { quote: "We share the link in our WhatsApp status after busy weekends. Regulars who loved the service always click it.", author: 'Carlos', business: 'Cocktail bar, Madrid', emoji: '🍸' },
           ].map((tip, i) => (
             <div key={i} className="rounded-2xl border p-5 flex flex-col gap-3" style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}>
               <p className="text-xl">{tip.emoji}</p>
@@ -127,7 +109,6 @@ export default async function QRPage() {
           ))}
         </div>
 
-        {/* Coming soon — SMS/WhatsApp */}
         <div className="mt-6 rounded-2xl border p-5 flex items-start gap-5" style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}>
           <div className="flex-shrink-0 rounded-2xl flex items-center justify-center" style={{ width: 56, height: 56, background: 'var(--bg2)' }}>
             <svg width="28" height="28" viewBox="0 0 36 36" fill="none">
@@ -154,4 +135,3 @@ export default async function QRPage() {
     </div>
   )
 }
-

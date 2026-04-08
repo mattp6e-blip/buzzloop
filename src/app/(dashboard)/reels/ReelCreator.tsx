@@ -1,10 +1,20 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { ReelEditor } from './ReelEditor'
 import type { ReelTheme, ReelScript, Review } from '@/types'
 import type { ReelVariation } from '@/remotion/types'
+
+function assignPhotos(variations: ReelVariation[], photos: string[]): ReelVariation[] {
+  if (!variations.length || !photos.length) return variations
+  if (!variations.some(v => !v.hookPhoto && !v.ctaPhoto)) return variations
+  return variations.map(v => ({
+    ...v,
+    hookPhoto: v.hookPhoto ?? (v.template !== 'editorial' ? photos[0] : null),
+    ctaPhoto:  v.ctaPhoto  ?? (photos[1] ?? photos[0]),
+  }))
+}
 
 interface Props {
   theme: ReelTheme
@@ -23,13 +33,14 @@ interface Props {
   businessId: string
   city: string | null
   gbpPhotos: string[]
+  uploadedPhotos: string[]
   language?: string
   onBack: () => void
   onScriptCached: (themeId: string, script: ReelScript, variations: ReelVariation[]) => void
 }
 
 
-export function ReelCreator({ theme, reviews, businessName, industry, brandColor, brandFont, logoUrl, websiteUrl, brandPersonality, brandSecondaryColor, customerWord, serviceWord, bookingWord, businessId, city, gbpPhotos, language = 'English', onBack, onScriptCached }: Props) {
+export function ReelCreator({ theme, reviews, businessName, industry, brandColor, brandFont, logoUrl, websiteUrl, brandPersonality, brandSecondaryColor, customerWord, serviceWord, bookingWord, businessId, city, gbpPhotos, uploadedPhotos, language = 'English', onBack, onScriptCached }: Props) {
   const [variations, setVariations]               = useState<ReelVariation[]>([])
   const [generating, setGenerating]               = useState(true)
   const [caption, setCaption]                     = useState('')
@@ -40,10 +51,35 @@ export function ReelCreator({ theme, reviews, businessName, industry, brandColor
   const [cityValue, setCityValue]                 = useState(city ?? '')
   const [cityMissing, setCityMissing]             = useState(false)
   const [savingCity, setSavingCity]               = useState(false)
+  const [liveUploadedPhotos, setLiveUploadedPhotos] = useState<string[]>(uploadedPhotos ?? [])
+  // Keep a ref so effects that fire on variations changes can read latest photos
+  const photosRef = useRef<string[]>(uploadedPhotos ?? [])
+  photosRef.current = liveUploadedPhotos
+
+  // Fetch uploaded photos directly — bypasses any server-side prop staleness
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.from('businesses').select('uploaded_photos').eq('id', businessId).single()
+      .then(({ data }) => {
+        if (data?.uploaded_photos?.length) setLiveUploadedPhotos(data.uploaded_photos)
+      })
+  }, [businessId])
+
+  // Case A: photos arrive after variations are already loaded
+  useEffect(() => {
+    if (!liveUploadedPhotos?.length) return
+    setVariations(prev => assignPhotos(prev, liveUploadedPhotos))
+  }, [liveUploadedPhotos])
+
+  // Case B: variations arrive after photos are already loaded (API path race)
+  useEffect(() => {
+    if (!variations.length || !photosRef.current.length) return
+    setVariations(prev => assignPhotos(prev, photosRef.current))
+  }, [variations.length])
 
   useEffect(() => {
-    // Use cache only if it has motif data and no photos (photo-having caches predate removal)
-    if (theme.cachedVariations?.length && theme.cachedVariations[0]?.script && theme.cachedVariations[0]?.motif && !theme.cachedVariations[0]?.hookPhoto) {
+    // Use cache if it has motif data (photos may or may not be assigned — that's fine)
+    if (theme.cachedVariations?.length && theme.cachedVariations[0]?.script && theme.cachedVariations[0]?.motif) {
       setVariations(theme.cachedVariations)
       setGenerating(false)
       generateCaption(reviews.filter(r => theme.reviewIds.includes(r.id)))
@@ -58,7 +94,7 @@ export function ReelCreator({ theme, reviews, businessName, industry, brandColor
     const res = await fetch('/api/generate-reel', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ theme, reviews: themeReviews, businessName, industry, language, allPhotos: gbpPhotos }),
+      body: JSON.stringify({ theme, reviews: themeReviews, businessName, industry, language, allPhotos: liveUploadedPhotos }),
     })
     const data = await res.json()
     const newVariations: ReelVariation[] = data.variations ?? []
@@ -187,6 +223,7 @@ export function ReelCreator({ theme, reviews, businessName, industry, brandColor
           websiteUrl={websiteUrl}
           businessId={businessId}
           gbpPhotos={gbpPhotos}
+          uploadedPhotos={liveUploadedPhotos}
           caption={caption}
           onCaptionChange={v => { setCaption(v); setSaved(false) }}
           generatingCaption={generatingCaption}

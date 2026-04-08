@@ -8,10 +8,10 @@ import { cn } from '@/lib/utils'
 
 const NAV = [
   { href: '/dashboard', label: 'Dashboard', icon: '◼' },
-  { href: '/qr', label: 'QR Code', icon: '▦' },
+  { href: '/qr', label: 'Get Reviews', icon: '▦' },
   { href: '/reels', label: 'Reels', icon: '✦' },
-  { href: '/content', label: 'Content', icon: '❐' },
-  { href: '/media', label: 'Media', icon: '⊞' },
+  { href: '/content', label: 'Saved Reels', icon: '❐' },
+  { href: '/media', label: 'My Photos', icon: '⊞' },
   { href: '/settings', label: 'Settings', icon: '⚙' },
 ]
 
@@ -19,6 +19,7 @@ export function Sidebar({ businessName }: { businessName: string }) {
   const pathname = usePathname()
   const router = useRouter()
   const [unseenReels, setUnseenReels] = useState(0)
+  const [hasNoMedia, setHasNoMedia]   = useState(false)
 
   useEffect(() => {
     try {
@@ -28,6 +29,17 @@ export function Sidebar({ businessName }: { businessName: string }) {
 
     const handler = (e: Event) => setUnseenReels((e as CustomEvent).detail)
     window.addEventListener('unseen-reels-update', handler)
+
+    // Check if user has uploaded photos
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return
+      supabase.from('businesses').select('uploaded_photos').eq('user_id', user.id).single()
+        .then(({ data }) => {
+          setHasNoMedia(!data?.uploaded_photos?.length)
+        })
+    })
+
     return () => window.removeEventListener('unseen-reels-update', handler)
   }, [])
 
@@ -83,6 +95,9 @@ export function Sidebar({ businessName }: { businessName: string }) {
                 <span className="ml-auto text-xs font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'var(--accent)', color: 'white', minWidth: 18, textAlign: 'center' }}>
                   {unseenReels}
                 </span>
+              )}
+              {item.href === '/media' && hasNoMedia && (
+                <span className="ml-auto w-2 h-2 rounded-full animate-pulse" style={{ background: 'var(--accent)', flexShrink: 0 }} />
               )}
             </Link>
           )

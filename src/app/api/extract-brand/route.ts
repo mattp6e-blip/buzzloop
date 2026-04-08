@@ -90,22 +90,23 @@ export async function POST(req: NextRequest) {
   const googleFont = extractGoogleFont(html)
   const topColors = extractTopColors(html)
 
-  // Body text for Claude
+  // Body text for Claude — strip scripts/styles/tags, keep full content
+  // Cap at 20 000 chars only as a sanity limit for very large sites (news, e-commerce)
   const bodyText = html
     .replace(/<script[\s\S]*?<\/script>/gi, '')
     .replace(/<style[\s\S]*?<\/style>/gi, '')
     .replace(/<[^>]+>/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
-    .slice(0, 1200)
+    .slice(0, 20000)
 
   // Claude brand analysis
   const message = await client.messages.create({
     model: 'claude-haiku-4-5-20251001',
-    max_tokens: 600,
+    max_tokens: 1200,
     messages: [{
       role: 'user',
-      content: `Analyze this business website and extract brand identity.
+      content: `Analyze this business website and extract brand identity and context.
 
 Website: ${url}
 Title: ${title ?? 'unknown'}
@@ -124,7 +125,8 @@ Return ONLY valid JSON:
   "contentTone": "one sentence describing how to write copy for this brand",
   "customerWord": "patient|guest|client|member|customer",
   "serviceWord": "treatment|experience|session|visit|service",
-  "bookingWord": "book an appointment|reserve a table|sign up|get in touch|schedule a visit"
+  "bookingWord": "book an appointment|reserve a table|sign up|get in touch|schedule a visit",
+  "businessContext": "2-4 sentences: what specific services/treatments/products they offer, who their target audience is, and what makes them different. Be concrete — name actual services, not generic descriptions."
 }`
     }]
   })
@@ -139,6 +141,7 @@ Return ONLY valid JSON:
     customerWord: string
     serviceWord: string
     bookingWord: string
+    businessContext: string
   } | null = null
 
   try {
@@ -185,6 +188,7 @@ Return ONLY valid JSON:
     brand_personality: personality,
     brand_extracted: true,
     industry: analysis.industry as never,
+    business_context: analysis.businessContext ?? null,
   }).eq('id', businessId)
 
   return NextResponse.json({
@@ -200,5 +204,6 @@ Return ONLY valid JSON:
     customerWord: analysis.customerWord,
     serviceWord: analysis.serviceWord,
     bookingWord: analysis.bookingWord,
+    businessContext: analysis.businessContext,
   })
 }

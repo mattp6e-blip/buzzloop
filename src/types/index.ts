@@ -30,6 +30,7 @@ export interface Business {
   brand_secondary_color: string | null
   brand_personality: string | null  // JSON string: ["professional", "caring", "premium"]
   brand_extracted: boolean
+  business_context: string | null   // AI-generated summary: services, target audience, differentiators
   staff_members: string[]
   gbp_photos: string[]              // URLs of GBP media photos (800px+ only)
   last_gbp_sync_at: string | null
@@ -71,6 +72,7 @@ export interface ReelTheme {
   anchorReviewId?: string           // for story reels: the primary review
   buzzScore?: number
   buzzReason?: string
+  weekOf?: string                   // ISO week string e.g. "2026-W15" — set when theme was generated
   cachedScript?: ReelScript
   cachedVariations?: import('@/remotion/types').ReelVariation[]
 }

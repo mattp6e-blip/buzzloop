@@ -1,3 +1,4 @@
+import { Fragment } from 'react'
 import { useCurrentFrame, useVideoConfig, interpolate, spring } from 'remotion'
 
 type TextAnim = 'fade-up' | 'scale-in' | 'slide-left' | 'typewriter' | 'word-reveal'
@@ -78,8 +79,8 @@ export function AnimatedText({ text, style, anim, delay = 0, highlightWords = []
             hw => hw.toLowerCase() === word.replace(/[^a-zA-Z0-9]/g, '').toLowerCase()
           )
           return (
-            <>
-              <span key={i} style={{
+            <Fragment key={i}>
+              <span style={{
                 opacity,
                 transform: `translateY(${translateY}px)`,
                 display: 'inline-block',
@@ -89,7 +90,7 @@ export function AnimatedText({ text, style, anim, delay = 0, highlightWords = []
                 {word}
               </span>
               {i < words.length - 1 && ' '}
-            </>
+            </Fragment>
           )
         })}
       </div>

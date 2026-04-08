@@ -3,6 +3,13 @@ import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@/lib/supabase/server'
 import type { Review, ReelTheme } from '@/types'
 
+function currentWeekOf(): string {
+  const d = new Date()
+  const jan1 = new Date(d.getFullYear(), 0, 1)
+  const weekNo = Math.ceil((((d.getTime() - jan1.getTime()) / 86400000) + jan1.getDay() + 1) / 7)
+  return `${d.getFullYear()}-W${String(weekNo).padStart(2, '0')}`
+}
+
 const client = new Anthropic()
 
 export function buildReviewList(reviews: Review[]): string {
@@ -65,6 +72,7 @@ RULES:
 - Only include themes where the hook does NOT name the business or sound like an ad
 - Story reels need one extraordinary anchor — skip if anchor is generic
 - Pattern reels need 3+ reviews genuinely sharing the signal
+- Never generate two themes built around the same underlying story or behaviour (e.g. if one theme is about travelling from abroad, do not create a second theme also about travelling from abroad)
 - Return 3-5 themes maximum, ranked by buzzScore descending
 - Set contentType to "social_proof" for all themes
 
@@ -93,12 +101,16 @@ For pattern reels: reviewIds = all reviews sharing the pattern (min 3). anchorRe
 
 // ── Audience-first variety prompt ─────────────────────────────────────────────
 
-export function getVarietyPrompt(industry: string, businessName: string, reviewList: string, language: string): string {
+export function getVarietyPrompt(industry: string, businessName: string, reviewList: string, language: string, businessContext?: string | null): string {
+  const contextBlock = businessContext
+    ? `\nBUSINESS CONTEXT (from their website — use this to make every reel idea specific to what they actually offer and who they serve):\n${businessContext}\n`
+    : ''
+
   return `You are a content strategist who understands what makes strangers stop scrolling on Instagram and TikTok.
 
 Business: ${businessName} (${industry})
 LANGUAGE: Write every field in ${language}.
-
+${contextBlock}
 YOUR JOB: Generate 5 "Grow your audience" Reel ideas for this business. These are NOT review-based reels. They attract NEW potential customers who have never heard of this business.
 
 Think like someone at 11pm on their phone who is:
@@ -108,12 +120,14 @@ Think like someone at 11pm on their phone who is:
 - Curious about what actually happens behind the scenes
 - Would share this with a friend because it surprised them
 
+Use the business context above to make each idea SPECIFIC — name the actual treatment, service, or process. Generic reel ideas are worthless. A reel about "dental implants in a single day" beats "something about dentistry."
+
 CONTENT TYPES — use a variety, don't repeat the same type twice:
-- educational: Step-by-step reveal of something most people misunderstand about ${industry}
-- myth_bust: A widespread belief that is wrong and holding people back from booking
-- experience: What it actually feels like for a nervous first-timer (sensory, specific)
+- educational: Step-by-step reveal of something most people misunderstand about a specific service this business offers
+- myth_bust: A widespread belief that is wrong and holding people back from booking this specific service
+- experience: What it actually feels like for a nervous first-timer at THIS type of business (sensory, specific)
 - behind_scenes: A process most customers never see that would reassure or impress them
-- trust: A number, credential, or fact that earns trust before the viewer even asks
+- trust: A number, credential, or fact about this specific business that earns trust before the viewer even asks
 
 HOOK RULES:
 - Must work on a complete stranger with zero context about this business
@@ -152,12 +166,13 @@ Return ONLY valid JSON with exactly 5 themes:
 
 export async function POST(req: NextRequest) {
   try {
-    const { reviews: rawReviews, businessId, industry = 'other', businessName = '', language = 'English' }: {
+    const { reviews: rawReviews, businessId, industry = 'other', businessName = '', language = 'English', businessContext }: {
       reviews: Review[]
       businessId: string
       industry?: string
       businessName?: string
       language?: string
+      businessContext?: string | null
     } = await req.json()
 
     if (!rawReviews?.length) {
@@ -197,7 +212,7 @@ export async function POST(req: NextRequest) {
         model: 'claude-opus-4-6',
         max_tokens: 2500,
         system: langSystem,
-        messages: [{ role: 'user', content: getVarietyPrompt(industry, businessName, reviewList, language) }],
+        messages: [{ role: 'user', content: getVarietyPrompt(industry, businessName, reviewList, language, businessContext) }],
       }),
     ])
 
@@ -215,7 +230,8 @@ export async function POST(req: NextRequest) {
 
     // Social proof sorted by buzzScore, variety appended after
     const proofSorted = proofThemes.sort((a, b) => (b.buzzScore ?? 0) - (a.buzzScore ?? 0))
-    const sorted_themes = [...proofSorted, ...varietyThemes]
+    const weekOf = currentWeekOf()
+    const sorted_themes = [...proofSorted, ...varietyThemes].map(t => ({ ...t, weekOf }))
 
     // Cache in DB
     if (businessId && sorted_themes.length > 0) {

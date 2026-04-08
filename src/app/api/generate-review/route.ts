@@ -24,20 +24,23 @@ Type: ${industry}
 Star rating: ${starRating}/5
 What the customer liked: ${whatTheyLiked}${staffName ? `\nStaff member mentioned: ${staffName}` : ''}
 
-Write a short, natural, conversational Google review (2-4 sentences).
-- Sound like a real person, not a robot
-- Mention specific details from what they liked
-- ${staffName ? `Mention ${staffName} naturally` : 'Keep it personal and warm'}
-- End with a recommendation or saying you will return
-- Do NOT use the words "amazing" or "fantastic" — keep it authentic
-- No hashtags, no emojis
-- Vary the structure: ${styleVariant}
+Write a short, natural Google review. 2-3 sentences. Under 70 words.
 
-Return ONLY the review text, nothing else.`
+Rules:
+- Sound like a real person talking to a friend — conversational, not formal
+- Use the specific details from what they liked. Don't generalise.
+- ${staffName ? `Mention ${staffName} naturally` : 'Keep it personal and warm'}
+- Correct spelling and grammar throughout — just informal in tone, not sloppy
+- No "amazing", "fantastic", "truly", "incredibly", or any word that sounds like ad copy
+- No hashtags, no emojis, no exclamation marks
+- Do not start with "I" — vary the opening
+- Style: ${styleVariant}
+
+Return ONLY the review text. Nothing else.`
 
   const message = await client.messages.create({
-    model: 'claude-haiku-4-5-20251001',
-    max_tokens: 256,
+    model: 'claude-sonnet-4-6',
+    max_tokens: 150,
     messages: [{ role: 'user', content: prompt }],
   })
 

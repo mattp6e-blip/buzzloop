@@ -39,13 +39,19 @@ What customers said (context only — do NOT quote or repeat): ${reviewText}
 The caption's job is NOT to retell what's in the video. The video already hooks attention. The caption hooks the INTENT to act.
 
 STRUCTURE (follow exactly):
-Line 1 — Hook (max 125 characters, must work as a standalone statement before "more" is tapped): A bold statement or sharp question that makes someone who just watched think "yes, that's me" or "I want that". Complements the video — does not summarise it.
+Line 1 — Hook (max 125 characters, must work as a standalone statement before "more" is tapped): Echo the most surprising or emotional moment from the reel in one sharp line. Should make someone who only reads captions want to watch. Or ask a question that makes them comment. Never start with the business name or "We".
 
 Line 2–3 — One specific thing that makes ${businessName} worth visiting. Plain language, no clichés, no hype. Something a real person would say to a friend.
 
 CTA line — Use this as a template, translated into the review language if needed: "${ctaAction}"
 
-Hashtags — 3 to 5 only, on a new line. Mix of niche industry tags and location-specific tags using the actual city (e.g. #${city ? city.replace(/\s+/g, '') : 'London'}Dentist #SmileTransformation). Do not use generic tags like #instagood or #love.${city ? `\nThe business is located in ${city} — use this exact city name in at least one location hashtag.` : ''}
+Hashtags — exactly 5, on a new line. Follow this mix:
+1. High-intent local: city + service (e.g. #${city ? city.replace(/\s+/g, '') : 'London'}Dentist) — someone searching for this service nearby
+2. Broader location: city or region only (e.g. #${city ? city.replace(/\s+/g, '') : 'London'}) — local discovery
+3. Service-specific: the exact treatment or service this reel is about (e.g. #TeethWhitening, #Invisalign, #HairColour) — people researching options
+4. Result/aspiration: the transformation or feeling (e.g. #SmileTransformation, #ConfidentSmile) — emotional resonance
+5. Niche community: mid-size engaged audience in the industry (e.g. #DentalCare, #OralHealth, #HairCare)
+Target tags with 50K–500K posts — large enough to have an audience, small enough to surface. Never use #instagood, #love, #photooftheday or any tag with over 5M posts.${city ? `\nThe business is in ${city} — use this exact city name in the local hashtags.` : ''}
 
 RULES:
 - Total caption (excluding hashtags): under 70 words
@@ -59,7 +65,7 @@ RULES:
 Return ONLY the caption text and hashtags. Nothing else.`
 
   const message = await client.messages.create({
-    model: 'claude-haiku-4-5-20251001',
+    model: 'claude-sonnet-4-6',
     max_tokens: 400,
     messages: [{ role: 'user', content: prompt }],
   })

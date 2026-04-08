@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import dynamic from 'next/dynamic'
 import type { ReelScript } from '@/types'
 import type { ReelVariation, ReelCompositionProps } from '@/remotion/types'
@@ -28,12 +28,81 @@ interface Props {
   savingCity: boolean
   onCitySave: (city: string) => void
   gbpPhotos: string[]
+  uploadedPhotos: string[]
   onSave: (script: ReelScript, variation: ReelVariation) => void
   onBack: () => void
   saving: boolean
   saved: boolean
   saveError: string | null
 }
+
+// ── Photo picker ───────────────────────────────────────────────
+
+function PhotoPicker({ photos, selected, brandColor, onSelect }: {
+  photos: string[]
+  selected: string | null
+  brandColor: string
+  onSelect: (url: string | null) => void
+}) {
+  return (
+    <div>
+      <label className="text-xs font-semibold block mb-2" style={{ color: 'var(--ink3)' }}>
+        Background photo <span style={{ fontWeight: 400 }}>(optional)</span>
+      </label>
+      {photos.length === 0 ? (
+        <a
+          href="/media"
+          style={{ textDecoration: 'none', display: 'block', borderRadius: 12, border: `1.5px dashed ${brandColor}40`, padding: '12px 14px', background: `${brandColor}06` }}
+        >
+          <p className="text-xs font-semibold mb-1" style={{ color: 'var(--ink2)' }}>Add photos to make this reel stand out</p>
+          <p className="text-xs mb-2" style={{ color: 'var(--ink3)', lineHeight: 1.5 }}>Real photos stop the scroll. Best shots: your space, your team, your work.</p>
+          <span className="text-xs font-bold" style={{ color: brandColor }}>Upload photos in Media →</span>
+        </a>
+      ) : (
+        <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4 }}>
+          {/* None */}
+          <button
+            onClick={() => onSelect(null)}
+            style={{
+              width: 64, height: 64, flexShrink: 0,
+              borderRadius: 10,
+              border: `2px solid ${!selected ? brandColor : 'var(--border)'}`,
+              background: !selected ? `${brandColor}12` : 'var(--bg2)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 18, cursor: 'pointer',
+              color: !selected ? brandColor : 'var(--ink4)',
+              fontWeight: 700,
+            }}
+          >
+            ✕
+          </button>
+          {photos.map(url => {
+            const isSelected = selected === url
+            return (
+              <button
+                key={url}
+                onClick={() => onSelect(isSelected ? null : url)}
+                style={{
+                  width: 64, height: 64, flexShrink: 0,
+                  borderRadius: 10,
+                  border: `2px solid ${isSelected ? brandColor : 'transparent'}`,
+                  padding: 0, cursor: 'pointer', overflow: 'hidden',
+                  boxShadow: isSelected ? `0 0 0 3px ${brandColor}40` : 'none',
+                  outline: 'none',
+                }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+              </button>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ── Slide labels ────────────────────────────────────────────────
 
 const SLIDE_LABELS: Record<string, string> = {
   hook:    'Hook',
@@ -62,7 +131,7 @@ const PREVIEW_H = Math.round(PREVIEW_W * REEL_HEIGHT / REEL_WIDTH)
 
 export function ReelEditor({
   variations, script, variation, brandColor, brandSecondaryColor, logoUrl, businessName,
-  industry, websiteUrl, businessId, gbpPhotos, caption, onCaptionChange, generatingCaption,
+  industry, websiteUrl, businessId, gbpPhotos, uploadedPhotos = [], caption, onCaptionChange, generatingCaption,
   onRegenerateCaption, cityMissing, savingCity, onCitySave, onSave, onBack, saving, saved, saveError,
 }: Props) {
   const [activeVariationIdx, setActiveVariationIdx] = useState(() =>
@@ -73,6 +142,58 @@ export function ReelEditor({
   const [activeSlide, setActiveSlide]         = useState(0)
   const [cityInput, setCityInput]             = useState('')
   const cityInputRef                          = useRef<HTMLInputElement>(null)
+  const [downloading, setDownloading]         = useState(false)
+  const [downloadError, setDownloadError]     = useState<string | null>(null)
+
+  // Sync photos from parent when they arrive after initial mount (async Supabase fetch)
+  useEffect(() => {
+    if (variation.hookPhoto || variation.ctaPhoto) {
+      setEditedVariation(prev => ({
+        ...prev,
+        hookPhoto: prev.hookPhoto ?? variation.hookPhoto,
+        ctaPhoto: prev.ctaPhoto ?? variation.ctaPhoto,
+      }))
+    }
+  }, [variation.hookPhoto, variation.ctaPhoto])
+
+  async function handleDownload() {
+    setDownloading(true)
+    setDownloadError(null)
+    try {
+      const res = await fetch('/api/render-reel', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          script: editedScript,
+          variation: editedVariation,
+          brandColor,
+          brandSecondaryColor: brandSecondaryColor || brandColor,
+          logoUrl,
+          businessName,
+          industry,
+          websiteUrl,
+          gbpPhotos,
+        }),
+      })
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error ?? 'Render failed')
+      }
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      const slug = (editedScript.themeTitle ?? businessName).replace(/\s+/g, '-').toLowerCase()
+      a.download = `${slug}-${Date.now()}.mp4`
+      a.click()
+      URL.revokeObjectURL(url)
+      // Auto-save to Saved Reels on download if not already saved
+      if (!saved && caption) onSave(editedScript, editedVariation)
+    } catch (err) {
+      setDownloadError(String(err))
+    }
+    setDownloading(false)
+  }
 
   function switchVariation(idx: number) {
     const v = variations[idx]
@@ -237,6 +358,12 @@ export function ReelEditor({
                     />
                   </div>
                 )}
+                <PhotoPicker
+                  photos={uploadedPhotos}
+                  selected={editedVariation.hookPhoto ?? null}
+                  brandColor={brandColor}
+                  onSelect={url => setEditedVariation(v => ({ ...v, hookPhoto: url }))}
+                />
               </>
             )}
 
@@ -354,6 +481,12 @@ export function ReelEditor({
                     onBlur={e => e.target.style.borderColor = 'var(--border)'}
                   />
                 </div>
+                <PhotoPicker
+                  photos={uploadedPhotos}
+                  selected={editedVariation.ctaPhoto ?? null}
+                  brandColor={brandColor}
+                  onSelect={url => setEditedVariation(v => ({ ...v, ctaPhoto: url }))}
+                />
               </>
             )}
 
@@ -437,17 +570,42 @@ export function ReelEditor({
               cursor: saving || saved || !caption || generatingCaption || cityMissing ? 'not-allowed' : 'pointer',
             }}
           >
-            {saving ? 'Saving...' : saved ? '✓ Saved to content library' : '✦ Save to content library'}
+            {saving ? 'Saving...' : saved ? '✓ Saved to Saved Reels' : '✦ Save to Saved Reels'}
           </button>
 
           {saved && (
             <p className="text-xs text-center" style={{ color: 'var(--ink3)' }}>
-              View in <a href="/content" style={{ color: brandColor }}>Content library →</a>
+              View in <a href="/content" style={{ color: brandColor }}>Saved Reels →</a>
             </p>
           )}
           {saveError && (
             <p className="text-xs px-3 py-2 rounded-lg mb-4" style={{ background: '#fee2e2', color: '#dc2626' }}>
               Save failed: {saveError}
+            </p>
+          )}
+
+          {/* Download */}
+          <button
+            onClick={handleDownload}
+            disabled={downloading}
+            className="w-full py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2"
+            style={{
+              background: 'var(--bg2)',
+              color: downloading ? 'var(--ink4)' : 'var(--ink2)',
+              border: '1.5px solid var(--border)',
+              cursor: downloading ? 'not-allowed' : 'pointer',
+            }}
+          >
+            {downloading ? (
+              <>
+                <div className="w-3.5 h-3.5 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: 'var(--ink3)', borderTopColor: 'transparent' }} />
+                Rendering video... this takes ~40s
+              </>
+            ) : '↓ Download MP4'}
+          </button>
+          {downloadError && (
+            <p className="text-xs px-3 py-2 rounded-lg" style={{ background: '#fee2e2', color: '#dc2626' }}>
+              {downloadError}
             </p>
           )}
         </div>

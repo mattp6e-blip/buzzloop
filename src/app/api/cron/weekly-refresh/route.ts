@@ -4,6 +4,13 @@ import { createServiceClient } from '@/lib/supabase/service'
 import { buildReviewList, getAnalysisPrompt, getVarietyPrompt } from '@/app/api/analyze-reviews/route'
 import type { Review, ReelTheme } from '@/types'
 
+function currentWeekOf(): string {
+  const d = new Date()
+  const jan1 = new Date(d.getFullYear(), 0, 1)
+  const weekNo = Math.ceil((((d.getTime() - jan1.getTime()) / 86400000) + jan1.getDay() + 1) / 7)
+  return `${d.getFullYear()}-W${String(weekNo).padStart(2, '0')}`
+}
+
 const anthropic = new Anthropic()
 
 function detectLanguage(reviews: Review[]): string {
@@ -33,7 +40,7 @@ function parseThemes(text: string): ReelTheme[] {
   } catch { return [] }
 }
 
-async function refreshBusiness(businessId: string, businessName: string, industry: string, reviews: Review[]): Promise<number> {
+async function refreshBusiness(businessId: string, businessName: string, industry: string, reviews: Review[], businessContext: string | null): Promise<number> {
   const gbpReviews = reviews.filter(r => r.posted_to_google)
   if (gbpReviews.length < 2) return 0
 
@@ -63,24 +70,46 @@ async function refreshBusiness(businessId: string, businessName: string, industr
       model: 'claude-opus-4-6',
       max_tokens: 2500,
       system: langSystem,
-      messages: [{ role: 'user', content: getVarietyPrompt(industry, businessName, reviewList, language) }],
+      messages: [{ role: 'user', content: getVarietyPrompt(industry, businessName, reviewList, language, businessContext) }],
     }),
   ])
 
-  const proofThemes  = parseThemes((proofMessage.content[0] as { text: string }).text)
+  const proofThemes   = parseThemes((proofMessage.content[0] as { text: string }).text)
   const varietyThemes = parseThemes((varietyMessage.content[0] as { text: string }).text)
-  const proofSorted  = proofThemes.sort((a, b) => (b.buzzScore ?? 0) - (a.buzzScore ?? 0))
-  const themes       = [...proofSorted, ...varietyThemes]
+  const proofSorted   = proofThemes.sort((a, b) => (b.buzzScore ?? 0) - (a.buzzScore ?? 0))
+  const weekOf        = currentWeekOf()
+  const newThemes     = [...proofSorted, ...varietyThemes].map(t => ({ ...t, weekOf }))
 
-  if (themes.length === 0) return 0
+  if (newThemes.length === 0) return 0
 
+  // Additive merge: fetch existing themes and append new ones
   const supabase = createServiceClient()
+  const { data: biz } = await supabase
+    .from('businesses')
+    .select('reel_themes')
+    .eq('id', businessId)
+    .single()
+
+  const existing: ReelTheme[] = biz?.reel_themes ?? []
+  const existingIds = new Set(existing.map((t: ReelTheme) => t.id))
+  const brandNew = newThemes.filter(t => !existingIds.has(t.id))
+
+  // Merge: existing + new; if over 30, drop lowest-buzz from oldest week first
+  const merged = [...existing, ...brandNew]
+  const capped = merged.length > 30
+    ? merged.sort((a, b) => {
+        const weekDiff = (b.weekOf ?? '').localeCompare(a.weekOf ?? '')
+        if (weekDiff !== 0) return weekDiff
+        return (b.buzzScore ?? 0) - (a.buzzScore ?? 0)
+      }).slice(0, 30)
+    : merged
+
   await supabase.from('businesses').update({
-    reel_themes: themes,
+    reel_themes: capped,
     reel_themes_review_count: gbpReviews.length,
   }).eq('id', businessId)
 
-  return themes.length
+  return brandNew.length
 }
 
 export async function GET(req: NextRequest) {
@@ -98,7 +127,7 @@ export async function GET(req: NextRequest) {
   // Fetch all businesses that have connected GBP (last_gbp_sync_at is set)
   const { data: businesses, error } = await supabase
     .from('businesses')
-    .select('id, name, industry')
+    .select('id, name, industry, business_context')
     .not('last_gbp_sync_at', 'is', null)
 
   if (error) {
@@ -126,7 +155,7 @@ export async function GET(req: NextRequest) {
         continue
       }
 
-      const count = await refreshBusiness(biz.id, biz.name, biz.industry, reviews as Review[])
+      const count = await refreshBusiness(biz.id, biz.name, biz.industry, reviews as Review[], biz.business_context ?? null)
       if (count > 0) {
         results.refreshed++
         console.log(`[weekly-refresh] ${biz.name}: ${count} themes`)

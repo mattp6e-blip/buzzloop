@@ -196,11 +196,11 @@ Line 2 (ctaText): Friction reduction. Make the next step feel smaller than expec
 Return ONLY valid JSON:
 {
   "themeTitle": "${theme.title}",
-  "totalDuration": ${durationSeconds},
+  "totalDuration": ${durationSeconds + 1},
   "ctaHeadline": "Topic callback — specific",
   "ctaText": "Friction reduction",
   "slides": [
-    { "type": "hook", "duration": 3, "content": { "headline": "${hookHeadline}", "subline": ${hookSubline ? `"${hookSubline}"` : 'null'} } },
+    { "type": "hook", "duration": 4, "content": { "headline": "${hookHeadline}", "subline": ${hookSubline ? `"${hookSubline}"` : 'null'} } },
     ${insightCount === 2
       ? `{ "type": "insight", "duration": 4, "content": { "headline": "First insight (max 10 words)", "highlightWords": ["word1"] } },
     { "type": "insight", "duration": 4, "content": { "headline": "Second insight (max 10 words)", "highlightWords": ["word1"] } },`
@@ -349,8 +349,9 @@ QUOTE SLIDES — rules:
 PROOF SLIDE — rules:
 - Must reference ONLY what the hook and quote slides in THIS reel actually showed — nothing the viewer hasn't seen
 - No new names, places, or facts that weren't in the quotes above
-- Distil the pattern the viewer just witnessed into one undeniable sentence
-- Examples: "3 people. Same story. They all came back." / "4.9★ across ${reviews.length} reviews. Every single one."
+- NEVER mention a total review count — the viewer only saw 2 quotes, so a large number feels disconnected and fake
+- Distil the pattern the viewer just witnessed into one undeniable sentence — reference the specific behavior or detail from those 2 quotes
+- Examples: "2 people. Same story. They both came back." / "Different people. Same word." / "She cancelled 4 times. Still came back."
 
 CTA — two lines, both required:
 Line 1 (ctaHeadline): Callback to the specific story. Reference something from the hook or quotes.
@@ -370,11 +371,11 @@ ${slideStructure[tone]}
 Return ONLY valid JSON:
 {
   "themeTitle": "${theme.title}",
-  "totalDuration": ${durationSeconds},
+  "totalDuration": ${durationSeconds + 1},
   "ctaHeadline": "Story callback — specific, not generic",
   "ctaText": "Friction reduction — makes next step feel small",
   "slides": [
-    { "type": "hook", "duration": 3, "content": { "headline": "${hookHeadline}", "subline": ${hookSubline ? `"${hookSubline}"` : 'null'} } },
+    { "type": "hook", "duration": 4, "content": { "headline": "${hookHeadline}", "subline": ${hookSubline ? `"${hookSubline}"` : 'null'} } },
     { "type": "quote", "duration": 4, "content": { "quote": "Verbatim sentence from review (max 18 words)", "highlightWords": ["word1", "word2"], "author": "First name or null" } },
     { "type": "quote", "duration": 4, "content": { "quote": "Verbatim sentence from second review (max 18 words)", "highlightWords": ["word1"], "author": "First name or null" } },
     { "type": "proof", "duration": 3, "content": { "stat": "Logical fact from this specific story (max 8 words)", "subline": "Short reinforcing line (max 5 words)" } },
@@ -640,6 +641,19 @@ export async function POST(req: NextRequest) {
     v.motif = motif
     if (motifValue !== undefined) v.motifValue = motifValue
   })
+
+  // Auto-assign uploaded photos to hook/cta slides when available
+  const uploadedPhotos = (allPhotos ?? []).filter(Boolean)
+  if (uploadedPhotos.length > 0) {
+    variations.forEach(v => {
+      // CTA always gets a photo
+      v.ctaPhoto = uploadedPhotos[1] ?? uploadedPhotos[0]
+      // Hook gets a photo only on immersive/collage templates (not editorial)
+      if (v.template === 'immersive' || v.template === 'collage') {
+        v.hookPhoto = uploadedPhotos[0]
+      }
+    })
+  }
 
   if (!variations.length) {
     return NextResponse.json({ error: 'Failed to generate reel variations' }, { status: 500 })

@@ -32,7 +32,7 @@ export function CTAScene({ ctaHeadline, ctaText, websiteUrl, businessName, logoU
 
   return (
     <AbsoluteFill>
-      {photo && template === 'immersive' ? (
+      {photo && (template === 'immersive' || template === 'collage') ? (
         <PhotoLayer url={photo} direction="pan-right" overlay="full" overlayStrength={0.6} />
       ) : (
         <Background brandColor={brandColor} industry={industry} />

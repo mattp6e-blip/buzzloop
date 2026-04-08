@@ -27,20 +27,20 @@ export default async function ContentPage() {
   return (
     <div className="p-8" style={{ maxWidth: 900 }}>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--ink)' }}>Content library</h1>
+        <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--ink)' }}>Saved Reels</h1>
         <p className="text-sm" style={{ color: 'var(--ink3)' }}>
           {posts?.length ?? 0} reel{posts?.length !== 1 ? 's' : ''} saved
         </p>
       </div>
       <ContentClient
         posts={posts ?? []}
-        instagramConnected={business.instagram_connected ?? false}
         brandColor={business.brand_color}
         brandSecondaryColor={business.brand_secondary_color ?? business.brand_color}
         brandFont={business.brand_font ?? 'Inter'}
         brandLogoUrl={business.brand_logo_url ?? null}
         businessName={business.name}
         industry={business.industry}
+        websiteUrl={business.website_url ?? null}
       />
     </div>
   )

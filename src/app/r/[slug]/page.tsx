@@ -22,6 +22,7 @@ export default async function ReviewPage({ params }: { params: Promise<{ slug: s
       brandColor={business.brand_color}
       googleBusinessUrl={business.google_business_url}
       staffMembers={business.staff_members ?? []}
+      customQuestions={business.custom_questions ?? null}
     />
   )
 }
