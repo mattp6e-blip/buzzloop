@@ -21,6 +21,16 @@ async function getBundle(): Promise<string> {
   return bundleCache
 }
 
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+}
+
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 204, headers: CORS_HEADERS })
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { script, variation, brandColor, brandSecondaryColor, logoUrl, businessName, industry, websiteUrl, gbpPhotos } = await req.json()
@@ -57,6 +67,7 @@ export async function POST(req: NextRequest) {
 
     return new NextResponse(buffer, {
       headers: {
+        ...CORS_HEADERS,
         'Content-Type': 'video/mp4',
         'Content-Disposition': `attachment; filename="reel-${Date.now()}.mp4"`,
         'Content-Length': String(buffer.length),
@@ -64,6 +75,6 @@ export async function POST(req: NextRequest) {
     })
   } catch (err) {
     console.error('Render error:', err)
-    return NextResponse.json({ error: String(err) }, { status: 500 })
+    return NextResponse.json({ error: String(err) }, { status: 500, headers: CORS_HEADERS })
   }
 }
