@@ -30,6 +30,10 @@
     "remotion": "^4.0.441",
     "tailwind-merge": "^3.5.0"
   },
+  "optionalDependencies": {
+    "@rspack/binding-linux-x64-gnu": "1.7.6",
+    "@rspack/binding-linux-arm64-gnu": "1.7.6"
+  },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
