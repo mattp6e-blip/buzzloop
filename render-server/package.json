@@ -1,0 +1,13 @@
+{
+  "name": "buzzloop-render-server",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs"
+  },
+  "dependencies": {
+    "@remotion/bundler": "4.0.446",
+    "@remotion/renderer": "4.0.446",
+    "remotion": "4.0.441"
+  }
+}
