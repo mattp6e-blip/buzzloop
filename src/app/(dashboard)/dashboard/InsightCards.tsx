@@ -192,15 +192,15 @@ export function InsightCards({ googleConnected, industry }: InsightCardsProps) {
     )
   }
 
-  // ── Error / not connected ─────────────────────────────────────────────────
+  // ── Hard error (network/500) — show nothing, don't block the page ────────
 
-  if (profile.error || !profile.connected) {
+  if (profile.error) {
     return (
       <>
         <SectionDivider label="GBP optimisations" />
         <div className="rounded-2xl border p-4" style={{ background: 'white', borderColor: 'var(--border)' }}>
           <p className="text-xs" style={{ color: 'var(--ink3)' }}>
-            {profile.error ?? 'Could not load GBP data. Try reconnecting your Google account.'}
+            Could not load profile analysis. <a href="/api/growth/gbp-profile" target="_blank" className="underline">See error</a>
           </p>
         </div>
       </>
