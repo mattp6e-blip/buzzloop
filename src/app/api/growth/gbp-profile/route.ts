@@ -33,7 +33,7 @@ export async function GET() {
 
     const { data: business } = await supabase
       .from('businesses')
-      .select('id, name, industry, google_connected, google_access_token, google_refresh_token, google_token_expiry, google_location_id')
+      .select('id, name, industry, city, google_connected, google_access_token, google_refresh_token, google_token_expiry, google_location_id')
       .eq('user_id', user.id)
       .single()
 
@@ -89,33 +89,39 @@ export async function GET() {
       return `- ${c.name} (${c.review_count} reviews): categories=[${cleanTypes.join(', ')}]${reviewTexts.length ? `; customer mentions: "${reviewTexts.join('", "')}"` : ''}`
     }).join('\n')
 
+    // Infer language from city/competitor names — default to detecting from context
+    const locationHint = business.city ? `located in ${business.city}` : ''
+    const competitorNames = (competitors ?? []).map(c => c.name).join(', ')
+
     // Claude analysis
     const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
-    const prompt = `You are a local SEO expert. Analyse this ${business.industry} business called "${business.name}" and suggest improvements.
+    const prompt = `You are a local SEO expert. Analyse this ${business.industry} business called "${business.name}" ${locationHint} and suggest improvements.
+
+IMPORTANT: Respond in the same language that customers in this location would use to search Google. Infer the language from the business name, location, and competitor names. Competitor businesses: ${competitorNames || 'unknown'}.
 
 CURRENT GBP DESCRIPTION:
 "${currentDescription || '(no description set)'}"
 
 CURRENT SERVICES LISTED ON GBP:
-${currentServices.length > 0 ? currentServices.map(s => `- ${s}`).join('\n') : '(none listed)'}
+${currentServices.length > 0 ? currentServices.map(s => `- ${s}`).join('\n') : '(none listed — suggest common services for this industry)'}
 
-TOP LOCAL COMPETITORS:
+TOP LOCAL COMPETITORS (from Google Places data):
 ${competitorContext || '(no competitor data yet)'}
 
 Return ONLY valid JSON, no markdown:
 {
   "missingKeywords": ["keyword1", "keyword2"],
-  "improvedDescription": "Full improved description text (150-200 words, natural tone, includes missing keywords)",
+  "improvedDescription": "Full improved description text (150-200 words, natural tone, in the local language, includes missing keywords)",
   "suggestedServices": [
     { "name": "Service Name", "reason": "Why this is relevant" }
   ]
 }
 
 Rules:
-- missingKeywords: 3-6 high-intent local search terms missing from the current description. Only terms genuinely relevant to a ${business.industry}.
-- improvedDescription: Sound natural and human. Include location context if inferable. Don't invent services — only mention what a ${business.industry} genuinely offers.
-- suggestedServices: Max 6 services common for a ${business.industry}. These are SUGGESTIONS — the user will confirm which they actually offer. Base on competitor data and industry norms.`
+- missingKeywords: 3-6 high-intent local search terms missing from the current description, written in the local language as customers would type them.
+- improvedDescription: Natural and human. In the local language. Include location context if inferable. Don't invent services.
+- suggestedServices: Max 6 services typical for a ${business.industry}. Names in the local language. These are SUGGESTIONS the user will confirm — base on competitor review mentions and industry norms.`
 
     const aiRes = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',

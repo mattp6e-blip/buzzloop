@@ -59,29 +59,29 @@ function formatType(t: string) {
 }
 
 function CompetitorPanel({
-  competitors, totalReviews, businessName, onRefresh,
+  competitors, totalReviews, businessName, lastSyncedAt,
 }: {
   competitors: Competitor[]
   totalReviews: number
   businessName: string
-  onRefresh: () => void
+  lastSyncedAt: string | null
 }) {
+  const syncedLabel = lastSyncedAt
+    ? (() => {
+        const days = Math.floor((Date.now() - new Date(lastSyncedAt).getTime()) / 86400000)
+        return days === 0 ? 'Updated today' : days === 1 ? 'Updated yesterday' : `Updated ${days}d ago`
+      })()
+    : null
+
   return (
     <div className="rounded-2xl border p-5" style={{ background: 'white', borderColor: 'var(--border)' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--ink3)' }}>
-            Local search rankings
-          </p>
-          <p className="text-xs mt-0.5" style={{ color: 'var(--ink4)' }}>Sorted by Google popularity</p>
-        </div>
-        <button
-          onClick={onRefresh}
-          className="text-xs font-semibold px-3 py-1.5 rounded-lg transition-opacity hover:opacity-70"
-          style={{ background: 'var(--surface)', color: 'var(--ink3)', border: '1px solid var(--border)' }}
-        >
-          Refresh
-        </button>
+      <div style={{ marginBottom: 14 }}>
+        <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--ink3)' }}>
+          Local search rankings
+        </p>
+        <p className="text-xs mt-0.5" style={{ color: 'var(--ink4)' }}>
+          Sorted by Google popularity{syncedLabel ? ` · ${syncedLabel}` : ''}
+        </p>
       </div>
       {(() => {
         const all = competitors // already sorted by review_count desc from server
@@ -93,10 +93,9 @@ function CompetitorPanel({
         const aboveUser = all.filter(c => c.review_count > totalReviews)
         const belowUser = all.filter(c => c.review_count <= totalReviews)
 
-        // Show up to 4 competitors above user (last 4 closest above)
+        // Show up to 4 above user, up to 3 below
         const showAbove = aboveUser.slice(0, 4)
-        // Show 1 competitor below user if available
-        const showBelow = belowUser.slice(0, 1)
+        const showBelow = belowUser.slice(0, 3)
 
         // Gap = how many above-user competitors are hidden
         const hiddenCount = aboveUser.length - showAbove.length
@@ -394,7 +393,7 @@ export function GrowthHub({
               competitors={competitors}
               totalReviews={totalReviews}
               businessName={business.name}
-              onRefresh={() => window.location.reload()}
+              lastSyncedAt={competitors[0]?.last_synced_at ?? null}
             />
           )}
         </div>
