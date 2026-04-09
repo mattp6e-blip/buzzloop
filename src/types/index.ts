@@ -37,6 +37,8 @@ export interface Business {
   last_gbp_sync_at: string | null
   google_connected: boolean
   instagram_connected: boolean
+  google_place_id: string | null    // Google Maps Place ID (from Places API, no OAuth needed)
+  google_place_location: { lat: number; lng: number } | null
 }
 
 export interface Competitor {
