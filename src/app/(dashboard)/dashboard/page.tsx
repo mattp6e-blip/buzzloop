@@ -114,15 +114,18 @@ function generateTasks(params: {
   reelsCreated: number
   outreachThisWeek: number
   googleConnected: boolean
+  googlePlaceId: string | null
   googleBusinessUrl: string | null
+  hasUnrespondedNegative: boolean  // any 1-3 star reviews in last 60 days
   competitors: Competitor[]
 }): Task[] {
   const {
     totalReviews, recentWeekCount, daysSinceLastReview,
     reelsCreated, outreachThisWeek, googleConnected,
-    googleBusinessUrl, competitors,
+    googlePlaceId, googleBusinessUrl, hasUnrespondedNegative, competitors,
   } = params
 
+  const gbpManageUrl = 'https://business.google.com'
   const tasks: Task[] = []
 
   // 1. CRITICAL: behind top competitor by more than 20 reviews
@@ -153,7 +156,19 @@ function generateTasks(params: {
     })
   }
 
-  // 3. HIGH: no review requests sent this week
+  // 3. HIGH: unanswered negative reviews — responding publicly is a ranking + trust signal
+  if (hasUnrespondedNegative) {
+    tasks.push({
+      id: 'respond_reviews',
+      priority: 'high',
+      icon: '💬',
+      title: `Respond to your recent negative reviews`,
+      why: `Google surfaces businesses that engage with customers. A public response to a 1–3 star review shows care and can recover trust with future customers reading it.`,
+      action: { label: 'Respond on Google', href: gbpManageUrl },
+    })
+  }
+
+  // 4. HIGH: no review requests sent this week
   if (outreachThisWeek === 0) {
     tasks.push({
       id: 'send_outreach',
@@ -165,7 +180,7 @@ function generateTasks(params: {
     })
   }
 
-  // 4. HIGH: GBP profile not optimised (connected but may have gaps)
+  // 5. HIGH: GBP profile not optimised
   if (googleConnected) {
     tasks.push({
       id: 'optimise_profile',
@@ -177,7 +192,7 @@ function generateTasks(params: {
     })
   }
 
-  // 5. HIGH: has reviews but no reel — drives profile visits
+  // 6. HIGH: has reviews but no reel
   if (totalReviews >= 2 && reelsCreated === 0) {
     tasks.push({
       id: 'first_reel',
@@ -189,7 +204,19 @@ function generateTasks(params: {
     })
   }
 
-  // 6. MEDIUM: add photos directly to GBP (link to their profile, not Buzzloop library)
+  // 7. MEDIUM: post to GBP this week — active profiles rank higher
+  if (googlePlaceId) {
+    tasks.push({
+      id: 'gbp_post',
+      priority: 'medium',
+      icon: '📢',
+      title: `Post an update to your Google Business Profile`,
+      why: `Google rewards active profiles. A weekly post (photo, offer, or update) signals a live business and boosts local pack visibility.`,
+      action: { label: 'Create GBP post', href: gbpManageUrl },
+    })
+  }
+
+  // 8. MEDIUM: add fresh photos to GBP
   if (googleBusinessUrl) {
     tasks.push({
       id: 'add_gbp_photos',
@@ -201,7 +228,7 @@ function generateTasks(params: {
     })
   }
 
-  // 7. MEDIUM: low recent reviews despite no drought (gentle nudge)
+  // 9. MEDIUM: no reviews this week (gentle nudge, only if no drought)
   if (recentWeekCount === 0 && (daysSinceLastReview === null || daysSinceLastReview < 14)) {
     tasks.push({
       id: 'no_reviews_this_week',
@@ -348,6 +375,10 @@ export default async function DashboardPage() {
   const googleBusinessUrl = business.google_place_id
     ? `https://search.google.com/local/writereview?placeid=${business.google_place_id}`
     : null
+  const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000)
+  const hasUnrespondedNegative = allReviews.some(
+    r => r.star_rating <= 3 && new Date(r.created_at) >= sixtyDaysAgo
+  )
 
   const tasks = generateTasks({
     totalReviews,
@@ -356,7 +387,9 @@ export default async function DashboardPage() {
     reelsCreated,
     outreachThisWeek,
     googleConnected: business.google_connected ?? false,
+    googlePlaceId: business.google_place_id ?? null,
     googleBusinessUrl,
+    hasUnrespondedNegative,
     competitors,
   })
 
