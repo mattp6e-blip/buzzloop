@@ -196,10 +196,12 @@ function formatType(t: string) {
 function CompetitorsPanel({
   competitors,
   totalReviews,
+  businessName,
   onRefresh,
 }: {
   competitors: Competitor[]
   totalReviews: number
+  businessName: string
   onRefresh: () => void
 }) {
   return (
@@ -207,9 +209,9 @@ function CompetitorsPanel({
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
         <div>
           <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--ink3)' }}>
-            Ranking above you
+            Local search rankings
           </p>
-          <p className="text-xs mt-0.5" style={{ color: 'var(--ink4)' }}>Top local competitors in your area</p>
+          <p className="text-xs mt-0.5" style={{ color: 'var(--ink4)' }}>How you rank vs nearby competitors on Google</p>
         </div>
         <button
           onClick={onRefresh}
@@ -219,7 +221,36 @@ function CompetitorsPanel({
           Refresh
         </button>
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+        {/* Your business row */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 10,
+          padding: '8px 10px', borderRadius: 10,
+          background: '#f0fdf4', border: '1px solid #bbf7d0',
+        }}>
+          <div style={{
+            width: 22, height: 22, borderRadius: '50%', flexShrink: 0,
+            background: '#16a34a', display: 'flex', alignItems: 'center',
+            justifyContent: 'center', fontSize: 10, fontWeight: 700, color: 'white',
+          }}>
+            ★
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <p className="text-xs font-semibold truncate" style={{ color: '#15803d' }}>{businessName}</p>
+              <span style={{ fontSize: 9, fontWeight: 700, color: '#16a34a', background: '#dcfce7', padding: '1px 5px', borderRadius: 3, flexShrink: 0 }}>
+                YOU
+              </span>
+            </div>
+            <p style={{ fontSize: 10, color: '#16a34a', marginTop: 2 }}>{totalReviews} reviews</p>
+          </div>
+        </div>
+
+        {/* Divider */}
+        <p style={{ fontSize: 10, color: 'var(--ink4)', textAlign: 'center', padding: '2px 0' }}>
+          — competitors ranked by Google popularity —
+        </p>
+
         {competitors.slice(0, 6).map((c, i) => {
           const meaningfulTypes = c.types.filter(t => !NOISE_TYPES.has(t)).slice(0, 2)
           const gap = c.review_count - totalReviews
@@ -239,14 +270,7 @@ function CompetitorsPanel({
                 {i + 1}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <p className="text-xs font-semibold truncate" style={{ color: 'var(--ink)' }}>{c.name}</p>
-                  {i === 0 && (
-                    <span style={{ fontSize: 9, fontWeight: 700, color: '#ef4444', background: '#fee2e2', padding: '1px 5px', borderRadius: 3, flexShrink: 0 }}>
-                      #1
-                    </span>
-                  )}
-                </div>
+                <p className="text-xs font-semibold truncate" style={{ color: 'var(--ink)' }}>{c.name}</p>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 2, flexWrap: 'wrap' }}>
                   {c.rating !== null && (
                     <span style={{ fontSize: 10, color: 'var(--ink3)' }}>★ {c.rating}</span>
@@ -260,7 +284,7 @@ function CompetitorsPanel({
                 </div>
               </div>
               {gap > 0 && (
-                <span style={{ fontSize: 10, fontWeight: 700, color: '#dc2626', flexShrink: 0 }}>
+                <span style={{ fontSize: 10, fontWeight: 700, color: '#dc2626', flexShrink: 0 }} title={`${c.name} has ${gap} more reviews than you`}>
                   +{gap.toLocaleString()}
                 </span>
               )}
@@ -464,6 +488,7 @@ export function GrowthHub({
             <CompetitorsPanel
               competitors={competitors}
               totalReviews={totalReviews}
+              businessName={business.name}
               onRefresh={handleRefreshCompetitors}
             />
           ) : (
