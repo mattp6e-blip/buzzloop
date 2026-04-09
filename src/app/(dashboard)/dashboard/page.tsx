@@ -125,7 +125,6 @@ function generateTasks(params: {
     googlePlaceId, googleBusinessUrl, hasUnrespondedNegative, competitors,
   } = params
 
-  const gbpManageUrl = 'https://business.google.com'
   const tasks: Task[] = []
 
   // 1. CRITICAL: behind top competitor by more than 20 reviews
@@ -164,7 +163,7 @@ function generateTasks(params: {
       icon: '💬',
       title: `Respond to your recent negative reviews`,
       why: `Google surfaces businesses that engage with customers. A public response to a 1–3 star review shows care and can recover trust with future customers reading it.`,
-      action: { label: 'Respond on Google', href: gbpManageUrl },
+      action: { label: 'Respond on Google', href: 'https://business.google.com/reviews' },
     })
   }
 
@@ -212,7 +211,7 @@ function generateTasks(params: {
       icon: '📢',
       title: `Post an update to your Google Business Profile`,
       why: `Google rewards active profiles. A weekly post (photo, offer, or update) signals a live business and boosts local pack visibility.`,
-      action: { label: 'Create GBP post', href: gbpManageUrl },
+      action: { label: 'Create GBP post', href: 'https://business.google.com/posts' },
     })
   }
 
@@ -224,7 +223,7 @@ function generateTasks(params: {
       icon: '📸',
       title: `Add fresh photos to your Google Business Profile`,
       why: `GBP profiles updated with photos in the last 30 days rank higher in the local pack. Aim for 1–2 new photos per week.`,
-      action: { label: 'Open GBP profile', href: googleBusinessUrl },
+      action: { label: 'Open GBP profile', href: googleBusinessUrl ?? 'https://business.google.com/photos' },
     })
   }
 
@@ -372,9 +371,7 @@ export default async function DashboardPage() {
 
   // Tasks — use recentWeekCount (organic only) to avoid import spike false triggers
   const recentWeekCount = allReviews.filter(r => new Date(r.created_at) >= weekAgo).length
-  const googleBusinessUrl = business.google_place_id
-    ? `https://search.google.com/local/writereview?placeid=${business.google_place_id}`
-    : null
+  const googleBusinessUrl = business.google_business_url ?? null
   const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000)
   const hasUnrespondedNegative = allReviews.some(
     r => r.star_rating <= 3 && new Date(r.created_at) >= sixtyDaysAgo
