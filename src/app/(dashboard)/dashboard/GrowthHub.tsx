@@ -295,7 +295,9 @@ export function GrowthHub({
   const [competitors] = useState(initialCompetitors)
   const isSetup = !!business.google_place_id
   const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
-  const weekDelta = thisWeekCount - lastWeekCount
+  // Cap delta to avoid showing import spike artifacts (bulk imports cause huge false negatives)
+  const rawDelta = thisWeekCount - lastWeekCount
+  const weekDelta = Math.abs(rawDelta) <= 15 ? rawDelta : 0
 
   return (
     <div className="p-8" style={{ maxWidth: 1000 }}>
@@ -330,22 +332,26 @@ export function GrowthHub({
       {/* Row 1 — Tasks (left) + Competitors (right) */}
       <div className="grid gap-5 mb-6" style={{ gridTemplateColumns: '1fr 340px' }}>
 
-        {/* Tasks */}
+        {/* Tasks + GBP optimisations */}
         <div>
           <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: 'var(--ink3)' }}>
             This week&apos;s actions
           </p>
-          {tasks.length === 0 ? (
-            <div className="rounded-2xl border p-10 text-center" style={{ background: 'white', borderColor: 'var(--border)' }}>
-              <p style={{ fontSize: 32, marginBottom: 8 }}>🎉</p>
-              <p className="text-sm font-bold mb-1" style={{ color: 'var(--ink)' }}>All caught up</p>
-              <p className="text-xs" style={{ color: 'var(--ink4)' }}>No priority actions this week. Keep the momentum going.</p>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {tasks.map(task => <TaskCard key={task.id} task={task} />)}
-            </div>
-          )}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {tasks.length === 0 ? (
+              <div className="rounded-2xl border p-8 text-center" style={{ background: 'white', borderColor: 'var(--border)' }}>
+                <p style={{ fontSize: 28, marginBottom: 6 }}>🎉</p>
+                <p className="text-sm font-bold mb-1" style={{ color: 'var(--ink)' }}>All caught up</p>
+                <p className="text-xs" style={{ color: 'var(--ink4)' }}>No priority actions this week. Keep the momentum going.</p>
+              </div>
+            ) : (
+              tasks.map(task => <TaskCard key={task.id} task={task} />)
+            )}
+            <InsightCards
+              googleConnected={business.google_connected ?? false}
+              industry={business.industry}
+            />
+          </div>
         </div>
 
         {/* Competitors */}
@@ -363,15 +369,7 @@ export function GrowthHub({
         </div>
       </div>
 
-      {/* Row 2 — GBP Profile Analysis (insight cards) */}
-      <div className="mb-6">
-        <InsightCards
-          googleConnected={business.google_connected ?? false}
-          industry={business.industry}
-        />
-      </div>
-
-      {/* Row 3 — Review trend */}
+      {/* Row 2 — Review trend */}
       <div className="rounded-2xl border p-6" style={{ background: 'white', borderColor: 'var(--border)' }}>
         <ReviewTrendChart reviewDates={reviewDates} brandColor={brandColor} velocityLabel={velocityLabel} />
       </div>
