@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { ReviewTrendChart } from './ReviewTrendChart'
 import { InsightCards } from './InsightCards'
+import { KeywordRankings } from './KeywordRankings'
 import type { Business, Competitor } from '@/types'
 import type { Task, HealthBreakdown } from './page'
 
@@ -384,8 +385,8 @@ export function GrowthHub({
           </div>
         </div>
 
-        {/* Competitors */}
-        <div>
+        {/* Competitors + Keyword Rankings */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           {!isSetup || competitors.length === 0 ? (
             <LocalSearchSetup onSetupComplete={() => {}} />
           ) : (
@@ -396,6 +397,7 @@ export function GrowthHub({
               lastSyncedAt={competitors[0]?.last_synced_at ?? null}
             />
           )}
+          <KeywordRankings isSetup={isSetup} />
         </div>
       </div>
 

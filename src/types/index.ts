@@ -39,6 +39,7 @@ export interface Business {
   instagram_connected: boolean
   google_place_id: string | null    // Google Maps Place ID (from Places API, no OAuth needed)
   google_place_location: { lat: number; lng: number } | null
+  keyword_rankings: Array<{ keyword: string; rank: number | null; checkedAt: string }> | null
 }
 
 export interface Competitor {
