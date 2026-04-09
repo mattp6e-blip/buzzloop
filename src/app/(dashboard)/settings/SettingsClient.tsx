@@ -115,6 +115,19 @@ export function SettingsClient({ business }: { business: Business }) {
 
     setSaving(false)
     if (updateErr) { setError(updateErr.message); return }
+
+    // If website URL changed or was newly added, re-run brand extraction
+    const cleanUrl = websiteUrl.trim()
+      ? (websiteUrl.trim().startsWith('http') ? websiteUrl.trim() : `https://${websiteUrl.trim()}`)
+      : null
+    if (cleanUrl && cleanUrl !== business.website_url) {
+      fetch('/api/extract-brand', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ businessId: business.id, websiteUrl: cleanUrl }),
+      }).catch(() => { /* non-critical */ })
+    }
+
     setSaved(true)
     setTimeout(() => setSaved(false), 3000)
   }
