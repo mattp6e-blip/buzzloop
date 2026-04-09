@@ -138,7 +138,6 @@ export function InsightCards({ googleConnected, industry }: InsightCardsProps) {
   const [applyError, setApplyError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!googleConnected) return
     setLoading(true)
     fetch('/api/growth/gbp-profile')
       .then(r => r.json())
@@ -148,9 +147,7 @@ export function InsightCards({ googleConnected, industry }: InsightCardsProps) {
         setLoading(false)
       })
       .catch(() => setLoading(false))
-  }, [googleConnected])
-
-  const preview = LOCKED_PREVIEW[industry as string] ?? LOCKED_PREVIEW.other
+  }, [])
 
   async function applyAll() {
     if (!profile?.analysis) return
@@ -181,32 +178,6 @@ export function InsightCards({ googleConnected, industry }: InsightCardsProps) {
       setApplyError(e instanceof Error ? e.message : 'Something went wrong')
     }
     setApplying(false)
-  }
-
-  // ── Not connected ─────────────────────────────────────────────────────────
-
-  if (!googleConnected) {
-    return (
-      <>
-        <SectionDivider label="GBP optimisations" />
-        <LockedCard icon="📝" bg="#fef9c3">
-          <p className="text-sm font-bold mb-1.5" style={{ color: 'var(--ink)' }}>Update your GBP description</p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
-            {preview.keywords.map(kw => (
-              <span key={kw} style={{ fontSize: 11, padding: '2px 8px', borderRadius: 5, background: '#fef9c3', color: '#854d0e' }}>+ {kw}</span>
-            ))}
-          </div>
-        </LockedCard>
-        <LockedCard icon="🛠" bg="#eff6ff">
-          <p className="text-sm font-bold mb-1.5" style={{ color: 'var(--ink)' }}>Add missing services</p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
-            {preview.services.map(s => (
-              <span key={s} style={{ fontSize: 11, padding: '2px 8px', borderRadius: 5, background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--ink3)' }}>{s}</span>
-            ))}
-          </div>
-        </LockedCard>
-      </>
-    )
   }
 
   // ── Loading ───────────────────────────────────────────────────────────────
@@ -344,20 +315,30 @@ export function InsightCards({ googleConnected, industry }: InsightCardsProps) {
         </div>
       )}
 
-      {/* Apply all */}
+      {/* Apply all — gated on OAuth */}
       {applyError && <p className="text-xs" style={{ color: '#ef4444' }}>{applyError}</p>}
-      <button
-        onClick={applyAll}
-        disabled={applying || applied}
-        className="w-full text-sm font-bold py-3.5 rounded-2xl transition-opacity hover:opacity-85 disabled:opacity-40"
-        style={{ background: applied ? '#16a34a' : '#6366f1', color: 'white' }}
-      >
-        {applying
-          ? 'Applying to Google Business Profile…'
-          : applied
-          ? '✓ Changes applied to your GBP'
-          : 'Let Buzzloop apply all GBP changes →'}
-      </button>
+      {googleConnected ? (
+        <button
+          onClick={applyAll}
+          disabled={applying || applied}
+          className="w-full text-sm font-bold py-3.5 rounded-2xl transition-opacity hover:opacity-85 disabled:opacity-40"
+          style={{ background: applied ? '#16a34a' : '#6366f1', color: 'white' }}
+        >
+          {applying
+            ? 'Applying to Google Business Profile…'
+            : applied
+            ? '✓ Changes applied to your GBP'
+            : 'Let Buzzloop apply all GBP changes →'}
+        </button>
+      ) : (
+        <a
+          href="/api/auth/google"
+          className="w-full text-sm font-bold py-3.5 rounded-2xl transition-opacity hover:opacity-85 flex items-center justify-center gap-2"
+          style={{ background: '#6366f1', color: 'white', textDecoration: 'none' }}
+        >
+          Connect Google to apply these changes →
+        </a>
+      )}
     </>
   )
 }

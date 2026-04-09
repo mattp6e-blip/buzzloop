@@ -38,41 +38,39 @@ export async function GET() {
       .single()
 
     if (!business) return NextResponse.json({ error: 'Business not found' }, { status: 404 })
-    if (!business.google_connected) return NextResponse.json({ connected: false })
 
-    if (!business.google_location_id) {
-      return NextResponse.json({ error: 'Sync your reviews first to link your GBP location.' }, { status: 422 })
-    }
+    let currentDescription = ''
+    let currentServices: string[] = []
 
-    // Refresh token if expired
-    let accessToken = business.google_access_token
-    const expiry = business.google_token_expiry ? new Date(business.google_token_expiry) : null
-    if (expiry && expiry < new Date() && business.google_refresh_token) {
-      const newToken = await refreshAccessToken(business.google_refresh_token)
-      if (newToken) {
-        accessToken = newToken
-        await supabase.from('businesses').update({ google_access_token: newToken }).eq('id', business.id)
+    // If Google OAuth is connected, read live GBP data
+    if (business.google_connected && business.google_location_id) {
+      let accessToken = business.google_access_token
+      const expiry = business.google_token_expiry ? new Date(business.google_token_expiry) : null
+      if (expiry && expiry < new Date() && business.google_refresh_token) {
+        const newToken = await refreshAccessToken(business.google_refresh_token)
+        if (newToken) {
+          accessToken = newToken
+          await supabase.from('businesses').update({ google_access_token: newToken }).eq('id', business.id)
+        }
       }
+
+      const locationPath = toLocationPath(business.google_location_id)
+      const profileRes = await fetch(
+        `https://mybusinessbusinessinformation.googleapis.com/v1/${locationPath}?readMask=profile,categories,serviceItems`,
+        { headers: { Authorization: `Bearer ${accessToken}` } }
+      )
+      const profileData = await profileRes.json()
+
+      currentDescription = profileData.profile?.description ?? ''
+      currentServices = (profileData.serviceItems ?? [])
+        .map((s: Record<string, unknown>) => {
+          const ff = s.freeFormServiceItem as Record<string, unknown> | undefined
+          const label = ff?.label as Record<string, unknown> | undefined
+          return (label?.displayName as string) ?? null
+        })
+        .filter(Boolean)
     }
-
-    const locationPath = toLocationPath(business.google_location_id)
-
-    // Fetch GBP profile: description, categories, services
-    const profileRes = await fetch(
-      `https://mybusinessbusinessinformation.googleapis.com/v1/${locationPath}?readMask=profile,categories,serviceItems`,
-      { headers: { Authorization: `Bearer ${accessToken}` } }
-    )
-    const profileData = await profileRes.json()
-
-    const currentDescription: string = profileData.profile?.description ?? ''
-
-    const currentServices: string[] = (profileData.serviceItems ?? [])
-      .map((s: Record<string, unknown>) => {
-        const ff = s.freeFormServiceItem as Record<string, unknown> | undefined
-        const label = ff?.label as Record<string, unknown> | undefined
-        return (label?.displayName as string) ?? null
-      })
-      .filter(Boolean)
+    // Otherwise: run analysis with empty current data — still useful from competitor benchmarking
 
     // Get competitor data for benchmarking
     const { data: competitors } = await supabase
@@ -138,7 +136,7 @@ Rules:
     }
 
     return NextResponse.json({
-      connected: true,
+      connected: business.google_connected ?? false,
       currentDescription,
       currentServices,
       analysis,
