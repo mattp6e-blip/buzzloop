@@ -68,10 +68,12 @@ async function checkRank(params: {
     body: JSON.stringify({
       textQuery: params.keyword,
       maxResultCount: RANK_SEARCH_LIMIT,
+      // Use a large radius so distance bias is weak — results reflect relevance/prominence
+      // (small radius inflates rank by making the business distance=0, which skews results)
       locationBias: {
         circle: {
           center: { latitude: params.lat, longitude: params.lng },
-          radius: 5000,
+          radius: 25000,
         },
       },
     }),

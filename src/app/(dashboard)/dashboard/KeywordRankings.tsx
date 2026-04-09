@@ -87,7 +87,7 @@ export function KeywordRankings({ isSetup }: { isSetup: boolean }) {
             Keyword rankings
           </p>
           <p className="text-xs mt-0.5" style={{ color: 'var(--ink4)' }}>
-            {syncedLabel ?? 'Your position in local Google search'}
+            {syncedLabel ?? 'Estimated position in local Google search'}
           </p>
         </div>
         {rankings && rankings.length > 0 && (
@@ -127,7 +127,7 @@ export function KeywordRankings({ isSetup }: { isSetup: boolean }) {
               background: 'var(--surface)', border: '1px solid var(--border)',
             }}>
               <RankBadge rank={r.rank} />
-              <p className="text-xs font-medium" style={{ color: 'var(--ink)', flex: 1 }}>{r.keyword}</p>
+              <p className="text-xs font-medium" style={{ color: 'var(--ink)', flex: 1, minWidth: 0 }}>{r.keyword}</p>
             </div>
           ))}
 
