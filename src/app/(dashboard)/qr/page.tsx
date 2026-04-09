@@ -7,6 +7,7 @@ import { GoogleUrlBanner } from './GoogleUrlBanner'
 import { CustomerJourney, QuestionsEditor } from './FlowPreview'
 import { TabBar } from './TabBar'
 import { OutreachClient } from '../outreach/OutreachClient'
+import { ReviewTrendChart } from '../dashboard/ReviewTrendChart'
 
 export default async function QRPage({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
   const { tab } = await searchParams
@@ -26,6 +27,27 @@ export default async function QRPage({ searchParams }: { searchParams: Promise<{
 
   const reviewUrl = `${(process.env.NEXT_PUBLIC_APP_URL ?? '').trim()}/r/${business.slug}`
   const brandColor = business.brand_color ?? '#6366f1'
+
+  // Fetch reviews for trend chart
+  const { data: reviewsData } = await supabase
+    .from('reviews')
+    .select('created_at, star_rating')
+    .eq('business_id', business.id)
+    .order('created_at', { ascending: false })
+
+  const reviewDates = (reviewsData ?? []).map(r => r.created_at)
+  const now = new Date()
+  const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+  const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+  const thisMonthCount = reviewDates.filter(d => new Date(d) >= thisMonthStart).length
+  const lastMonthCount = reviewDates.filter(d => { const dt = new Date(d); return dt >= lastMonthStart && dt < thisMonthStart }).length
+  let velocityLabel: string | null = null
+  if (lastMonthCount > 0 && thisMonthCount > 0) {
+    const ratio = thisMonthCount / lastMonthCount
+    if (ratio >= 1.5) velocityLabel = `↑ ${ratio.toFixed(1)}× vs last month`
+    else if (thisMonthCount > lastMonthCount) velocityLabel = `↑ ${thisMonthCount - lastMonthCount} more than last month`
+    else if (thisMonthCount < lastMonthCount) velocityLabel = `↓ ${lastMonthCount - thisMonthCount} fewer than last month`
+  }
 
   // Fetch outreach stats (table may not exist yet — handle gracefully)
   let outreachStats = { sent: 0, clicked: 0, converted: 0 }
@@ -98,6 +120,10 @@ export default async function QRPage({ searchParams }: { searchParams: Promise<{
               brandColor={brandColor}
               initialQuestions={business.custom_questions ?? null}
             />
+          </div>
+
+          <div className="rounded-2xl border p-6 mb-6" style={{ background: 'white', borderColor: 'var(--border)' }}>
+            <ReviewTrendChart reviewDates={reviewDates} brandColor={brandColor} velocityLabel={velocityLabel} />
           </div>
 
           <div>

@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { ReviewTrendChart } from './ReviewTrendChart'
 import { InsightCards } from './InsightCards'
 import { KeywordRankings } from './KeywordRankings'
 import type { Business, Competitor } from '@/types'
@@ -301,8 +300,6 @@ interface GrowthHubProps {
   reelsPostedThisWeek: number
   avgCompetitorReviews: number | null
   competitors: Competitor[]
-  reviewDates: string[]
-  velocityLabel: string | null
   outreachThisWeek: number
 }
 
@@ -319,8 +316,6 @@ export function GrowthHub({
   reelsPostedThisWeek: _reelsPostedThisWeek,
   avgCompetitorReviews: _avgCompetitorReviews,
   competitors: initialCompetitors,
-  reviewDates,
-  velocityLabel,
   outreachThisWeek: _outreachThisWeek,
 }: GrowthHubProps) {
   const [competitors] = useState(initialCompetitors)
@@ -401,10 +396,6 @@ export function GrowthHub({
         </div>
       </div>
 
-      {/* Row 2 — Review trend */}
-      <div className="rounded-2xl border p-6" style={{ background: 'white', borderColor: 'var(--border)' }}>
-        <ReviewTrendChart reviewDates={reviewDates} brandColor={brandColor} velocityLabel={velocityLabel} />
-      </div>
     </div>
   )
 }

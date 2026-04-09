@@ -406,8 +406,6 @@ export default async function DashboardPage() {
       reelsPostedThisWeek={reelsPostedThisWeek}
       avgCompetitorReviews={avgCompetitorReviews}
       competitors={competitors}
-      reviewDates={allReviews.map(r => r.created_at)}
-      velocityLabel={velocityLabel}
       outreachThisWeek={outreachThisWeek}
     />
   )
