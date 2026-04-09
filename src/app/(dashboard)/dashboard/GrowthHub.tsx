@@ -83,69 +83,97 @@ function CompetitorPanel({
           Refresh
         </button>
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-        {/* Your business */}
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 10,
-          padding: '8px 10px', borderRadius: 10,
-          background: '#f0fdf4', border: '1px solid #bbf7d0',
-        }}>
-          <div style={{
-            width: 22, height: 22, borderRadius: '50%', flexShrink: 0,
-            background: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 10, fontWeight: 700, color: 'white',
-          }}>★</div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <p className="text-xs font-semibold truncate" style={{ color: '#15803d' }}>{businessName}</p>
-              <span style={{ fontSize: 9, fontWeight: 700, color: '#16a34a', background: '#dcfce7', padding: '1px 5px', borderRadius: 3, flexShrink: 0 }}>YOU</span>
-            </div>
-            <p style={{ fontSize: 10, color: '#16a34a', marginTop: 2 }}>{totalReviews} reviews</p>
-          </div>
-        </div>
+      {(() => {
+        // Build a unified sorted list with user inserted at correct position
+        type RankEntry =
+          | { kind: 'you'; reviews: number }
+          | { kind: 'competitor'; data: Competitor; originalRank: number }
 
-        <p style={{ fontSize: 10, color: 'var(--ink4)', textAlign: 'center', padding: '2px 0' }}>
-          — competitors —
-        </p>
+        const ranked = competitors.slice(0, 8)
+        const entries: RankEntry[] = []
+        let userInserted = false
 
-        {competitors.slice(0, 6).map((c, i) => {
-          const types = c.types.filter(t => !NOISE_TYPES.has(t)).slice(0, 2)
-          const gap = c.review_count - totalReviews
-          return (
-            <div key={c.id} style={{
-              display: 'flex', alignItems: 'center', gap: 10,
-              padding: '8px 10px', borderRadius: 10,
-              background: i === 0 ? '#fef2f2' : 'var(--surface)',
-              border: `1px solid ${i === 0 ? '#fecaca' : 'var(--border)'}`,
-            }}>
-              <div style={{
-                width: 22, height: 22, borderRadius: '50%', flexShrink: 0,
-                background: i === 0 ? '#ef4444' : 'var(--border)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 10, fontWeight: 700, color: i === 0 ? 'white' : 'var(--ink3)',
-              }}>{i + 1}</div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <p className="text-xs font-semibold truncate" style={{ color: 'var(--ink)' }}>{c.name}</p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 2, flexWrap: 'wrap' }}>
-                  {c.rating !== null && <span style={{ fontSize: 10, color: 'var(--ink3)' }}>★ {c.rating}</span>}
-                  <span style={{ fontSize: 10, color: 'var(--ink3)' }}>{c.review_count.toLocaleString()} reviews</span>
-                  {types.map(t => (
-                    <span key={t} style={{ fontSize: 9, padding: '1px 5px', borderRadius: 3, background: 'var(--border)', color: 'var(--ink4)' }}>
-                      {formatType(t)}
+        ranked.forEach((c, i) => {
+          if (!userInserted && totalReviews >= c.review_count) {
+            entries.push({ kind: 'you', reviews: totalReviews })
+            userInserted = true
+          }
+          entries.push({ kind: 'competitor', data: c, originalRank: i })
+        })
+        if (!userInserted) entries.push({ kind: 'you', reviews: totalReviews })
+
+        // Limit to 7 entries max, always keeping user visible
+        const userIndex = entries.findIndex(e => e.kind === 'you')
+        const trimmed = entries.slice(0, Math.max(7, userIndex + 1))
+
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {trimmed.map((entry, displayRank) => {
+              if (entry.kind === 'you') {
+                return (
+                  <div key="you" style={{
+                    display: 'flex', alignItems: 'center', gap: 10,
+                    padding: '8px 10px', borderRadius: 10,
+                    background: '#f0fdf4', border: '2px solid #86efac',
+                  }}>
+                    <div style={{
+                      width: 22, height: 22, borderRadius: '50%', flexShrink: 0,
+                      background: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 9, fontWeight: 700, color: 'white',
+                    }}>#{displayRank + 1}</div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <p className="text-xs font-semibold truncate" style={{ color: '#15803d' }}>{businessName}</p>
+                        <span style={{ fontSize: 9, fontWeight: 700, color: '#16a34a', background: '#dcfce7', padding: '1px 5px', borderRadius: 3, flexShrink: 0 }}>YOU</span>
+                      </div>
+                      <p style={{ fontSize: 10, color: '#16a34a', marginTop: 2 }}>{totalReviews} reviews</p>
+                    </div>
+                  </div>
+                )
+              }
+
+              const c = entry.data
+              const isTop = entry.originalRank === 0
+              const gap = c.review_count - totalReviews
+              const types = c.types.filter(t => !NOISE_TYPES.has(t)).slice(0, 2)
+
+              return (
+                <div key={c.id} style={{
+                  display: 'flex', alignItems: 'center', gap: 10,
+                  padding: '8px 10px', borderRadius: 10,
+                  background: isTop ? '#fef2f2' : 'var(--surface)',
+                  border: `1px solid ${isTop ? '#fecaca' : 'var(--border)'}`,
+                }}>
+                  <div style={{
+                    width: 22, height: 22, borderRadius: '50%', flexShrink: 0,
+                    background: isTop ? '#ef4444' : 'var(--border)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 9, fontWeight: 700, color: isTop ? 'white' : 'var(--ink3)',
+                  }}>#{displayRank + 1}</div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p className="text-xs font-semibold truncate" style={{ color: 'var(--ink)' }}>{c.name}</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 2, flexWrap: 'wrap' }}>
+                      {c.rating !== null && <span style={{ fontSize: 10, color: 'var(--ink3)' }}>★ {c.rating}</span>}
+                      <span style={{ fontSize: 10, color: 'var(--ink3)' }}>{c.review_count.toLocaleString()} reviews</span>
+                      {types.map(t => (
+                        <span key={t} style={{ fontSize: 9, padding: '1px 5px', borderRadius: 3, background: 'var(--border)', color: 'var(--ink4)' }}>
+                          {formatType(t)}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  {gap > 0 && (
+                    <span style={{ fontSize: 10, fontWeight: 700, color: '#dc2626', flexShrink: 0 }}
+                      title={`${c.name} has ${gap} more reviews than you`}>
+                      +{gap.toLocaleString()}
                     </span>
-                  ))}
+                  )}
                 </div>
-              </div>
-              {gap > 0 && (
-                <span style={{ fontSize: 10, fontWeight: 700, color: '#dc2626', flexShrink: 0 }}
-                  title={`${c.name} has ${gap} more reviews than you`}>
-                  +{gap.toLocaleString()}
-                </span>
-              )}
-            </div>
-          )
-        })}
-      </div>
+              )
+            })}
+          </div>
+        )
+      })()}
     </div>
   )
 }

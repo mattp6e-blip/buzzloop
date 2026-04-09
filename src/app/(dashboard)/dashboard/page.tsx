@@ -109,141 +109,110 @@ function computeHealthScore(params: {
 
 function generateTasks(params: {
   totalReviews: number
-  thisWeekCount: number
-  lastWeekCount: number
+  recentWeekCount: number  // only last 7 days, no import spikes
   daysSinceLastReview: number | null
   reelsCreated: number
-  draftReels: number
-  photosCount: number
   outreachThisWeek: number
-  instagramConnected: boolean
   googleConnected: boolean
-  city: string | null
+  googleBusinessUrl: string | null
   competitors: Competitor[]
 }): Task[] {
   const {
-    totalReviews, thisWeekCount, lastWeekCount, daysSinceLastReview,
-    reelsCreated, draftReels, photosCount, outreachThisWeek,
-    instagramConnected, googleConnected, city, competitors,
+    totalReviews, recentWeekCount, daysSinceLastReview,
+    reelsCreated, outreachThisWeek, googleConnected,
+    googleBusinessUrl, competitors,
   } = params
 
   const tasks: Task[] = []
 
-  // 1. CRITICAL: competitor review gap
+  // 1. CRITICAL: behind top competitor by more than 20 reviews
   if (competitors.length > 0) {
-    const maxReviews = Math.max(...competitors.map(c => c.review_count))
-    const multiplier = Math.round(maxReviews / Math.max(totalReviews, 1))
-    if (multiplier >= 5) {
-      const top = competitors.find(c => c.review_count === maxReviews)!
+    const top = competitors.reduce((a, b) => a.review_count > b.review_count ? a : b)
+    const gap = top.review_count - totalReviews
+    if (gap > 20) {
       tasks.push({
         id: 'competitor_gap',
-        priority: 'critical',
+        priority: gap > 100 ? 'critical' : 'high',
         icon: '🏆',
-        title: `${top.name} has ${multiplier}× your reviews — close the gap this week`,
-        why: `They have ${maxReviews.toLocaleString()} reviews vs your ${totalReviews}. This directly affects who ranks higher in local search.`,
+        title: `${top.name} leads by ${gap} reviews — close the gap`,
+        why: `More reviews = higher local pack ranking. At your current rate, closing this gap requires consistent weekly outreach.`,
         action: { label: 'Send review requests', href: '/qr?tab=messages' },
       })
     }
   }
 
-  // 2. CRITICAL: review drought
+  // 2. CRITICAL: no new reviews in 14+ days
   if (daysSinceLastReview !== null && daysSinceLastReview >= 14) {
     tasks.push({
       id: 'review_drought',
       priority: 'critical',
       icon: '⚠️',
-      title: `No new reviews in ${daysSinceLastReview} days — your ranking may be slipping`,
-      why: `Google's algorithm weighs recency heavily. Dormant review profiles drop in the local pack within 3–4 weeks.`,
+      title: `No new reviews in ${daysSinceLastReview} days — ranking likely slipping`,
+      why: `Google weights review recency heavily. Profiles that go quiet for 3–4 weeks drop in local search placement.`,
       action: { label: 'Get your QR code', href: '/qr' },
     })
   }
 
-  // 3. HIGH: velocity dropping
-  if (thisWeekCount < lastWeekCount - 2 && daysSinceLastReview !== null && daysSinceLastReview < 14) {
-    const drop = lastWeekCount - thisWeekCount
+  // 3. HIGH: no review requests sent this week
+  if (outreachThisWeek === 0) {
     tasks.push({
-      id: 'velocity_drop',
+      id: 'send_outreach',
       priority: 'high',
-      icon: '📉',
-      title: `Reviews dropped by ${drop} this week — send personalised messages today`,
-      why: `Consistent review velocity is a top local ranking signal. A 2-week dip is recoverable; 4+ weeks is much harder to bounce back from.`,
+      icon: '📲',
+      title: `Send review requests to this week's customers`,
+      why: `Businesses that ask consistently get 2–3× more reviews. Even 3–5 personalised messages per week makes a measurable difference.`,
       action: { label: 'Send messages', href: '/qr?tab=messages' },
     })
   }
 
-  // 4. HIGH: has reviews but no reel yet
+  // 4. HIGH: GBP profile not optimised (connected but may have gaps)
+  if (googleConnected) {
+    tasks.push({
+      id: 'optimise_profile',
+      priority: 'high',
+      icon: '🔧',
+      title: `Optimise your GBP profile to rank for more searches`,
+      why: `Missing keywords in your description and unlisted services mean you're invisible for searches your competitors appear in.`,
+      action: { label: 'View optimisations', href: '/dashboard#insights' },
+    })
+  }
+
+  // 5. HIGH: has reviews but no reel — drives profile visits
   if (totalReviews >= 2 && reelsCreated === 0) {
     tasks.push({
       id: 'first_reel',
       priority: 'high',
       icon: '🎬',
-      title: `Turn your best review into a Reel — highest-ROI action you can take`,
-      why: `Businesses that share review-based content get 40% more profile visits. You have ${totalReviews} reviews ready to use.`,
+      title: `Turn your best review into a Reel`,
+      why: `Social proof content drives 40% more GBP profile visits. You have ${totalReviews} reviews ready to use right now.`,
       action: { label: 'Create a Reel', href: '/reels' },
     })
   }
 
-  // 5. MEDIUM: draft reels not published
-  if (draftReels > 0) {
+  // 6. MEDIUM: add photos directly to GBP (link to their profile, not Buzzloop library)
+  if (googleBusinessUrl) {
     tasks.push({
-      id: 'publish_drafts',
-      priority: 'medium',
-      icon: '📤',
-      title: `${draftReels} Reel${draftReels > 1 ? 's' : ''} in drafts — every day unpublished is missed reach`,
-      why: `Content that never posts never generates customers. It takes 30 seconds to publish.`,
-      action: { label: 'View drafts', href: '/content' },
-    })
-  }
-
-  // 6. MEDIUM: no outreach sent this week
-  if (outreachThisWeek === 0 && totalReviews >= 5) {
-    tasks.push({
-      id: 'send_outreach',
-      priority: 'medium',
-      icon: '📲',
-      title: `No review requests sent this week — reach out to recent customers`,
-      why: `Businesses that send even 3–5 personalised requests per week average 2× more reviews per month.`,
-      action: { label: 'Send requests', href: '/qr?tab=messages' },
-    })
-  }
-
-  // 7. MEDIUM: low photos
-  if (photosCount < 10) {
-    tasks.push({
-      id: 'add_photos',
+      id: 'add_gbp_photos',
       priority: 'medium',
       icon: '📸',
-      title: `Add ${10 - photosCount} more photos — businesses with 10+ get 42% more calls`,
-      why: `Google gives higher local pack placement to profiles with active, high-quality photo uploads. You have ${photosCount} so far.`,
-      action: { label: 'Upload photos', href: '/media' },
+      title: `Add fresh photos to your Google Business Profile`,
+      why: `GBP profiles updated with photos in the last 30 days rank higher in the local pack. Aim for 1–2 new photos per week.`,
+      action: { label: 'Open GBP profile', href: googleBusinessUrl },
     })
   }
 
-  // 8. LOW: Instagram not connected
-  if (reelsCreated > 0 && !instagramConnected) {
+  // 7. MEDIUM: low recent reviews despite no drought (gentle nudge)
+  if (recentWeekCount === 0 && (daysSinceLastReview === null || daysSinceLastReview < 14)) {
     tasks.push({
-      id: 'connect_instagram',
-      priority: 'low',
-      icon: '📷',
-      title: `Connect Instagram to post Reels in one click`,
-      why: `You've created ${reelsCreated} Reel${reelsCreated > 1 ? 's' : ''} that aren't reaching anyone yet. Posting takes seconds once connected.`,
-      action: { label: 'Connect Instagram', href: '/api/auth/instagram' },
+      id: 'no_reviews_this_week',
+      priority: 'medium',
+      icon: '⭐',
+      title: `No new reviews this week — remind recent customers`,
+      why: `A steady stream of reviews (even 1–2 per week) signals an active business to Google's ranking algorithm.`,
+      action: { label: 'Send QR code link', href: '/qr' },
     })
   }
 
-  // 9. LOW: city not set
-  if (!city) {
-    tasks.push({
-      id: 'set_city',
-      priority: 'low',
-      icon: '📍',
-      title: `Set your city for location-specific content and SEO`,
-      why: `Location keywords in your content improve visibility in "near me" and city-based Google searches.`,
-      action: { label: 'Update settings', href: '/settings' },
-    })
-  }
-
-  // Priority order: critical → high → medium → low, max 5
   const ORDER = { critical: 0, high: 1, medium: 2, low: 3 }
   return tasks.sort((a, b) => ORDER[a.priority] - ORDER[b.priority]).slice(0, 5)
 }
@@ -374,19 +343,20 @@ export default async function DashboardPage() {
     outreachThisMonth,
   })
 
-  // Tasks
+  // Tasks — use recentWeekCount (organic only) to avoid import spike false triggers
+  const recentWeekCount = allReviews.filter(r => new Date(r.created_at) >= weekAgo).length
+  const googleBusinessUrl = business.google_place_id
+    ? `https://search.google.com/local/writereview?placeid=${business.google_place_id}`
+    : null
+
   const tasks = generateTasks({
     totalReviews,
-    thisWeekCount,
-    lastWeekCount,
+    recentWeekCount,
     daysSinceLastReview,
     reelsCreated,
-    draftReels,
-    photosCount,
     outreachThisWeek,
-    instagramConnected: business.instagram_connected ?? false,
     googleConnected: business.google_connected ?? false,
-    city: business.city ?? null,
+    googleBusinessUrl,
     competitors,
   })
 
