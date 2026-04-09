@@ -72,6 +72,7 @@ function OnboardingInner() {
   const [logoPreview, setLogoPreview] = useState<string | null>(null)
   const [brandColor, setBrandColor] = useState('#6366f1')
   const [colorExtracted, setColorExtracted] = useState(false)
+  const [websiteUrl, setWebsiteUrl] = useState('')
   const [googleConnected, setGoogleConnected] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -118,10 +119,14 @@ function OnboardingInner() {
       .eq('user_id', user.id)
       .single()
 
+    const cleanWebsite = websiteUrl.trim()
+      ? (websiteUrl.trim().startsWith('http') ? websiteUrl.trim() : `https://${websiteUrl.trim()}`)
+      : null
+
     const payload: Record<string, unknown> = {
       name: businessName,
       industry,
-      website_url: null,
+      website_url: cleanWebsite,
       brand_color: brandColor,
       slug,
       ...(industry === 'other' && customIndustry.trim() && {
@@ -152,6 +157,15 @@ function OnboardingInner() {
           brand_extracted: true,
         }).eq('id', businessId)
       }
+    }
+
+    // Kick off website brand extraction in the background (fire-and-forget)
+    if (cleanWebsite && businessId) {
+      fetch('/api/extract-brand', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ businessId, websiteUrl: cleanWebsite }),
+      }).catch(() => { /* non-critical */ })
     }
 
     router.push('/dashboard')
@@ -311,6 +325,24 @@ function OnboardingInner() {
                     <div className="w-8 h-8 rounded-lg" style={{ background: brandColor + '33' }} />
                   </div>
                 </div>
+              </div>
+
+              {/* Website URL */}
+              <div className="mt-5">
+                <label className="text-sm font-medium block mb-2" style={{ color: 'var(--ink2)' }}>
+                  Website <span style={{ color: 'var(--ink4)', fontWeight: 400 }}>(optional)</span>
+                </label>
+                <input
+                  type="url"
+                  value={websiteUrl}
+                  onChange={e => setWebsiteUrl(e.target.value)}
+                  placeholder="e.g. harmonia-dental.com"
+                  className="w-full px-4 py-3 rounded-xl text-sm"
+                  style={{ border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--ink)', outline: 'none' }}
+                />
+                <p className="text-xs mt-1.5" style={{ color: 'var(--ink4)' }}>
+                  Buzzloop reads your website so the AI knows exactly what you offer — makes Reels and keyword suggestions far more accurate.
+                </p>
               </div>
 
               <div className="flex gap-3 mt-7">

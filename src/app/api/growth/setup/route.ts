@@ -28,6 +28,7 @@ async function placesRequest(path: string, body: object, apiKey: string) {
         'places.photos',
         'places.reviews',
         'places.location',
+        'places.websiteUri',
       ].join(','),
     },
     body: JSON.stringify(body),
@@ -75,14 +76,27 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Could not determine your business location.' }, { status: 422 })
     }
 
-    // Step 2: Save the user's Place ID + location
+    // Step 2: Save the user's Place ID + location + website (if not already set)
+    const websiteFromPlaces = selfPlace.websiteUri ?? null
+    const businessUpdate: Record<string, unknown> = {
+      google_place_id: placeId,
+      google_place_location: { lat: location.latitude, lng: location.longitude },
+    }
+    if (websiteFromPlaces) businessUpdate.website_url = websiteFromPlaces
+
     await supabase
       .from('businesses')
-      .update({
-        google_place_id: placeId,
-        google_place_location: { lat: location.latitude, lng: location.longitude },
-      })
+      .update(businessUpdate)
       .eq('id', business.id)
+
+    // Kick off brand extraction if we got a website URL from Places
+    if (websiteFromPlaces) {
+      fetch(`${process.env.NEXT_PUBLIC_APP_URL ?? ''}/api/extract-brand`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ businessId: business.id, websiteUrl: websiteFromPlaces }),
+      }).catch(() => { /* non-critical */ })
+    }
 
     // Step 3: searchNearby to auto-discover local competitors (who's ranking near them)
     const primaryType = selfPlace.primaryType ?? selfPlace.types?.[0] ?? 'point_of_interest'
