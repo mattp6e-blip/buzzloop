@@ -33,7 +33,25 @@ export interface Business {
   business_context: string | null   // AI-generated summary: services, target audience, differentiators
   staff_members: string[]
   gbp_photos: string[]              // URLs of GBP media photos (800px+ only)
+  uploaded_photos: string[]         // User-uploaded photos
   last_gbp_sync_at: string | null
+  google_connected: boolean
+  instagram_connected: boolean
+}
+
+export interface Competitor {
+  id: string
+  business_id: string
+  google_place_id: string
+  name: string
+  url: string | null
+  rating: number | null
+  review_count: number
+  types: string[]
+  photo_count: number
+  raw_data: Record<string, unknown> | null
+  last_synced_at: string
+  created_at: string
 }
 
 export interface Review {
