@@ -1,7 +1,7 @@
 import { Fragment } from 'react'
 import { useCurrentFrame, useVideoConfig, interpolate, spring } from 'remotion'
 
-type TextAnim = 'fade-up' | 'scale-in' | 'slide-left' | 'typewriter' | 'word-reveal'
+type TextAnim = 'fade-up' | 'scale-in' | 'slide-left' | 'typewriter' | 'word-reveal' | 'slam'
 
 interface AnimatedTextProps {
   text: string
@@ -66,33 +66,20 @@ export function AnimatedText({ text, style, anim, delay = 0, highlightWords = []
     )
   }
 
-  if (anim === 'word-reveal') {
-    const words = text.split(' ')
-    const stagger = 5 // frames between each word (at 30fps ≈ 4–5 words/sec)
+  if (anim === 'word-reveal' || anim === 'slam') {
+    // Slam: entire block hits at once — snappy spring from slight scale+translateY
+    const s = spring({ frame: f, fps, config: { stiffness: 280, damping: 18 } })
+    const scale = interpolate(s, [0, 1], [1.06, 1])
+    const translateY = interpolate(s, [0, 1], [24, 0])
+    const opacity = interpolate(f, [0, 5], [0, 1], { extrapolateRight: 'clamp' })
     return (
-      <div style={baseStyle}>
-        {words.map((word, i) => {
-          const wf = Math.max(0, f - i * stagger)
-          const opacity = interpolate(wf, [0, 8], [0, 1], { extrapolateRight: 'clamp' })
-          const translateY = interpolate(wf, [0, 8], [10, 0], { extrapolateRight: 'clamp' })
-          const isHighlight = highlightWords.some(
-            hw => hw.toLowerCase() === word.replace(/[^a-zA-Z0-9]/g, '').toLowerCase()
-          )
-          return (
-            <Fragment key={i}>
-              <span style={{
-                opacity,
-                transform: `translateY(${translateY}px)`,
-                display: 'inline-block',
-                color: isHighlight ? highlightColor : 'inherit',
-                fontWeight: isHighlight ? 800 : 'inherit',
-              }}>
-                {word}
-              </span>
-              {i < words.length - 1 && ' '}
-            </Fragment>
-          )
-        })}
+      <div style={{
+        ...baseStyle,
+        opacity,
+        transform: `translateY(${translateY}px) scale(${scale})`,
+        transformOrigin: 'left center',
+      }}>
+        <HighlightText text={text} words={highlightWords} color={highlightColor} />
       </div>
     )
   }

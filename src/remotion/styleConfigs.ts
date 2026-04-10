@@ -20,10 +20,10 @@ export function getDarkColors(industry: string): { top: string; bottom: string }
 
 // Template metadata
 export const TEMPLATE_CONFIGS: Record<VisualTemplate, {
-  textAnim: 'fade-up' | 'scale-in' | 'word-reveal'
+  textAnim: 'fade-up' | 'scale-in' | 'slam'
   logo: 'corner' | 'center' | 'none'
 }> = {
-  immersive: { textAnim: 'word-reveal', logo: 'corner' },
+  immersive: { textAnim: 'slam', logo: 'corner' },
   collage:   { textAnim: 'fade-up',     logo: 'corner' },
   editorial: { textAnim: 'scale-in',    logo: 'none'   },
 }

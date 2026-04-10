@@ -42,8 +42,8 @@ export function InsightScene({ headline, subline, brandColor, industry, motif, m
 
         <AnimatedText
           text={headline}
-          anim="word-reveal"
-          delay={12}
+          anim="slam"
+          delay={8}
           style={{
             fontSize: 68,
             fontWeight: 900,
