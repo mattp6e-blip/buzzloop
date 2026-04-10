@@ -253,6 +253,7 @@ YOUR RULES:
 3. Never name the business or sound like an ad
 4. If the anchor sentence fits a framework well enough to stand alone — use it with minimal editing
 5. Max 10 words
+6. FIRST-PERSON RULE: "I..." hooks are only allowed if the sentence is completely self-contained and unmistakably surprising with zero context. A stranger reading it with no knowledge of the business must instantly understand what "I" did and why it's remarkable. Test: "I fell asleep in the dentist's chair" ✓ (self-contained, surprising). "I didn't notice a thing" ✗ (what thing? no context). "I came back the next day" ✗ (back where? why surprising?). If the first-person sentence fails this test — convert to third person: "She didn't notice a thing during the whole procedure." / "He came back the very next day."
 
 PROCESS:
 Step 1: Read the anchor sentence. Which of the 6 frameworks does it best fit?
