@@ -347,7 +347,7 @@ const CLUSTER_CONFIGS: Record<ClusterName, ClusterConfig> = {
   },
 }
 
-function getClusterConfig(industry: string): ClusterConfig {
+export function getClusterConfig(industry: string): ClusterConfig {
   const clusterName = INDUSTRY_TO_CLUSTER[industry] ?? 'default'
   return CLUSTER_CONFIGS[clusterName]
 }

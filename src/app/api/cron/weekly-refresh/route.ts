@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { createServiceClient } from '@/lib/supabase/service'
-import { buildReviewList, getAnalysisPrompt, getVarietyPrompt } from '@/app/api/analyze-reviews/route'
+import { buildReviewList, getAnalysisPrompt, getVarietyPrompt, getClusterConfig } from '@/app/api/analyze-reviews/route'
 import type { Review, ReelTheme } from '@/types'
 
 function currentWeekOf(): string {
@@ -59,18 +59,20 @@ async function refreshBusiness(businessId: string, businessName: string, industr
   const language = detectLanguage(gbpReviews)
   const langSystem = `You must respond in ${language} only. Every word of your JSON output must be in ${language}.`
 
+  const cluster = getClusterConfig(industry)
+
   const [proofMessage, varietyMessage] = await Promise.all([
     anthropic.messages.create({
       model: 'claude-opus-4-6',
       max_tokens: 2000,
       system: langSystem,
-      messages: [{ role: 'user', content: getAnalysisPrompt(reviewList, industry, businessName, gbpReviews.length, language) }],
+      messages: [{ role: 'user', content: getAnalysisPrompt(reviewList, industry, businessName, gbpReviews.length, language, cluster.counts.socialProof) }],
     }),
     anthropic.messages.create({
       model: 'claude-opus-4-6',
       max_tokens: 2500,
       system: langSystem,
-      messages: [{ role: 'user', content: getVarietyPrompt(industry, businessName, reviewList, language, businessContext) }],
+      messages: [{ role: 'user', content: getVarietyPrompt(industry, businessName, reviewList, language, businessContext, cluster) }],
     }),
   ])
 
