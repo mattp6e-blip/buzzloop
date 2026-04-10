@@ -15,7 +15,7 @@ const BORDER = '#e8e5df'
 
 const TESTIMONIALS = [
   {
-    quote: "We went from #8 to #3 on Google Maps in six weeks. The QR code alone doubled our monthly reviews — without us asking a single customer manually.",
+    quote: "We went from #8 to #3 on Google Maps in six weeks. The QR code alone doubled our monthly reviews, without us asking a single customer manually.",
     name: "James Whitfield",
     business: "CrossFit gym, Austin TX",
   },
@@ -60,7 +60,7 @@ function TestimonialCarousel() {
   const t = TESTIMONIALS[current]
 
   return (
-    <div style={{ textAlign: 'center', padding: '72px 24px', maxWidth: 660, margin: '0 auto' }}>
+    <div style={{ textAlign: 'center', padding: '40px 24px', maxWidth: 660, margin: '0 auto' }}>
       <div style={{
         opacity: fading ? 0 : 1,
         transform: fading ? 'translateY(6px)' : 'translateY(0)',
@@ -108,7 +108,7 @@ function TestimonialCarousel() {
 const FAQS = [
   {
     q: "How quickly will I see more Google reviews?",
-    a: "Most businesses see their first new reviews within 48 hours of placing their QR code. On average, Buzzloop users get 3x more reviews per month than before — because the process is so fast customers actually do it.",
+    a: "Most businesses see their first new reviews within 48 hours of placing their QR code. On average, Buzzloop users get 3x more reviews per month than before, because the process is so fast customers actually do it.",
   },
   {
     q: "Will this actually improve my Google Maps ranking?",
@@ -116,11 +116,11 @@ const FAQS = [
   },
   {
     q: "How does the QR review flow work?",
-    a: "A customer scans your QR code, answers up to 3 quick questions on a branded mobile page, and Buzzloop drafts a polished Google review for them. They tap once to post it. The whole thing takes under 10 seconds — no friction, no drop-off.",
+    a: "A customer scans your QR code, answers up to 3 quick questions on a branded mobile page, and Buzzloop drafts a polished Google review for them. They tap once to post it. The whole thing takes under 10 seconds with no friction and no drop-off.",
   },
   {
     q: "What kind of social content does it create?",
-    a: "Buzzloop reads your real Google reviews, finds the most compelling stories, and turns them into premium short-form video reels — branded to your colors and logo. Not generic templates. Actual content built from what your customers say.",
+    a: "Buzzloop reads your real Google reviews, finds the most compelling stories, and turns them into premium short-form video reels branded to your colors and logo. Not generic templates. Actual content built from what your customers say.",
   },
   {
     q: "Do I need to be a technical person to set this up?",
@@ -132,7 +132,7 @@ const FAQS = [
   },
   {
     q: "How does the AI review reply tool work?",
-    a: "Buzzloop reads each Google review and generates a short, personalized reply in the same language as the review — using your brand tone and business context. You can edit it before posting, or post directly to Google in one click.",
+    a: "Buzzloop reads each Google review and generates a short, personalized reply in the same language as the review, using your brand tone and business context. You can edit it before posting, or post directly to Google in one click.",
   },
   {
     q: "Can I cancel anytime?",
@@ -207,13 +207,13 @@ function FeatureRow({ label, sublabel, free, pro }: typeof FEATURES[0]) {
         {typeof free === 'string'
           ? <span style={{ fontSize: 12, fontWeight: 600, color: INK3, background: BG, padding: '3px 8px', borderRadius: 6 }}>{free}</span>
           : free ? <span style={{ color: '#16a34a', fontSize: 17 }}>✓</span>
-          : <span style={{ color: '#d1d5db', fontSize: 14 }}>—</span>}
+          : <span style={{ color: '#d1d5db', fontSize: 14 }}>×</span>}
       </div>
       <div style={{ textAlign: 'center' }}>
         {typeof pro === 'string'
           ? <span style={{ fontSize: 12, fontWeight: 700, color: ORANGE, background: '#fff2ed', padding: '3px 8px', borderRadius: 6 }}>{pro}</span>
           : pro ? <span style={{ color: '#16a34a', fontSize: 17 }}>✓</span>
-          : <span style={{ color: '#d1d5db', fontSize: 14 }}>—</span>}
+          : <span style={{ color: '#d1d5db', fontSize: 14 }}>×</span>}
       </div>
     </div>
   )
@@ -288,14 +288,14 @@ export function PricingPage() {
           </Link>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {[
-              ['🔲', 'Branded QR code that drives reviews on autopilot'],
-              ['📱', 'Custom review page — customers post in under 10 seconds'],
-              ['🎬', 'See your AI-generated reels (upgrade to download)'],
-              ['📍', 'Track 3 local keywords and your Google Maps position'],
-              ['📊', 'Competitor ranking tracker'],
-            ].map(([icon, text]) => (
+              'Branded QR code that drives reviews on autopilot',
+              'Custom review page, customers post in under 10 seconds',
+              'See your AI-generated reels (upgrade to download)',
+              'Track 3 local keywords and your Google Maps position',
+              'Competitor ranking tracker',
+            ].map((text) => (
               <div key={text} style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-                <span style={{ fontSize: 14, flexShrink: 0, marginTop: 1 }}>{icon}</span>
+                <span style={{ fontSize: 11, color: '#16a34a', flexShrink: 0, marginTop: 3 }}>✓</span>
                 <span style={{ fontSize: 13, color: '#475569', lineHeight: 1.45 }}>{text}</span>
               </div>
             ))}
@@ -337,15 +337,15 @@ export function PricingPage() {
           </Link>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {[
-              ['🎬', 'Download & share premium reels — straight from your reviews'],
-              ['💬', 'AI reply tool writes perfect responses to every Google review'],
-              ['📲', 'SMS outreach — text customers to get reviews automatically'],
-              ['🔍', 'Track unlimited keywords — see every search you rank for'],
-              ['📝', 'GBP optimizer rewrites your profile to rank for more searches'],
-              ['📮', 'Post replies directly to Google with one click'],
-            ].map(([icon, text]) => (
+              'Download and share premium reels from your reviews',
+              'AI reply tool writes perfect responses to every Google review',
+              'SMS outreach to text customers and get reviews automatically',
+              'Track unlimited keywords and every search you rank for',
+              'GBP optimizer rewrites your profile to rank for more searches',
+              'Post replies directly to Google with one click',
+            ].map((text) => (
               <div key={text} style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-                <span style={{ fontSize: 14, flexShrink: 0, marginTop: 1 }}>{icon}</span>
+                <span style={{ fontSize: 11, color: ORANGE, flexShrink: 0, marginTop: 3 }}>✓</span>
                 <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', lineHeight: 1.45 }}>{text}</span>
               </div>
             ))}
@@ -353,12 +353,9 @@ export function PricingPage() {
         </div>
       </div>
 
-      {/* Value statement */}
-      <div style={{ textAlign: 'center', padding: '0 24px 72px', maxWidth: 560, margin: '0 auto' }}>
-        <p style={{ fontSize: 15, color: INK3, lineHeight: 1.7 }}>
-          For a dental clinic, <strong style={{ color: INK }}>one new patient from better Google ranking</strong> pays for Buzzloop for the entire year.
-          For a restaurant, it&apos;s one extra table on a Friday night.
-        </p>
+      {/* Testimonials — right under plans */}
+      <div style={{ background: 'white', borderTop: `1px solid ${BORDER}`, borderBottom: `1px solid ${BORDER}`, marginBottom: 80 }}>
+        <TestimonialCarousel />
       </div>
 
       {/* Feature comparison */}
@@ -374,11 +371,6 @@ export function PricingPage() {
           </div>
           {FEATURES.map(f => <FeatureRow key={f.label} {...f} />)}
         </div>
-      </div>
-
-      {/* Testimonials */}
-      <div style={{ background: 'white', borderTop: `1px solid ${BORDER}`, borderBottom: `1px solid ${BORDER}`, marginBottom: 80 }}>
-        <TestimonialCarousel />
       </div>
 
       {/* FAQ */}
