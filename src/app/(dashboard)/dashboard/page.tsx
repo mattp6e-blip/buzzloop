@@ -116,13 +116,13 @@ function generateTasks(params: {
   googleConnected: boolean
   googlePlaceId: string | null
   googleBusinessUrl: string | null
-  hasUnrespondedNegative: boolean  // any 1-3 star reviews in last 60 days
+  unrepliedCount: number
   competitors: Competitor[]
 }): Task[] {
   const {
     totalReviews, recentWeekCount, daysSinceLastReview,
     reelsCreated, outreachThisWeek, googleConnected,
-    googlePlaceId, googleBusinessUrl, hasUnrespondedNegative, competitors,
+    googlePlaceId, googleBusinessUrl, unrepliedCount, competitors,
   } = params
 
   const tasks: Task[] = []
@@ -155,15 +155,15 @@ function generateTasks(params: {
     })
   }
 
-  // 3. HIGH: unanswered negative reviews — responding publicly is a ranking + trust signal
-  if (hasUnrespondedNegative) {
+  // 3. HIGH: unreplied reviews — responding to all reviews is a ranking + trust signal
+  if (unrepliedCount > 0) {
     tasks.push({
       id: 'respond_reviews',
       priority: 'high',
       icon: '💬',
-      title: `Respond to your recent negative reviews`,
-      why: `Google surfaces businesses that engage with customers. A public response to a 1–3 star review shows care and can recover trust with future customers reading it.`,
-      action: { label: 'Respond on Google', href: 'https://business.google.com/reviews' },
+      title: `${unrepliedCount} review${unrepliedCount > 1 ? 's' : ''} without a reply`,
+      why: `Google rewards businesses that engage with every reviewer. Replying publicly shows care and improves local pack visibility — takes under 2 minutes with AI.`,
+      action: { label: 'Reply to reviews', href: '/reviews?tab=reply' },
     })
   }
 
@@ -267,7 +267,7 @@ export default async function DashboardPage() {
   const [reviewsRes, postsRes, competitorsRes] = await Promise.all([
     supabase
       .from('reviews')
-      .select('star_rating, created_at, posted_to_google, remarkability_score')
+      .select('star_rating, created_at, posted_to_google, remarkability_score, has_owner_reply, gbp_review_id')
       .eq('business_id', business.id)
       .order('created_at', { ascending: false }),
     supabase
@@ -372,10 +372,9 @@ export default async function DashboardPage() {
   // Tasks — use recentWeekCount (organic only) to avoid import spike false triggers
   const recentWeekCount = allReviews.filter(r => new Date(r.created_at) >= weekAgo).length
   const googleBusinessUrl = business.google_business_url ?? null
-  const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000)
-  const hasUnrespondedNegative = allReviews.some(
-    r => r.star_rating <= 3 && new Date(r.created_at) >= sixtyDaysAgo
-  )
+  const unrepliedCount = allReviews.filter(
+    r => r.gbp_review_id && !r.has_owner_reply
+  ).length
 
   const tasks = generateTasks({
     totalReviews,
@@ -386,7 +385,7 @@ export default async function DashboardPage() {
     googleConnected: business.google_connected ?? false,
     googlePlaceId: business.google_place_id ?? null,
     googleBusinessUrl,
-    hasUnrespondedNegative,
+    unrepliedCount,
     competitors,
   })
 

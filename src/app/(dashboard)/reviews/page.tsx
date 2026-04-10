@@ -15,11 +15,20 @@ export default async function ReviewsPage() {
 
   if (!business) redirect('/onboarding')
 
-  const { data: allReviews } = await supabase
-    .from('reviews')
-    .select('*')
-    .eq('business_id', business.id)
-    .gte('star_rating', 4)
+  const [{ data: allReviews }, { data: unrepliedReviews }] = await Promise.all([
+    supabase
+      .from('reviews')
+      .select('*')
+      .eq('business_id', business.id)
+      .gte('star_rating', 4),
+    supabase
+      .from('reviews')
+      .select('*')
+      .eq('business_id', business.id)
+      .eq('has_owner_reply', false)
+      .not('gbp_review_id', 'is', null)
+      .order('created_at', { ascending: false }),
+  ])
 
   // Score and sort by Instagrammable potential
   function scoreReview(text: string, rating: number): number {
@@ -61,6 +70,7 @@ export default async function ReviewsPage() {
       <ReviewsClient
         googleConnected={business.google_connected}
         initialReviews={reviews}
+        unrepliedReviews={unrepliedReviews ?? []}
         businessName={business.name}
         industry={business.industry}
         brandColor={business.brand_color}

@@ -1,10 +1,12 @@
 import { SupabaseClient } from '@supabase/supabase-js'
 
 interface GBPReview {
+  name: string  // full resource name e.g. "accounts/123/locations/456/reviews/abc"
   starRating: string
   comment?: string
   reviewer?: { displayName?: string }
   createTime?: string
+  reviewReply?: { comment?: string }  // present if owner has replied
 }
 
 interface GBPMediaItem {
@@ -136,45 +138,68 @@ export async function syncGoogleReviews(
     await supabase.from('businesses').update({ gbp_photos: photos }).eq('id', businessId)
   }
 
-  // Keep 4+5 star reviews with substantive text
-  const qualifying = allReviews.filter(r =>
-    (r.starRating === 'FIVE' || r.starRating === 'FOUR') &&
-    r.comment && r.comment.length >= 30
-  )
-
-  if (!qualifying.length) {
-    await supabase.from('businesses').update({ last_gbp_sync_at: new Date().toISOString() }).eq('id', businessId)
-    return { imported: 0, total: 0 }
+  const starMap: Record<string, number> = {
+    ONE: 1, TWO: 2, THREE: 3, FOUR: 4, FIVE: 5,
   }
 
-  // Deduplicate against existing reviews
+  // All reviews with any text content
+  const qualifying = allReviews.filter(r => r.comment && r.comment.trim().length > 0)
+
+  await supabase.from('businesses').update({ last_gbp_sync_at: new Date().toISOString() }).eq('id', businessId)
+
+  if (!qualifying.length) return { imported: 0, total: 0 }
+
+  // Fetch existing reviews by gbp_review_id for upsert logic
   const { data: existing } = await supabase
     .from('reviews')
-    .select('what_they_liked')
+    .select('id, gbp_review_id, what_they_liked')
     .eq('business_id', businessId)
 
-  const existingTexts = new Set(existing?.map((r: { what_they_liked: string }) => r.what_they_liked) ?? [])
+  const existingByGbpId = new Map(
+    (existing ?? [])
+      .filter((r: { gbp_review_id: string | null }) => r.gbp_review_id)
+      .map((r: { id: string; gbp_review_id: string }) => [r.gbp_review_id, r.id])
+  )
+  const existingByText = new Set(
+    (existing ?? []).map((r: { what_they_liked: string }) => r.what_they_liked)
+  )
 
-  const toInsert = qualifying
-    .filter(r => !existingTexts.has(r.comment!))
-    .map(r => ({
-      business_id: businessId,
-      star_rating: r.starRating === 'FIVE' ? 5 : 4,
-      what_they_liked: r.comment!,
-      customer_name: r.reviewer?.displayName ?? null,
-      ai_draft: r.comment!,
-      posted_to_google: true,
-      created_at: r.createTime ?? new Date().toISOString(),
-    }))
+  const toInsert: object[] = []
+  const toUpdate: { id: string; has_owner_reply: boolean }[] = []
+
+  for (const r of qualifying) {
+    const hasReply = !!r.reviewReply?.comment
+    const starRating = starMap[r.starRating] ?? 3
+
+    if (existingByGbpId.has(r.name)) {
+      // Update reply status on existing record
+      toUpdate.push({ id: existingByGbpId.get(r.name)!, has_owner_reply: hasReply })
+    } else if (!existingByText.has(r.comment!)) {
+      // New review — insert
+      toInsert.push({
+        business_id: businessId,
+        star_rating: starRating,
+        what_they_liked: r.comment!,
+        customer_name: r.reviewer?.displayName ?? null,
+        ai_draft: r.comment!,
+        posted_to_google: true,
+        has_owner_reply: hasReply,
+        gbp_review_id: r.name,
+        created_at: r.createTime ?? new Date().toISOString(),
+      })
+    }
+  }
 
   if (toInsert.length > 0) {
     await supabase.from('reviews').insert(toInsert)
   }
 
-  // Update sync timestamp
-  await supabase.from('businesses').update({ last_gbp_sync_at: new Date().toISOString() }).eq('id', businessId)
+  // Update reply status for existing records in batches
+  for (const { id, has_owner_reply } of toUpdate) {
+    await supabase.from('reviews').update({ has_owner_reply }).eq('id', id)
+  }
 
-  // Trigger remarkability scoring for new reviews (fire-and-forget)
+  // Trigger remarkability scoring for new high-quality reviews (fire-and-forget)
   if (toInsert.length > 0 && process.env.NEXT_PUBLIC_APP_URL) {
     fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/score-reviews`, {
       method: 'POST',

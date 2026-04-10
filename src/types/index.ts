@@ -70,6 +70,8 @@ export interface Review {
   remarkability_score: number | null
   anchor_sentence: string | null
   remarkability_signal: string | null
+  has_owner_reply: boolean
+  gbp_review_id: string | null
 }
 
 export type ReelContentType =
