@@ -406,32 +406,42 @@ function ReelFeed({ themes, brandColor, savedThemeTitles, seenThemes, savedPosts
     return !bucket || bucket.length < VARIETY_ROW_THRESHOLD
   })
 
-  // Next Monday date
-  const nextMonday = (() => {
-    const d = new Date()
-    const day = d.getDay()
-    const daysUntil = day === 0 ? 1 : day === 1 ? 7 : 8 - day
-    d.setDate(d.getDate() + daysUntil)
-    return d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' })
+  // This week's date range (Mon–Sun) and next Monday
+  const { weekRange, nextMonday } = (() => {
+    const today = new Date()
+    const day = today.getDay()
+    const monday = new Date(today)
+    monday.setDate(today.getDate() - (day === 0 ? 6 : day - 1))
+    const sunday = new Date(monday)
+    sunday.setDate(monday.getDate() + 6)
+    const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+    const nextMon = new Date(monday)
+    nextMon.setDate(monday.getDate() + 7)
+    return {
+      weekRange: `${fmt(monday)} - ${fmt(sunday)}`,
+      nextMonday: fmt(nextMon),
+    }
   })()
 
   return (
     <div>
-      {/* Weekly cadence notice */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 8,
-        padding: '10px 14px',
-        borderRadius: 10,
-        marginBottom: 28,
-        background: 'var(--accent-bg)',
-        border: '1px solid var(--accent-border, var(--border))',
-      }}>
-        <span style={{ fontSize: 14 }}>✦</span>
-        <p style={{ fontSize: 13, color: 'var(--ink2)', margin: 0 }}>
-          <strong style={{ fontWeight: 600 }}>Fresh ideas arrive every Monday.</strong>{' '}
-          <span style={{ color: 'var(--ink3)' }}>Next batch: {nextMonday}. Build and post this week&apos;s ideas in the meantime.</span>
+      {/* Weekly batch header */}
+      <div style={{ marginBottom: 28 }}>
+        <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--ink)', margin: '0 0 4px', letterSpacing: '-0.02em' }}>
+          Your Social Clips for this week
+        </h1>
+        <p style={{ fontSize: 13, color: 'var(--ink3)', margin: 0 }}>
+          <span style={{
+            display: 'inline-block',
+            fontWeight: 600,
+            color: 'var(--accent)',
+            background: 'var(--accent-bg)',
+            borderRadius: 6,
+            padding: '1px 8px',
+            marginRight: 6,
+            fontSize: 12,
+          }}>{weekRange}</span>
+          New batch arrives {nextMonday}
         </p>
       </div>
 
