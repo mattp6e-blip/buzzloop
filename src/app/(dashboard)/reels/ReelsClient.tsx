@@ -103,6 +103,20 @@ export function ReelsClient({ reviews, businessId, businessName, industry, brand
     } catch {}
   }, [themes, seenThemes, savedThemeTitles])
 
+  // Mark all visible themes as seen after 3s — "new" badge only shows on first visit
+  useEffect(() => {
+    if (!themes || themes.length === 0) return
+    const timer = setTimeout(() => {
+      const key = `seen_themes_${businessId}`
+      setSeenThemes(prev => {
+        const updated = new Set([...prev, ...themes.map(t => t.title)])
+        try { localStorage.setItem(key, JSON.stringify([...updated])) } catch {}
+        return updated
+      })
+    }, 3000)
+    return () => clearTimeout(timer)
+  }, [themes, businessId])
+
   useEffect(() => {
     if (brandExtracted || !websiteUrl) return
     setExtracting(true)
