@@ -163,33 +163,6 @@ function SectionRanking() {
   )
 }
 
-// ─── Section C: Social content ────────────────────────────────────────────────
-
-function SectionContent() {
-  return (
-    <section style={{ background: '#f5f3ef', padding: '96px 40px 0' }}>
-      {/* Header */}
-      <div style={{ maxWidth: 680, margin: '0 auto', textAlign: 'center', paddingBottom: 72 }}>
-        <p style={{ fontSize: 11, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 14 }}>Social content</p>
-        <h2 style={{ fontSize: 'clamp(1.9rem, 3vw, 2.6rem)', fontWeight: 900, color: INK, margin: '0 0 16px', letterSpacing: '-0.03em', lineHeight: 1.1 }}>
-          Your reviews are your best marketing asset.
-        </h2>
-        <p style={{ fontSize: 16, color: INK3, lineHeight: 1.75, margin: '0 auto 36px', maxWidth: 540 }}>
-          AI reads your Google reviews, finds the most compelling stories, and turns them into premium branded Social Clips — ready to post on Instagram, TikTok, or anywhere.
-        </p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px 32px', textAlign: 'left', maxWidth: 640, margin: '0 auto' }}>
-          <Bullet title="Branded Social Clips from real reviews" body="Not generic templates — actual content built from what your customers say." />
-          <Bullet title="Download and post anywhere" body="Instagram, TikTok, WhatsApp, your website. One download, use everywhere." />
-          <Bullet title="AI replies to every Google review" body="On-brand, in the right language, posted to Google in one click." />
-          <Bullet title="Weekly fresh content, automatically" body="As new reviews come in, Buzzloop generates new clip ideas every week." />
-        </div>
-      </div>
-
-      {/* Full-width demo — no padding, bleeds to edges */}
-      <BusinessReels />
-    </section>
-  )
-}
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
@@ -283,7 +256,7 @@ export function LandingPage() {
         <SectionReviews />
       </div>
       <SectionRanking />
-      <SectionContent />
+      <BusinessReels />
 
       {/* Testimonials */}
       <section className="py-24 px-6" style={{ background: '#fafaf8' }}>

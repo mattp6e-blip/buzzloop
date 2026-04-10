@@ -134,18 +134,44 @@ export function BusinessReels() {
   const current = BUSINESSES[active]
 
   return (
-    <section className="py-24 px-6" style={{ background: 'white' }}>
+    <section className="py-24 px-6" style={{ background: '#f5f3ef' }}>
       <div className="max-w-5xl mx-auto">
 
-        {/* Headline */}
-        <div className="text-center mb-12">
-          <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: 'var(--accent)' }}>See it in action</p>
-          <h2 className="font-bold mb-3" style={{ fontSize: 'clamp(1.8rem, 4vw, 3rem)', letterSpacing: '-0.025em', color: 'var(--ink)' }}>
-            If you get Google reviews,<br />Buzzloop works for you.
+        {/* Header — feature copy + demo combined */}
+        <div className="text-center mb-10">
+          <p className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: 'var(--accent)', letterSpacing: '0.1em' }}>Social content</p>
+          <h2 className="font-bold mb-4" style={{ fontSize: 'clamp(1.9rem, 3vw, 2.6rem)', letterSpacing: '-0.03em', lineHeight: 1.1, color: 'var(--ink)' }}>
+            Your reviews are your best marketing asset.
           </h2>
-          <p className="text-sm" style={{ color: 'var(--ink4)' }}>
-            + salons, retail, spas, lawyers, and any local business with Google reviews.
+          <p style={{ fontSize: 16, color: 'var(--ink3)', lineHeight: 1.75, maxWidth: 540, margin: '0 auto 32px' }}>
+            AI reads your Google reviews, finds the most compelling stories, and turns them into branded Social Clips — ready to post on Instagram, TikTok, or anywhere.
           </p>
+          {/* Feature bullets in 2 cols */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '10px 32px', textAlign: 'left', maxWidth: 640, margin: '0 auto 44px' }}>
+            {[
+              ['Branded Social Clips from real reviews', 'Not generic templates — actual content built from what your customers say.'],
+              ['Download and post anywhere', 'Instagram, TikTok, WhatsApp, your website. One download, use everywhere.'],
+              ['AI replies to every Google review', 'On-brand, in the right language, posted to Google in one click.'],
+              ['Fresh content every week, automatically', 'As new reviews come in, Buzzloop generates new clip ideas automatically.'],
+            ].map(([title, body]) => (
+              <div key={title} style={{ display: 'flex', gap: 10 }}>
+                <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'rgba(232,71,10,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 2 }}>
+                  <span style={{ fontSize: 9, fontWeight: 800, color: 'var(--accent)' }}>✓</span>
+                </div>
+                <div>
+                  <p style={{ fontWeight: 700, color: 'var(--ink)', margin: '0 0 2px', fontSize: 13.5 }}>{title}</p>
+                  <p style={{ color: 'var(--ink3)', margin: 0, fontSize: 12.5, lineHeight: 1.6 }}>{body}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Divider */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16, maxWidth: 400, margin: '0 auto 36px' }}>
+            <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
+            <p style={{ fontSize: 11, fontWeight: 600, color: 'var(--ink4)', margin: 0, whiteSpace: 'nowrap', textTransform: 'uppercase', letterSpacing: '0.06em' }}>See it in action</p>
+            <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
+          </div>
         </div>
 
         {/* Tabs */}
