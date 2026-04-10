@@ -144,7 +144,7 @@ export function SettingsClient({ business }: { business: Business }) {
           <h2 className="text-base font-bold" style={{ color: 'var(--ink)' }}>Brand Identity</h2>
         </div>
         <p className="text-sm mb-5 p-4 rounded-xl" style={{ background: 'var(--accent-bg)', color: 'var(--ink2)', borderLeft: '3px solid var(--accent)' }}>
-          Your logo and brand colour are used in every Reel and social post we create. Upload your logo once and all future content will match your exact branding — no generic templates.
+          Your logo and brand colour are used in every Reel and social post we create. Upload your logo once and all future content will match your exact branding, no generic templates.
         </p>
 
         {/* Logo upload */}
@@ -245,7 +245,7 @@ export function SettingsClient({ business }: { business: Business }) {
           <h2 className="text-base font-bold" style={{ color: 'var(--ink)' }}>Your Team</h2>
         </div>
         <p className="text-sm mb-4" style={{ color: 'var(--ink3)' }}>
-          Add your team members&apos; names so customers can tap to credit them in their review. Keeps the flow quick — no typing.
+          Add your team members&apos; names so customers can tap to credit them in their review. Keeps the flow quick, no typing.
         </p>
 
         {/* Existing staff chips */}

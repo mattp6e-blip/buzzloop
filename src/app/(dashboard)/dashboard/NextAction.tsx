@@ -23,12 +23,12 @@ function pickAction({
   instagramConnected,
   daysSinceLastReview,
 }: Omit<Props, 'brandColor'>): Action | null {
-  // 1. Has enough reviews but hasn't made a single Reel yet — highest value action
+  // 1. Has enough reviews but hasn't made a single Reel yet, highest value action
   if (totalReviews >= 2 && reelsCreated === 0) {
     return {
       icon: '🎬',
       heading: 'Your reviews are ready to become content',
-      body: `You have ${totalReviews} reviews. The AI can turn them into a Social Clip right now — it takes about 30 seconds.`,
+      body: `You have ${totalReviews} reviews. The AI can turn them into a Social Clip right now, it takes about 30 seconds.`,
       cta: 'Create your first Social Clip →',
       href: '/reels',
     }
@@ -46,7 +46,7 @@ function pickAction({
     }
   }
 
-  // 3. Review drought — hasn't had a new review in a while
+  // 3. Review drought, hasn't had a new review in a while
   if (daysSinceLastReview !== null && daysSinceLastReview >= 14) {
     return {
       icon: '📲',
@@ -69,7 +69,7 @@ function pickAction({
     }
   }
 
-  // 5. Very few reviews — nudge to collect more
+  // 5. Very few reviews, nudge to collect more
   if (totalReviews > 0 && totalReviews < 5) {
     return {
       icon: '⭐',

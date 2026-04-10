@@ -166,7 +166,7 @@ export function ReviewTrendChart({ reviewDates, brandColor, velocityLabel }: Pro
       {/* Chart */}
       {reviewDates.length === 0 ? (
         <div className="flex items-center justify-center h-[100px] rounded-xl" style={{ background: 'var(--bg)' }}>
-          <p className="text-sm" style={{ color: 'var(--ink4)' }}>No reviews yet — share your QR code to get started</p>
+          <p className="text-sm" style={{ color: 'var(--ink4)' }}>No reviews yet, share your QR code to get started</p>
         </div>
       ) : (
         <div dangerouslySetInnerHTML={{ __html: svg }} />

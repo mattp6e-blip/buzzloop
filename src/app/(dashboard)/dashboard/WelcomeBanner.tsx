@@ -53,12 +53,12 @@ export function WelcomeBanner({ businessName, importedCount, brandColor }: Props
             <p className="text-sm" style={{ color: 'var(--ink3)' }}>
               We found and imported{' '}
               <strong style={{ color: 'var(--ink)' }}>{importedCount} reviews</strong>{' '}
-              from your Google Business Profile. The AI has already analysed them —
+              from your Google Business Profile. The AI has already analysed them.
               head to <strong style={{ color: 'var(--ink)' }}>Social Clips</strong> to turn them into content.
             </p>
           ) : (
             <p className="text-sm" style={{ color: 'var(--ink3)' }}>
-              Google Business is connected. Start collecting reviews with your QR code —
+              Google Business is connected. Start collecting reviews with your QR code.
               they&apos;ll appear here automatically.
             </p>
           )}

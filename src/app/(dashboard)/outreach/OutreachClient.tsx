@@ -262,7 +262,7 @@ export function OutreachClient({
             </div>
           ) : (
             <p style={{ fontSize: 13, color: 'var(--ink4)', padding: '12px 0' }}>
-              No contacts parsed yet — upload a .csv file with name and phone columns.
+              No contacts parsed yet, upload a .csv file with name and phone columns.
             </p>
           )}
 

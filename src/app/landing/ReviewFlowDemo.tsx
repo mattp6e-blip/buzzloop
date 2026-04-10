@@ -6,7 +6,7 @@ const INK = '#1a1814'
 const INK3 = '#7a766e'
 const BORDER = '#e8e5df'
 
-const REVIEW_TEXT = `The team here is exceptional. Dr. Chen took real time to explain my treatment and I felt completely at ease — first dentist I've genuinely looked forward to coming back to.`
+const REVIEW_TEXT = `The team here is exceptional. Dr. Chen took real time to explain my treatment and I felt completely at ease, first dentist I've genuinely looked forward to coming back to.`
 const DURATIONS = [2600, 2800, 3400, 2600]
 const STEP_LABELS = ['Branded review page', 'Rate your visit', 'AI writes your review', 'Post to Google']
 

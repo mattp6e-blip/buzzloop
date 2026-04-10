@@ -103,7 +103,7 @@ export function ReelsClient({ reviews, businessId, businessName, industry, brand
     } catch {}
   }, [themes, seenThemes, savedThemeTitles])
 
-  // Mark all visible themes as seen after 3s — "new" badge only shows on first visit
+  // Mark all visible themes as seen after 3s, "new" badge only shows on first visit
   useEffect(() => {
     if (!themes || themes.length === 0) return
     const timer = setTimeout(() => {
@@ -284,7 +284,7 @@ export function ReelsClient({ reviews, businessId, businessName, industry, brand
         <h3 className="font-bold text-lg mb-2" style={{ color: 'var(--ink)' }}>No Reels yet</h3>
         <p className="text-sm max-w-sm mx-auto mb-6" style={{ color: 'var(--ink3)' }}>
           {googleConnected
-            ? 'Once you have more reviews, the AI will find patterns and generate Reel ideas ranked by engagement potential — automatically.'
+            ? 'Once you have more reviews, the AI will find patterns and generate Reel ideas ranked by engagement potential, automatically.'
             : 'Connect your Google Business Profile so we can import your reviews and start generating Reel ideas.'}
         </p>
         {googleConnected ? (
@@ -497,7 +497,7 @@ function ReelRow({ label, subtitle, themes, cardProps }: {
             ))}
           </div>
         </div>
-        {/* Right-edge fade — signals more content */}
+        {/* Right-edge fade, signals more content */}
         <div
           style={{
             position: 'absolute',

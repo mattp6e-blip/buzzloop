@@ -295,7 +295,7 @@ export function ReelEditor({
       {/* ── Right: editor panel ── */}
       <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 0 }}>
 
-        {/* Slide selector — horizontal pill row */}
+        {/* Slide selector, horizontal pill row */}
         <div style={{ marginBottom: 20 }}>
           <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: 'var(--ink4)' }}>Slides</p>
           <div className="flex flex-wrap gap-1.5">
@@ -556,7 +556,7 @@ export function ReelEditor({
           {!cityMissing && !generatingCaption && caption && (
             <p className="text-xs px-3 py-2 rounded-lg flex items-center gap-2" style={{ background: 'var(--bg2)', color: 'var(--ink3)' }}>
               <span>🎵</span>
-              <span><strong style={{ color: 'var(--ink2)' }}>Tip:</strong> Add a trending audio track in Instagram before posting — reels with audio get significantly more reach.</span>
+              <span><strong style={{ color: 'var(--ink2)' }}>Tip:</strong> Add a trending audio track in Instagram before posting, reels with audio get significantly more reach.</span>
             </p>
           )}
 

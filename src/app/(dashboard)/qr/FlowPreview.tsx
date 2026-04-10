@@ -31,7 +31,7 @@ function MiniPhone({ step, brandColor }: { step: 1 | 2 | 3; brandColor: string }
     >
       {/* Notch */}
       <div style={{ width: 44, height: 10, background: '#0a0a0a', borderRadius: 5, margin: '0 auto 2px' }} />
-      {/* Screen container — clips overflow */}
+      {/* Screen container, clips overflow */}
       <div
         style={{
           background: '#fafaf9',
@@ -155,7 +155,7 @@ function MiniPhone({ step, brandColor }: { step: 1 | 2 | 3; brandColor: string }
 export function CustomerJourney({ brandColor, slug }: { brandColor: string; slug: string }) {
   const steps = [
     { step: 1 as const, title: 'Customer scans', desc: 'They land on a branded page personalised to your business' },
-    { step: 2 as const, title: '3 quick questions', desc: 'Tailored to your industry — done in under 10 seconds' },
+    { step: 2 as const, title: '3 quick questions', desc: 'Tailored to your industry, done in under 10 seconds' },
     { step: 3 as const, title: 'AI writes the review', desc: 'They copy it and post to Google in one tap' },
   ]
 

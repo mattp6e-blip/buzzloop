@@ -10,13 +10,13 @@ type Step = 'rating' | 'complaint' | 'questions' | 'extra' | 'generating' | 'dra
 type Question = ReviewQuestion
 
 const PLACEHOLDERS: Record<string, string> = {
-  restaurant: 'e.g. The pasta was cooked perfectly — we couldn\'t stop talking about it on the way home...',
-  dental:     'e.g. Dr. Smith talked me through every step before starting — I barely felt a thing...',
-  gym:        'e.g. The 6am classes have completely changed my routine — I\'m actually enjoying mornings now...',
+  restaurant: 'e.g. The pasta was cooked perfectly, we couldn\'t stop talking about it on the way home...',
+  dental:     'e.g. Dr. Smith talked me through every step before starting, I barely felt a thing...',
+  gym:        'e.g. The 6am classes have completely changed my routine, I\'m actually enjoying mornings now...',
   salon:      'e.g. She matched my reference photos exactly and gave me the best advice for maintaining the colour...',
-  spa:        'e.g. I came in stressed and left feeling like I\'d had a full night\'s sleep — genuinely incredible...',
-  clinic:     'e.g. The doctor took time to really listen and didn\'t rush me out — I left feeling reassured...',
-  retail:     'e.g. They didn\'t just sell me something — they took time to find what actually suited my needs...',
+  spa:        'e.g. I came in stressed and left feeling like I\'d had a full night\'s sleep, genuinely incredible...',
+  clinic:     'e.g. The doctor took time to really listen and didn\'t rush me out, I left feeling reassured...',
+  retail:     'e.g. They didn\'t just sell me something, they took time to find what actually suited my needs...',
   other:      'e.g. What really stood out was how attentive everyone was from the moment I walked in...',
 }
 
@@ -186,7 +186,7 @@ export function ReviewFlow({ businessId, businessName, industry, brandColor, goo
   }
 
   async function handleCopyAndRedirect() {
-    // Open Google first — must happen synchronously with the user gesture or browsers block it
+    // Open Google first, must happen synchronously with the user gesture or browsers block it
     if (googleBusinessUrl) window.open(googleBusinessUrl, '_blank')
     await navigator.clipboard.writeText(draft)
     setCopied(true)
@@ -212,7 +212,7 @@ export function ReviewFlow({ businessId, businessName, industry, brandColor, goo
         </div>
       </div>
 
-      {/* Progress bar — only during questions */}
+      {/* Progress bar, only during questions */}
       {(step === 'questions' || step === 'extra') && (
         <div style={{ height: 3, background: '#f0ede8' }}>
           <div className="h-full transition-all duration-500" style={{ width: `${progress}%`, background: brandColor }} />
@@ -266,7 +266,7 @@ export function ReviewFlow({ businessId, businessName, industry, brandColor, goo
                 We&apos;re sorry to hear that
               </h1>
               <p className="text-sm mb-6" style={{ color: '#9c9488' }}>
-                Help {businessName} improve — what went wrong?
+                Help {businessName} improve, what went wrong?
               </p>
               <textarea
                 value={complaint}
@@ -285,7 +285,7 @@ export function ReviewFlow({ businessId, businessName, industry, brandColor, goo
                 Send feedback
               </button>
               <p className="text-xs mt-3" style={{ color: '#c4bfb8' }}>
-                Your feedback goes directly to the owner — not published publicly
+                Your feedback goes directly to the owner, not published publicly
               </p>
             </div>
           )}
@@ -360,7 +360,7 @@ export function ReviewFlow({ businessId, businessName, industry, brandColor, goo
               <h2 className="text-xl font-bold mb-2 text-center" style={{ color: '#1a1814', fontFamily: 'Georgia, serif' }}>
                 Anything else to add?
               </h2>
-              <p className="text-sm mb-6 text-center" style={{ color: '#9c9488' }}>Optional — your own words make it even better</p>
+              <p className="text-sm mb-6 text-center" style={{ color: '#9c9488' }}>Optional, your own words make it even better</p>
 
               <textarea
                 value={freeText}

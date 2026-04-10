@@ -8,8 +8,8 @@ const plusJakarta = Plus_Jakarta_Sans({
 })
 
 export const metadata: Metadata = {
-  title: 'Buzzloop — More Reviews. More Customers. On Autopilot.',
-  description: 'Turn your happiest customers into a Google review machine — then transform those reviews into stunning social content.',
+  title: 'Buzzloop | More Reviews. More Customers. On Autopilot.',
+  description: 'Turn your happiest customers into a Google review machine, then transform those reviews into stunning social content.',
 }
 
 export default function RootLayout({

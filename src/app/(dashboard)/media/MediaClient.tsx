@@ -83,7 +83,7 @@ export function MediaClient({ businessId, gbpPhotos, uploadedPhotos: initialUplo
           <>
             <div className="text-3xl mb-3">⊞</div>
             <p className="text-sm font-semibold mb-1" style={{ color: 'var(--ink2)' }}>Drop photos here or click to upload</p>
-            <p className="text-xs" style={{ color: 'var(--ink4)' }}>JPG, PNG, WebP — these will be used in your Social Clips</p>
+            <p className="text-xs" style={{ color: 'var(--ink4)' }}>JPG, PNG, WebP, these will be used in your Social Clips</p>
           </>
         )}
       </div>

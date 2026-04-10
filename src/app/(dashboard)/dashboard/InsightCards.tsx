@@ -171,7 +171,7 @@ function ServicesCard({ currentServices, suggestedServices }: {
             <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.08em', color: '#2563eb', background: '#eff6ff', padding: '2px 6px', borderRadius: 4 }}>GBP UPDATE</span>
           </div>
           <p className="text-sm font-bold mb-1" style={{ color: 'var(--ink)', lineHeight: 1.35 }}>Services not yet listed on your GBP</p>
-          <p className="text-xs mb-3" style={{ color: 'var(--ink3)' }}>Tick only the ones you actually offer — based on your current GBP data</p>
+          <p className="text-xs mb-3" style={{ color: 'var(--ink3)' }}>Tick only the ones you actually offer, based on your current GBP data</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {newSuggestions.map(s => (
               <label key={s.name} style={{
@@ -223,7 +223,7 @@ export function InsightCards({ googleConnected, industry: _industry }: { googleC
       .catch(() => setLoading(false))
   }, [googleConnected])
 
-  // ── Not connected — single clean CTA, no fake data ────────────────────────
+  // ── Not connected, single clean CTA, no fake data ────────────────────────
   if (!googleConnected) {
     return (
       <>
@@ -234,7 +234,7 @@ export function InsightCards({ googleConnected, industry: _industry }: { googleC
             <div style={{ flex: 1 }}>
               <p className="text-sm font-bold mb-0.5" style={{ color: 'var(--ink)' }}>Connect Google to unlock GBP analysis</p>
               <p className="text-xs" style={{ color: 'var(--ink3)' }}>
-                We'll read your actual description, services, and categories — then show exactly what to fix based on your real data vs competitors.
+                We'll read your actual description, services, and categories, then show exactly what to fix based on your real data vs competitors.
               </p>
             </div>
             <a
@@ -275,7 +275,7 @@ export function InsightCards({ googleConnected, industry: _industry }: { googleC
     )
   }
 
-  // ── Connected — real data only ────────────────────────────────────────────
+  // ── Connected, real data only ────────────────────────────────────────────
   return (
     <>
       <SectionDivider />

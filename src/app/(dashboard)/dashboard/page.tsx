@@ -136,7 +136,7 @@ function generateTasks(params: {
         id: 'competitor_gap',
         priority: gap > 100 ? 'critical' : 'high',
         icon: '🏆',
-        title: `${top.name} leads by ${gap} reviews — close the gap`,
+        title: `${top.name} leads by ${gap} reviews, close the gap`,
         why: `More reviews = higher local pack ranking. At your current rate, closing this gap requires consistent weekly outreach.`,
         action: { label: 'Send review requests', href: '/qr?tab=messages' },
       })
@@ -149,20 +149,20 @@ function generateTasks(params: {
       id: 'review_drought',
       priority: 'critical',
       icon: '⚠️',
-      title: `No new reviews in ${daysSinceLastReview} days — ranking likely slipping`,
+      title: `No new reviews in ${daysSinceLastReview} days, ranking likely slipping`,
       why: `Google weights review recency heavily. Profiles that go quiet for 3–4 weeks drop in local search placement.`,
       action: { label: 'Get your QR code', href: '/qr' },
     })
   }
 
-  // 3. HIGH: unreplied reviews — responding to all reviews is a ranking + trust signal
+  // 3. HIGH: unreplied reviews, responding to all reviews is a ranking + trust signal
   if (unrepliedCount > 0) {
     tasks.push({
       id: 'respond_reviews',
       priority: 'high',
       icon: '💬',
       title: `${unrepliedCount} review${unrepliedCount > 1 ? 's' : ''} without a reply`,
-      why: `Google rewards businesses that engage with every reviewer. Replying publicly shows care and improves local pack visibility — takes under 2 minutes with AI.`,
+      why: `Google rewards businesses that engage with every reviewer. Replying publicly shows care and improves local pack visibility, takes under 2 minutes with AI.`,
       action: { label: 'Reply to reviews', href: '/reviews?tab=reply' },
     })
   }
@@ -203,7 +203,7 @@ function generateTasks(params: {
     })
   }
 
-  // 7. MEDIUM: post to GBP this week — active profiles rank higher
+  // 7. MEDIUM: post to GBP this week, active profiles rank higher
   if (googlePlaceId) {
     tasks.push({
       id: 'gbp_post',
@@ -233,7 +233,7 @@ function generateTasks(params: {
       id: 'no_reviews_this_week',
       priority: 'medium',
       icon: '⭐',
-      title: `No new reviews this week — remind recent customers`,
+      title: `No new reviews this week, remind recent customers`,
       why: `A steady stream of reviews (even 1–2 per week) signals an active business to Google's ranking algorithm.`,
       action: { label: 'Send QR code link', href: '/qr' },
     })
@@ -369,7 +369,7 @@ export default async function DashboardPage() {
     outreachThisMonth,
   })
 
-  // Tasks — use recentWeekCount (organic only) to avoid import spike false triggers
+  // Tasks, use recentWeekCount (organic only) to avoid import spike false triggers
   const recentWeekCount = allReviews.filter(r => new Date(r.created_at) >= weekAgo).length
   const googleBusinessUrl = business.google_business_url ?? null
   const unrepliedCount = allReviews.filter(

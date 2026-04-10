@@ -109,7 +109,7 @@ function SectionReviews() {
             Your branded QR code turns every happy customer into a Google reviewer in under 10 seconds. No staff awkwardness. No manual follow-up. Just reviews coming in.
           </p>
           <Bullet title="Branded QR code with your logo and colors" body="Print it, display it, embed it in receipts or follow-up messages." />
-          <Bullet title="Customers answer 3 quick questions — AI writes their review" body="They don't have to think of what to write. Buzzloop drafts a polished review based on what they share." />
+          <Bullet title="Customers answer 3 quick questions, AI writes their review" body="They don't have to think of what to write. Buzzloop drafts a polished review based on what they share." />
           <Bullet title="One tap to post on Google" body="No login, no copying text. Customers tap once and it's live." />
           <Bullet title="Track every review, reply in one click" body="All reviews in one place. AI replies in your brand voice, in any language." />
           <a href="/signup" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 8, fontSize: 14, fontWeight: 700, color: ACCENT, textDecoration: 'none' }}>
@@ -145,7 +145,7 @@ function SectionRanking() {
         <div>
           <p style={{ fontSize: 11, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 14 }}>Google ranking</p>
           <h2 style={{ fontSize: 'clamp(1.9rem, 3vw, 2.6rem)', fontWeight: 900, color: 'white', margin: '0 0 16px', letterSpacing: '-0.03em', lineHeight: 1.1 }}>
-            See exactly where<br />you rank — and climb.
+            See exactly where<br />you rank, and climb.
           </h2>
           <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.5)', lineHeight: 1.75, margin: '0 0 32px', maxWidth: 440 }}>
             Track how you rank for the searches your customers actually use. See where you stand against nearby competitors. Buzzloop shows you what to fix and does the fixing for you.
@@ -210,7 +210,7 @@ export function LandingPage() {
             </h1>
 
             <p className="text-lg leading-relaxed mb-10" style={{ color: INK3, maxWidth: 480 }}>
-              Most local businesses are invisible online. Not enough reviews, a weak Google ranking, and no time for content. Buzzloop fixes all three — automatically.
+              Most local businesses are invisible online. Not enough reviews, a weak Google ranking, and no time for content. Buzzloop fixes all three, automatically.
             </p>
 
             <div className="flex items-center gap-3 flex-wrap mb-5">

@@ -244,7 +244,7 @@ function CinematicSlide({ review, businessName, brandColor, brandFont, slideType
         />
         {review.customer_name && (
           <div style={{ fontSize: 10, fontWeight: 700, color: brandColor, textTransform: 'uppercase', letterSpacing: '0.14em', opacity: 0, animation: 'prs-slide-up 0.5s ease forwards', animationDelay: `${quoteEndDelay + 0.2}s` }}>
-            — {review.customer_name}
+           , {review.customer_name}
           </div>
         )}
       </div>
@@ -348,7 +348,7 @@ function LuxurySlide({ review, businessName, brandColor, brandFont, slideType }:
           style={{ fontSize: 14, lineHeight: 1.8, color: ink, fontFamily: `${brandFont}, Georgia, serif`, fontStyle: 'italic', marginBottom: 18 }} />
         {review.customer_name && (
           <div style={{ fontSize: 10, fontWeight: 700, color: brandColor, textTransform: 'uppercase', letterSpacing: '0.14em', opacity: 0, animation: 'prs-slide-right 0.5s ease forwards', animationDelay: `${charDelay}s` }}>
-            — {review.customer_name}
+           , {review.customer_name}
           </div>
         )}
       </div>
@@ -414,14 +414,14 @@ function ImpactSlide({ review, businessName, brandColor, brandFont, slideType }:
       <div style={{ zIndex: 1 }}>
         <Stars baseDelay={0.3} color="#fff" size={18} />
       </div>
-      {/* Quote — slams in */}
+      {/* Quote, slams in */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', zIndex: 1 }}>
         <div style={{ fontSize: 15, fontWeight: 700, color: '#fff', fontFamily: `${brandFont}, system-ui`, lineHeight: 1.65, marginBottom: 20, opacity: 0, animation: 'prs-slam-in 0.5s cubic-bezier(0.175,0.885,0.32,1.275) forwards 0.7s' }}>
           &ldquo;{quote}&rdquo;
         </div>
         {review.customer_name && (
           <div style={{ fontSize: 11, fontWeight: 900, color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: '0.14em', opacity: 0, animation: 'prs-fade-in 0.4s ease forwards 1.4s' }}>
-            — {review.customer_name}
+           , {review.customer_name}
           </div>
         )}
       </div>
@@ -505,7 +505,7 @@ function GlowSlide({ review, businessName, brandColor, brandFont, slideType }: {
         />
         {review.customer_name && (
           <div style={{ fontSize: 10, fontWeight: 700, color: brandColor, textTransform: 'uppercase', letterSpacing: '0.14em', opacity: 0, animation: 'prs-slide-up 0.5s ease forwards', animationDelay: `${quoteEndDelay + 0.2}s`, textShadow: `0 0 15px ${brandColor}80` }}>
-            — {review.customer_name}
+           , {review.customer_name}
           </div>
         )}
       </div>
@@ -551,7 +551,7 @@ function MultiReviewSlide({ r, businessName, brandColor, brandFont, template, in
           style={{ fontSize: 13, lineHeight: 1.8, color: textColor, fontFamily: `${brandFont}, Georgia, serif`, fontStyle: 'italic', marginBottom: 16 }} />
         {r.customer_name && (
           <div style={{ fontSize: 10, fontWeight: 700, color: subtextColor, textTransform: 'uppercase', letterSpacing: '0.14em', opacity: 0, animation: 'prs-slide-up 0.5s ease forwards', animationDelay: `${0.9 + quote.split(' ').length * 0.07 + 0.2}s` }}>
-            — {r.customer_name}
+           , {r.customer_name}
           </div>
         )}
       </div>

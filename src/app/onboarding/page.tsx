@@ -203,7 +203,7 @@ function OnboardingInner() {
 
         <div className="bg-white rounded-2xl border p-8" style={{ borderColor: 'var(--border)', boxShadow: '0 4px 24px rgba(26,24,20,0.06)' }}>
 
-          {/* Step 1 — Business name */}
+          {/* Step 1, Business name */}
           {step === 1 && (
             <div>
               <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: 'var(--ink3)' }}>Step 1 of {TOTAL_STEPS}</p>
@@ -217,7 +217,7 @@ function OnboardingInner() {
             </div>
           )}
 
-          {/* Step 2 — Industry */}
+          {/* Step 2, Industry */}
           {step === 2 && (
             <div>
               <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: 'var(--ink3)' }}>Step 2 of {TOTAL_STEPS}</p>
@@ -256,7 +256,7 @@ function OnboardingInner() {
             </div>
           )}
 
-          {/* Step 3 — Brand identity */}
+          {/* Step 3, Brand identity */}
           {step === 3 && (
             <div>
               <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: 'var(--ink3)' }}>Step 3 of {TOTAL_STEPS}</p>
@@ -291,7 +291,7 @@ function OnboardingInner() {
                         <span className="text-xl">🖼️</span>
                       </div>
                       <p className="text-sm font-medium" style={{ color: 'var(--ink2)' }}>Drop your logo here, or click to browse</p>
-                      <p className="text-xs mt-1" style={{ color: 'var(--ink4)' }}>PNG, JPG or SVG — we&apos;ll extract your brand color automatically</p>
+                      <p className="text-xs mt-1" style={{ color: 'var(--ink4)' }}>PNG, JPG or SVG, we&apos;ll extract your brand color automatically</p>
                     </div>
                   )}
                   <input ref={fileInputRef} type="file" accept="image/*" className="hidden"
@@ -357,11 +357,11 @@ function OnboardingInner() {
             </div>
           )}
 
-          {/* Step 4 — Connect accounts */}
+          {/* Step 4, Connect accounts */}
           {step === 4 && (
             <div>
               <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: 'var(--ink3)' }}>Step 4 of {TOTAL_STEPS}</p>
-              <h2 className="text-2xl font-bold mb-2" style={{ color: 'var(--ink)' }}>One last step — connect Google</h2>
+              <h2 className="text-2xl font-bold mb-2" style={{ color: 'var(--ink)' }}>One last step, connect Google</h2>
               <p className="text-sm mb-6" style={{ color: 'var(--ink3)' }}>
                 We need this to get you more reviews and turn your best ones into Social Clips that bring in new customers.
               </p>
@@ -387,7 +387,7 @@ function OnboardingInner() {
                     <div className="flex items-center justify-center gap-1.5 mt-2">
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--ink4)', flexShrink: 0 }}><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                       <p className="text-xs" style={{ color: 'var(--ink4)' }}>
-                        We can only read your reviews — we cannot post or change anything on your behalf
+                        We can only read your reviews, we cannot post or change anything on your behalf
                       </p>
                     </div>
                   </div>

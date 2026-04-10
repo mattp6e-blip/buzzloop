@@ -49,7 +49,7 @@ export default async function QRPage({ searchParams }: { searchParams: Promise<{
     else if (thisMonthCount < lastMonthCount) velocityLabel = `↓ ${lastMonthCount - thisMonthCount} fewer than last month`
   }
 
-  // Fetch outreach stats (table may not exist yet — handle gracefully)
+  // Fetch outreach stats (table may not exist yet, handle gracefully)
   let outreachStats = { sent: 0, clicked: 0, converted: 0 }
   try {
     const [sentRes, clickedRes, convertedRes] = await Promise.all([
@@ -95,7 +95,7 @@ export default async function QRPage({ searchParams }: { searchParams: Promise<{
               <div className="bg-white rounded-2xl border p-5" style={{ borderColor: 'var(--border)' }}>
                 <p className="text-sm font-bold mb-1" style={{ color: 'var(--ink)' }}>Share the link directly</p>
                 <p className="text-xs mb-3" style={{ color: 'var(--ink3)' }}>
-                  Send via WhatsApp, SMS, or email — works without scanning
+                  Send via WhatsApp, SMS, or email, works without scanning
                 </p>
                 <div className="flex items-center gap-2">
                   <div

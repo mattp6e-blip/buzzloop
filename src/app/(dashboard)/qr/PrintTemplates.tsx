@@ -268,7 +268,7 @@ async function downloadPocketCard(businessName: string, brandColor: string, revi
   ctx.font = '11px system-ui'
   ctx.fillText('Powered by Buzzloop', textX, H - 36)
 
-  // QR code — right side on white rounded card
+  // QR code, right side on white rounded card
   const qrSize = 320
   const qrDataUrl = await getQRDataUrl(reviewUrl, brandColor, qrSize)
   const qrImg = await loadImage(qrDataUrl)
@@ -307,7 +307,7 @@ export function PrintTemplates({ reviewUrl, businessName, brandColor }: Props) {
     <div className="bg-white rounded-2xl border p-6" style={{ borderColor: 'var(--border)' }}>
       <div className="mb-5">
         <h3 className="font-bold" style={{ color: 'var(--ink)' }}>Print templates</h3>
-        <p className="text-xs mt-0.5" style={{ color: 'var(--ink3)' }}>Ready-to-print — take the PNG to any print shop</p>
+        <p className="text-xs mt-0.5" style={{ color: 'var(--ink3)' }}>Ready-to-print, take the PNG to any print shop</p>
       </div>
 
       {/* Template selector */}

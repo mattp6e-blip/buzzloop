@@ -88,7 +88,7 @@ export function VariationPicker({ variations, brandColor, brandSecondaryColor, l
         {activeVariation.description}
       </p>
 
-      {/* Single phone preview — key forces remount (restarts reel) on tab switch */}
+      {/* Single phone preview, key forces remount (restarts reel) on tab switch */}
       <div
         className="rounded-2xl overflow-hidden relative"
         style={{
@@ -127,7 +127,7 @@ export function VariationPicker({ variations, brandColor, brandSecondaryColor, l
 
       {/* Quality note */}
       <p className="text-center text-xs mt-2 mb-1" style={{ color: 'var(--ink4)' }}>
-        Preview is scaled down — exported video is full 1080p HD
+        Preview is scaled down, exported video is full 1080p HD
       </p>
 
       {/* Confirm */}
