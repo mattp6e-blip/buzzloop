@@ -630,11 +630,20 @@ export async function POST(req: NextRequest) {
     `Quote ${i + 1}: "${r.what_they_liked}"${r.customer_name ? ` — ${r.customer_name}` : ''}`
   ).join('\n')
 
-  // Generate all three tones in parallel (each tone runs 2 Opus calls internally)
-  const tones: Tone[] = ['story', 'proof', 'bold']
-  const variations = (await Promise.all(
-    tones.map(tone => generateVariation(tone, theme, anchorSentence, reviewTexts, businessName, industry, gbpReviews, lang, isVariety ? closingReview : undefined))
-  )).filter((v): v is ReelVariation => v !== null)
+  // Select the single best tone for this theme — no more 3 variations
+  function selectTone(): Tone {
+    const ct = theme.contentType ?? 'social_proof'
+    if (ct === 'social_proof') return theme.reelType === 'pattern' ? 'proof' : 'story'
+    if (['educational', 'myth_bust', 'trust', 'behind_scenes'].includes(ct)) return 'proof'
+    if (['experience', 'local_guide'].includes(ct)) return 'story'
+    // Sensory industries (restaurant, bar, spa) → always story
+    if (['restaurant', 'bar', 'spa', 'hotel'].includes(industry)) return 'story'
+    return 'story'
+  }
+
+  const chosenTone = selectTone()
+  const singleVariation = await generateVariation(chosenTone, theme, anchorSentence, reviewTexts, businessName, industry, gbpReviews, lang, isVariety ? closingReview : undefined)
+  const variations = singleVariation ? [singleVariation] : []
 
   // Assign motif based on theme + hook content
   variations.forEach(v => {

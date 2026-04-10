@@ -99,48 +99,180 @@ For story reels: reviewIds = anchor + 1-2 supporting reviews. anchorReviewId = p
 For pattern reels: reviewIds = all reviews sharing the pattern (min 3). anchorReviewId omitted.`
 }
 
-// ── Audience-first variety prompt ─────────────────────────────────────────────
+// ── Industry content mix ──────────────────────────────────────────────────────
+
+function getIndustryConfig(industry: string): {
+  contentFocus: string
+  hookFrameworks: string
+  avoidTypes: string
+} {
+  const configs: Record<string, { contentFocus: string; hookFrameworks: string; avoidTypes: string }> = {
+    restaurant: {
+      contentFocus: 'Sensory and emotional. Make people hungry, envious, or feel like they are missing out. Nobody wants to be educated about food — they want to feel something.',
+      hookFrameworks: `PROVEN FRAMEWORKS FOR RESTAURANTS:
+1. SENSORY REVEAL: "What [signature dish] looks like when it's done right." — triggers craving, FOMO
+2. LOYALTY BEHAVIOR: "The table they book [X weeks] in advance. Every [day]." — behavioral proof from reviews
+3. ATMOSPHERE MOMENT: "What a [Friday/Saturday] night here actually looks like." — puts viewer inside the experience
+4. DRIVE-FOR-IT: "She drove [distance] for this. Came back [frequency]." — needs review evidence
+5. BEHIND THE PASS: "What goes into [signature dish] that most people never see." — craft reveal, earns respect`,
+      avoidTypes: 'educational, myth_bust — nobody wants a food science lesson',
+    },
+    bar: {
+      contentFocus: 'Atmosphere, craft, FOMO. Make people feel like they are missing the best night out.',
+      hookFrameworks: `PROVEN FRAMEWORKS FOR BARS:
+1. ATMOSPHERE MOMENT: "What a [night/Friday] here actually looks like."
+2. CRAFT REVEAL: "How we actually make [signature cocktail]. It's not what you think."
+3. LOYALTY: "He's been here every [day] for [time]. Same order."
+4. SENSORY: "What [signature drink/dish] looks like when it's done right."
+5. HIDDEN GEM: "The [menu item] nobody orders. It's the best thing we make."`,
+      avoidTypes: 'educational — nobody wants a cocktail chemistry lesson',
+    },
+    hotel: {
+      contentFocus: 'Aspiration, experience, hidden details. Make people want to stay there.',
+      hookFrameworks: `PROVEN FRAMEWORKS FOR HOTELS:
+1. HIDDEN DETAIL: "The thing guests find in their room every morning."
+2. LOYALTY: "She stays here every time she visits [city]. Her reason:"
+3. LOCAL SECRET: "The spot our guests ask about every single checkout."
+4. EXPERIENCE: "What checking in here actually feels like."
+5. BEHIND THE SCENES: "What happens before you arrive that you never see."`,
+      avoidTypes: 'myth_bust — hotel guests don\'t have misconceptions to bust',
+    },
+    gym: {
+      contentFocus: 'Transformation, results, community. Show what\'s possible. Address the fear of starting.',
+      hookFrameworks: `PROVEN FRAMEWORKS FOR GYMS:
+1. TRANSFORMATION: "She came in [state/fear]. [Time] later: [result]." — needs review evidence
+2. FEAR ADDRESSED: "The thing stopping most people from starting. It's not what you think."
+3. MYTH BUST: "The [exercise/belief] everyone gets wrong. Here's why it matters."
+4. COMMUNITY PROOF: "He hasn't missed [frequency] in [time]. His reason:" — needs review evidence
+5. FIRST SESSION: "What the first [class/session] actually feels like. Nobody tells you this."`,
+      avoidTypes: 'local_guide, trust — not relevant',
+    },
+    salon: {
+      contentFocus: 'Transformation, aspiration, results. Show what\'s possible. The before/after is the story.',
+      hookFrameworks: `PROVEN FRAMEWORKS FOR SALONS:
+1. TRANSFORMATION: "[Hair/look problem] for [time]. Here's what changed."  — needs review evidence
+2. FEAR OVERCOME: "She was nervous about [change]. Here's what happened."
+3. PROCESS REVEAL: "What [service] actually looks like. From start to finish."
+4. LOYALTY: "She's been coming every [frequency] for [time]. Same stylist every time." — review evidence
+5. MYTH BUST: "The [service] most people are afraid to try. Here's why they shouldn't be."`,
+      avoidTypes: 'educational, trust — not relevant for salons',
+    },
+    spa: {
+      contentFocus: 'Sensory experience, transformation, escape. Make people feel relaxed just watching.',
+      hookFrameworks: `PROVEN FRAMEWORKS FOR SPAS:
+1. SENSORY: "What [signature treatment] actually feels like. From the first minute."
+2. TRANSFORMATION: "She came in [stressed/state]. Left [feeling]. Her words:"  — review evidence
+3. MYTH BUST: "Most people think [treatment] is [misconception]. Here's the truth."
+4. PROCESS REVEAL: "What happens in the first 10 minutes of [treatment]. Nobody shows this."
+5. LOYALTY: "She books every [frequency]. Has for [time]." — review evidence`,
+      avoidTypes: 'educational — spa guests want to feel, not learn',
+    },
+    dental: {
+      contentFocus: 'Address real fears. Teach things that change decisions. The viewer has unspoken anxiety — meet it directly.',
+      hookFrameworks: `PROVEN FRAMEWORKS FOR DENTAL:
+1. FEAR OVERCOME: "Most people avoid [treatment] because of [specific fear]. Here's what actually happens." — myth_bust
+2. PROCESS REVEAL: "What actually happens in the first [X] minutes. Nobody explains this." — behind_scenes
+3. COST OF WAITING: "The [symptom] most people ignore. What it becomes in [time]." — educational
+4. EXPECTATION FLIP: "She expected [negative]. Instead: [positive surprise]." — needs review evidence
+5. CAPABILITY PROOF: "[Treatment] in [surprisingly short time]. Most don't know this exists." — educational`,
+      avoidTypes: 'experience, local_guide — not relevant',
+    },
+    physiotherapy: {
+      contentFocus: 'Teach. Address fears about pain and recovery. Show results.',
+      hookFrameworks: `PROVEN FRAMEWORKS FOR PHYSIO:
+1. MYTH BUST: "Most people think [pain/problem] means [wrong conclusion]. It doesn't."
+2. PROCESS: "What the first session actually involves. Most people are surprised."
+3. COST OF IGNORING: "[Pain signal] that most people push through. Here's what it means."
+4. TRANSFORMATION: "[Problem] for [time]. Fixed in [X sessions]." — needs review evidence
+5. FEAR ADDRESSED: "You think you need surgery. You probably don't. Here's why."`,
+      avoidTypes: 'experience, local_guide',
+    },
+    veterinary: {
+      contentFocus: 'Reassure worried pet owners. Teach things that affect pet health. Show care.',
+      hookFrameworks: `PROVEN FRAMEWORKS FOR VETS:
+1. HIDDEN SIGN: "The [sign] in your dog/cat most owners miss. What it means."
+2. FEAR ADDRESSED: "She was terrified to bring him in. Here's what happened."
+3. MYTH BUST: "Most owners think [belief]. Vets disagree. Here's why."
+4. PROCESS: "What a routine checkup actually involves. From your pet's perspective."
+5. LOYALTY: "She's been bringing [pet] here for [time]. Her reason:" — review evidence`,
+      avoidTypes: 'local_guide',
+    },
+    optician: {
+      contentFocus: 'Teach. Correct assumptions. Address fears about eye health.',
+      hookFrameworks: `PROVEN FRAMEWORKS FOR OPTICIANS:
+1. COST OF WAITING: "The [symptom] most people ignore. What it means in [time]."
+2. MYTH BUST: "Most people think [belief about eyes/glasses]. Opticians disagree."
+3. PROCESS: "What actually happens during an eye test. Most people don't know."
+4. FEAR: "She put it off for [time]. Here's what she found out."
+5. TECH REVEAL: "The [equipment/test] that can detect [condition] before symptoms appear."`,
+      avoidTypes: 'experience, local_guide',
+    },
+  }
+
+  const healthIndustries = ['dental', 'physiotherapy', 'veterinary', 'optician']
+  const isHealth = healthIndustries.includes(industry)
+
+  return configs[industry] ?? {
+    contentFocus: isHealth
+      ? 'Teach, address fears, show results. The viewer has questions they haven\'t asked.'
+      : 'Create emotional connection. Make people feel something about this business.',
+    hookFrameworks: `PROVEN FRAMEWORKS:
+1. UNEXPECTED BEHAVIOR: Specific customer action that implies quality without stating it.
+2. FEAR ADDRESSED: The real hesitation most people have. Met directly.
+3. PROCESS REVEAL: Something about how this works that most people would never guess.
+4. TRANSFORMATION: Before → after. Specific, not generic.
+5. LOYALTY PROOF: Frequency or sacrifice that proves quality.`,
+    avoidTypes: 'nothing specific',
+  }
+}
+
+// ── Top-down hook prompt ───────────────────────────────────────────────────────
 
 export function getVarietyPrompt(industry: string, businessName: string, reviewList: string, language: string, businessContext?: string | null): string {
   const contextBlock = businessContext
-    ? `\nBUSINESS CONTEXT (from their website — use this to make every reel idea specific to what they actually offer and who they serve):\n${businessContext}\n`
+    ? `\nBUSINESS CONTEXT (use this to make every idea specific to what they actually offer):\n${businessContext}\n`
     : ''
 
-  return `You are a content strategist who understands what makes strangers stop scrolling on Instagram and TikTok.
+  const { contentFocus, hookFrameworks, avoidTypes } = getIndustryConfig(industry)
+
+  return `You are a creative director who builds scroll-stopping Reels for local businesses. You start with a strong hook concept, then find the review evidence that makes it real.
 
 Business: ${businessName} (${industry})
 LANGUAGE: Write every field in ${language}.
 ${contextBlock}
-YOUR JOB: Generate 5 "Grow your audience" Reel ideas for this business. These are NOT review-based reels. They attract NEW potential customers who have never heard of this business.
+CONTENT FOCUS FOR THIS INDUSTRY:
+${contentFocus}
 
-Think like someone at 11pm on their phone who is:
-- About to book their first visit but has an unspoken fear
-- Googling questions they're embarrassed to ask
-- Putting off a decision because of a myth or misconception
-- Curious about what actually happens behind the scenes
-- Would share this with a friend because it surprised them
+AVOID: ${avoidTypes}
 
-Use the business context above to make each idea SPECIFIC — name the actual treatment, service, or process. Generic reel ideas are worthless. A reel about "dental implants in a single day" beats "something about dentistry."
+---
 
-CONTENT TYPES — use a variety, don't repeat the same type twice:
-- educational: Step-by-step reveal of something most people misunderstand about a specific service this business offers
-- myth_bust: A widespread belief that is wrong and holding people back from booking this specific service
-- experience: What it actually feels like for a nervous first-timer at THIS type of business (sensory, specific)
-- behind_scenes: A process most customers never see that would reassure or impress them
-- trust: A number, credential, or fact about this specific business that earns trust before the viewer even asks
+${hookFrameworks}
 
-HOOK RULES:
-- Must work on a complete stranger with zero context about this business
-- Creates curiosity, names a fear, or states a surprising truth
-- Never sounds like an ad. Never names the business.
-- Max 8 words. Short sentences. No filler.
+---
 
-GOOD hooks: "Most people wait too long. Here's the cost." / "What actually happens in the first 10 minutes." / "You're not supposed to feel anything. Most do."
+YOUR PROCESS — two-direction thinking:
+
+DIRECTION 1 — Hook first, then evidence:
+Take each framework above. Ask: does this business have review material that fits? If yes, build the reel. If no, build it from industry knowledge alone (no fabrication — just what's true about this type of business).
+
+DIRECTION 2 — Evidence first, then hook:
+Scan the reviews for anything specific and surprising that doesn't fit the frameworks above. If you find it, build a hook around it.
+
+RULES:
+- Hook must work on a complete stranger with zero context about this business
+- Never names the business. Never sounds like an ad.
+- Max 8 words. Short. No filler words.
+- If a framework needs review evidence — only use it if a review actually supports it. Mark reviewIds accordingly.
+- If a framework works from industry knowledge alone — reviewIds can be empty, but anchorReviewId must be the single most relevant review for the closing quote.
+- Generic is worthless. "Dental implants in one day" beats "something about dentistry."
+
+GOOD hooks: "Most people wait too long. Here's the cost." / "What actually happens in the first 10 minutes." / "She drove 2 hours. Same order every time."
 BAD hooks: "We offer a great experience." / "Come visit us today." / "Here's what we do."
 
 ---
 
-REVIEWS — use these ONLY to find the best closing quote for each theme. Pick the 1 review whose quote emotionally validates what the reel teaches. Do NOT base the topic itself on the reviews.
+REVIEWS — scan for evidence AND find the best closing quote per theme:
 ${reviewList}
 
 ---
@@ -151,7 +283,7 @@ Return ONLY valid JSON with exactly 5 themes:
     {
       "id": "unique-slug",
       "title": "Reel idea as a scroll-stopping fact (under 10 words)",
-      "hook": "The hook — curiosity, fear, or surprising truth (max 8 words)",
+      "hook": "The hook — max 8 words, no business name, no ad language",
       "reelType": "pattern",
       "contentType": "educational | myth_bust | experience | behind_scenes | trust",
       "keyPhrase": "the core topic in 4-6 words",
