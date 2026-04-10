@@ -3,113 +3,100 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 
+const ORANGE = '#e8470a'
+const ORANGE2 = '#ff6b35'
+const INK = '#1a1814'
+const INK3 = '#7a766e'
+const INK4 = '#b0aca4'
+const BG = '#fafaf8'
+const BORDER = '#e8e5df'
+
 // ─── Testimonials ─────────────────────────────────────────────────────────────
 
 const TESTIMONIALS = [
   {
-    quote: "We went from #8 to #3 on Google Maps in six weeks. The QR code alone doubled our monthly reviews.",
+    quote: "We went from #8 to #3 on Google Maps in six weeks. The QR code alone doubled our monthly reviews — without us asking a single customer manually.",
     name: "James Whitfield",
     business: "CrossFit gym, Austin TX",
-    stars: 5,
   },
   {
-    quote: "The AI turns our patient reviews into actual premium content. Our Instagram engagement went up 3x.",
+    quote: "The AI turns our patient reviews into actual premium content. Our Instagram engagement went up 3x and new patient inquiries are up significantly.",
     name: "Dr. Sarah Chen",
     business: "Dental clinic, San Francisco CA",
-    stars: 5,
   },
   {
-    quote: "I used to spend hours on marketing. Now Buzzloop handles it. We're ranking #1 for our main keyword.",
+    quote: "I used to spend hours every week on marketing. Now Buzzloop handles the content side completely. We're ranking #1 for our main keyword.",
     name: "Marco DeLuca",
     business: "Italian restaurant, Chicago IL",
-    stars: 5,
   },
   {
-    quote: "The reply tool saves me 20 minutes a day. Every review gets a thoughtful response, automatically.",
+    quote: "The reply tool saves me 20 minutes a day. Every Google review gets a thoughtful, on-brand response. Customers notice.",
     name: "Priya Nair",
     business: "Med spa, Miami FL",
-    stars: 5,
   },
   {
-    quote: "Went from 47 to 190 Google reviews in 3 months. Our phone doesn't stop ringing.",
+    quote: "Went from 47 to 190 Google reviews in 3 months. Our phone doesn't stop ringing with new clients.",
     name: "Carlos Mendez",
     business: "Law firm, Los Angeles CA",
-    stars: 5,
   },
 ]
 
 function TestimonialCarousel() {
   const [current, setCurrent] = useState(0)
-  const [animating, setAnimating] = useState(false)
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [fading, setFading] = useState(false)
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
-    timerRef.current = setTimeout(() => {
-      setAnimating(true)
+    timer.current = setTimeout(() => {
+      setFading(true)
       setTimeout(() => {
         setCurrent(c => (c + 1) % TESTIMONIALS.length)
-        setAnimating(false)
-      }, 400)
-    }, 3000)
-    return () => { if (timerRef.current) clearTimeout(timerRef.current) }
+        setFading(false)
+      }, 350)
+    }, 3200)
+    return () => { if (timer.current) clearTimeout(timer.current) }
   }, [current])
 
   const t = TESTIMONIALS[current]
 
   return (
-    <div style={{ textAlign: 'center', padding: '64px 24px', maxWidth: 680, margin: '0 auto' }}>
+    <div style={{ textAlign: 'center', padding: '72px 24px', maxWidth: 660, margin: '0 auto' }}>
       <div style={{
-        opacity: animating ? 0 : 1,
-        transform: animating ? 'translateY(8px)' : 'translateY(0)',
-        transition: 'opacity 0.4s ease, transform 0.4s ease',
+        opacity: fading ? 0 : 1,
+        transform: fading ? 'translateY(6px)' : 'translateY(0)',
+        transition: 'opacity 0.35s ease, transform 0.35s ease',
       }}>
-        {/* Stars */}
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 4, marginBottom: 24 }}>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 3, marginBottom: 22 }}>
           {Array.from({ length: 5 }).map((_, i) => (
-            <span key={i} style={{ color: '#f59e0b', fontSize: 18 }}>★</span>
+            <span key={i} style={{ color: '#f59e0b', fontSize: 17 }}>★</span>
           ))}
         </div>
-
-        {/* Quote */}
-        <p style={{
-          fontSize: 22, fontWeight: 500, lineHeight: 1.5,
-          color: '#0f172a', marginBottom: 28, fontStyle: 'italic',
-          letterSpacing: '-0.01em',
-        }}>
+        <p style={{ fontSize: 21, fontWeight: 500, lineHeight: 1.55, color: INK, marginBottom: 28, fontStyle: 'italic', letterSpacing: '-0.01em' }}>
           &ldquo;{t.quote}&rdquo;
         </p>
-
-        {/* Author */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
           <div style={{
-            width: 40, height: 40, borderRadius: '50%',
-            background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+            width: 40, height: 40, borderRadius: '50%', flexShrink: 0,
+            background: `linear-gradient(135deg, ${ORANGE}, ${ORANGE2})`,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 15, fontWeight: 700, color: 'white', flexShrink: 0,
+            fontSize: 15, fontWeight: 700, color: 'white',
           }}>
             {t.name[0]}
           </div>
           <div style={{ textAlign: 'left' }}>
-            <p style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: 0 }}>{t.name}</p>
-            <p style={{ fontSize: 13, color: '#64748b', margin: 0 }}>{t.business}</p>
+            <p style={{ fontSize: 14, fontWeight: 700, color: INK, margin: 0 }}>{t.name}</p>
+            <p style={{ fontSize: 13, color: INK3, margin: 0 }}>{t.business}</p>
           </div>
         </div>
       </div>
-
-      {/* Dots */}
       <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginTop: 32 }}>
         {TESTIMONIALS.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => { setAnimating(false); setCurrent(i) }}
-            style={{
-              width: i === current ? 20 : 6,
-              height: 6, borderRadius: 3,
-              background: i === current ? '#6366f1' : '#e2e8f0',
-              border: 'none', cursor: 'pointer', padding: 0,
-              transition: 'all 0.3s ease',
-            }}
-          />
+          <button key={i} onClick={() => { setFading(false); setCurrent(i) }} style={{
+            width: i === current ? 20 : 6, height: 6, borderRadius: 3,
+            background: i === current ? ORANGE : BORDER,
+            border: 'none', cursor: 'pointer', padding: 0,
+            transition: 'all 0.3s ease',
+          }} />
         ))}
       </div>
     </div>
@@ -120,83 +107,68 @@ function TestimonialCarousel() {
 
 const FAQS = [
   {
-    q: "Do I need technical knowledge to use Buzzloop?",
-    a: "No. Setup takes under 5 minutes. You print a QR code, place it in your business, and Buzzloop does the rest. No coding, no complex setup.",
+    q: "How quickly will I see more Google reviews?",
+    a: "Most businesses see their first new reviews within 48 hours of placing their QR code. On average, Buzzloop users get 3x more reviews per month than before — because the process is so fast customers actually do it.",
+  },
+  {
+    q: "Will this actually improve my Google Maps ranking?",
+    a: "Yes. Google ranks local businesses on review quantity, recency, owner responses, and profile completeness. Buzzloop improves all four simultaneously. Most users see measurable ranking improvement within 4–8 weeks.",
   },
   {
     q: "How does the QR review flow work?",
-    a: "A customer scans your QR code, answers up to 3 quick questions on a branded mobile page, and Buzzloop drafts a polished Google review for them. They tap once to post it. The whole thing takes under 10 seconds.",
+    a: "A customer scans your QR code, answers up to 3 quick questions on a branded mobile page, and Buzzloop drafts a polished Google review for them. They tap once to post it. The whole thing takes under 10 seconds — no friction, no drop-off.",
   },
   {
-    q: "What social content does Buzzloop create?",
-    a: "Buzzloop analyzes your Google reviews, finds the most compelling stories and patterns, and turns them into premium short-form video reels and social posts — branded to your colors and logo. No generic templates.",
+    q: "What kind of social content does it create?",
+    a: "Buzzloop reads your real Google reviews, finds the most compelling stories, and turns them into premium short-form video reels — branded to your colors and logo. Not generic templates. Actual content built from what your customers say.",
   },
   {
-    q: "Does it work for any type of local business?",
-    a: "Yes. Buzzloop works for restaurants, dental clinics, gyms, salons, spas, law firms, hotels, and any business that serves local customers and wants more Google reviews.",
+    q: "Do I need to be a technical person to set this up?",
+    a: "No. Setup takes under 5 minutes. You print a QR code, place it somewhere visible in your business, and Buzzloop does the rest. No coding. No integrations to configure.",
   },
   {
     q: "What's included in the free plan?",
-    a: "The free plan includes your branded QR code and review landing page, the ability to see generated reels (without downloading), and keyword ranking tracking for 3 keywords.",
-  },
-  {
-    q: "Can I cancel anytime?",
-    a: "Yes, cancel anytime with no questions asked. You keep access until the end of your billing period.",
+    a: "The free plan includes your fully branded QR code, the customer review landing page, the ability to see your AI-generated reels (without downloading), and keyword ranking tracking for 3 local search terms.",
   },
   {
     q: "How does the AI review reply tool work?",
-    a: "Buzzloop reads each Google review and generates a personalized, on-brand reply in the same language as the review. You can edit it before posting, or post directly to Google with one click.",
+    a: "Buzzloop reads each Google review and generates a short, personalized reply in the same language as the review — using your brand tone and business context. You can edit it before posting, or post directly to Google in one click.",
   },
   {
-    q: "Will this actually improve my Google ranking?",
-    a: "Google ranks local businesses based on review quantity, recency, responses, and GBP completeness. Buzzloop directly improves all of these signals. Most businesses see measurable ranking improvement within 4-8 weeks.",
+    q: "Can I cancel anytime?",
+    a: "Yes. Cancel anytime, no questions asked. You keep access until the end of your billing period.",
   },
 ]
 
 function FAQ() {
   const [open, setOpen] = useState<number | null>(null)
-
   return (
-    <div style={{ maxWidth: 720, margin: '0 auto', padding: '0 24px' }}>
+    <div style={{ maxWidth: 700, margin: '0 auto', padding: '0 24px' }}>
       <div style={{ textAlign: 'center', marginBottom: 48 }}>
-        <p style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.1em', color: '#6366f1', textTransform: 'uppercase', marginBottom: 12 }}>FAQ</p>
-        <h2 style={{ fontSize: 36, fontWeight: 800, color: '#0f172a', margin: '0 0 12px', letterSpacing: '-0.02em' }}>
-          Frequently asked questions
-        </h2>
-        <p style={{ fontSize: 16, color: '#64748b', margin: 0 }}>Everything you need to know before getting started.</p>
+        <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.1em', color: ORANGE, textTransform: 'uppercase', marginBottom: 10 }}>FAQ</p>
+        <h2 style={{ fontSize: 34, fontWeight: 800, color: INK, margin: '0 0 10px', letterSpacing: '-0.02em' }}>Frequently asked questions</h2>
+        <p style={{ fontSize: 15, color: INK3, margin: 0 }}>Everything you need to know before getting started.</p>
       </div>
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
         {FAQS.map((faq, i) => (
-          <div
-            key={i}
-            style={{
-              borderRadius: 14,
-              border: `1px solid ${open === i ? '#c7d2fe' : '#e2e8f0'}`,
-              background: open === i ? '#fafafa' : 'white',
-              overflow: 'hidden',
-              transition: 'border-color 0.2s',
-            }}
-          >
-            <button
-              onClick={() => setOpen(open === i ? null : i)}
-              style={{
-                width: '100%', textAlign: 'left', padding: '18px 22px',
-                background: 'none', border: 'none', cursor: 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
-              }}
-            >
-              <span style={{ fontSize: 15, fontWeight: 600, color: '#0f172a', lineHeight: 1.4 }}>{faq.q}</span>
+          <div key={i} style={{
+            borderRadius: 14, border: `1px solid ${open === i ? '#ffd4c2' : BORDER}`,
+            background: open === i ? '#fff8f6' : 'white', overflow: 'hidden', transition: 'border-color 0.2s, background 0.2s',
+          }}>
+            <button onClick={() => setOpen(open === i ? null : i)} style={{
+              width: '100%', textAlign: 'left', padding: '17px 20px',
+              background: 'none', border: 'none', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
+            }}>
+              <span style={{ fontSize: 15, fontWeight: 600, color: INK, lineHeight: 1.4 }}>{faq.q}</span>
               <span style={{
-                fontSize: 18, color: '#6366f1', flexShrink: 0, fontWeight: 300,
-                transform: open === i ? 'rotate(45deg)' : 'rotate(0)',
-                transition: 'transform 0.2s ease',
-                display: 'inline-block',
+                fontSize: 20, color: ORANGE, flexShrink: 0, fontWeight: 300,
+                transform: open === i ? 'rotate(45deg)' : 'rotate(0)', transition: 'transform 0.2s ease', display: 'inline-block',
               }}>+</span>
             </button>
             {open === i && (
-              <div style={{ padding: '0 22px 18px' }}>
-                <p style={{ fontSize: 14, color: '#475569', lineHeight: 1.7, margin: 0 }}>{faq.a}</p>
+              <div style={{ padding: '0 20px 17px' }}>
+                <p style={{ fontSize: 14, color: '#475569', lineHeight: 1.75, margin: 0 }}>{faq.a}</p>
               </div>
             )}
           </div>
@@ -208,29 +180,40 @@ function FAQ() {
 
 // ─── Feature row ──────────────────────────────────────────────────────────────
 
-function Feature({ label, free, pro }: { label: string; free: boolean | string; pro: boolean | string }) {
+const FEATURES: { label: string; sublabel: string; free: boolean | string; pro: boolean | string }[] = [
+  { label: 'Branded QR code', sublabel: 'Turns every customer into a potential reviewer', free: true, pro: true },
+  { label: 'Custom review landing page', sublabel: 'Branded to your colors and logo', free: true, pro: true },
+  { label: 'Competitor tracking', sublabel: 'See how you rank vs nearby businesses', free: true, pro: true },
+  { label: 'GBP health score', sublabel: 'Know exactly what to fix to rank higher', free: true, pro: true },
+  { label: 'Keyword rankings', sublabel: 'Track your position in local Google search', free: '3 keywords', pro: 'Unlimited' },
+  { label: 'AI-generated reels', sublabel: 'Premium video content from your reviews', free: 'View only', pro: 'Download & share' },
+  { label: 'SMS review outreach', sublabel: 'Text customers directly to get reviews', free: false, pro: true },
+  { label: 'AI review replies', sublabel: 'Auto-draft replies in your tone, in any language', free: false, pro: true },
+  { label: 'Post replies to Google', sublabel: 'One click to respond publicly', free: false, pro: true },
+  { label: 'GBP description optimizer', sublabel: 'AI rewrites your profile to rank for more searches', free: false, pro: true },
+]
+
+function FeatureRow({ label, sublabel, free, pro }: typeof FEATURES[0]) {
   return (
     <div style={{
-      display: 'grid', gridTemplateColumns: '1fr 100px 100px',
-      alignItems: 'center', padding: '13px 0',
-      borderBottom: '1px solid #f1f5f9',
+      display: 'grid', gridTemplateColumns: '1fr 110px 110px',
+      alignItems: 'center', padding: '14px 0', borderBottom: `1px solid ${BG}`,
     }}>
-      <span style={{ fontSize: 14, color: '#334155' }}>{label}</span>
+      <div>
+        <p style={{ fontSize: 14, fontWeight: 600, color: INK, margin: '0 0 2px' }}>{label}</p>
+        <p style={{ fontSize: 12, color: INK4, margin: 0 }}>{sublabel}</p>
+      </div>
       <div style={{ textAlign: 'center' }}>
         {typeof free === 'string'
-          ? <span style={{ fontSize: 13, color: '#64748b' }}>{free}</span>
-          : free
-            ? <span style={{ color: '#16a34a', fontSize: 16 }}>✓</span>
-            : <span style={{ color: '#cbd5e1', fontSize: 14 }}>—</span>
-        }
+          ? <span style={{ fontSize: 12, fontWeight: 600, color: INK3, background: BG, padding: '3px 8px', borderRadius: 6 }}>{free}</span>
+          : free ? <span style={{ color: '#16a34a', fontSize: 17 }}>✓</span>
+          : <span style={{ color: '#d1d5db', fontSize: 14 }}>—</span>}
       </div>
       <div style={{ textAlign: 'center' }}>
         {typeof pro === 'string'
-          ? <span style={{ fontSize: 13, fontWeight: 600, color: '#6366f1' }}>{pro}</span>
-          : pro
-            ? <span style={{ color: '#16a34a', fontSize: 16 }}>✓</span>
-            : <span style={{ color: '#cbd5e1', fontSize: 14 }}>—</span>
-        }
+          ? <span style={{ fontSize: 12, fontWeight: 700, color: ORANGE, background: '#fff2ed', padding: '3px 8px', borderRadius: 6 }}>{pro}</span>
+          : pro ? <span style={{ color: '#16a34a', fontSize: 17 }}>✓</span>
+          : <span style={{ color: '#d1d5db', fontSize: 14 }}>—</span>}
       </div>
     </div>
   )
@@ -240,90 +223,80 @@ function Feature({ label, free, pro }: { label: string; free: boolean | string; 
 
 export function PricingPage() {
   return (
-    <div style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif', background: '#fafafa', minHeight: '100vh' }}>
+    <div style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif', background: BG, minHeight: '100vh', color: INK }}>
 
       {/* Nav */}
       <nav style={{
         position: 'sticky', top: 0, zIndex: 50,
-        background: 'rgba(250,250,250,0.9)', backdropFilter: 'blur(12px)',
-        borderBottom: '1px solid #e2e8f0',
+        background: 'rgba(250,250,248,0.92)', backdropFilter: 'blur(12px)',
+        borderBottom: `1px solid ${BORDER}`,
         padding: '0 32px', height: 60,
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
-        <Link href="/" style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', textDecoration: 'none', letterSpacing: '-0.02em' }}>
-          Buzzloop
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
+          <div style={{
+            width: 28, height: 28, borderRadius: 8,
+            background: ORANGE,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 13, fontWeight: 800, color: 'white',
+          }}>⚡</div>
+          <span style={{ fontSize: 15, fontWeight: 800, color: INK, letterSpacing: '-0.02em' }}>Buzzloop</span>
         </Link>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <Link href="/login" style={{ fontSize: 14, color: '#64748b', textDecoration: 'none', fontWeight: 500 }}>Log in</Link>
-          <Link
-            href="/login"
-            style={{
-              fontSize: 14, fontWeight: 700, color: 'white', textDecoration: 'none',
-              background: '#6366f1', padding: '8px 18px', borderRadius: 10,
-            }}
-          >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+          <Link href="/login" style={{ fontSize: 14, color: INK3, textDecoration: 'none', fontWeight: 500 }}>Log in</Link>
+          <Link href="/login" style={{
+            fontSize: 13, fontWeight: 700, color: 'white', textDecoration: 'none',
+            background: ORANGE, padding: '8px 18px', borderRadius: 10,
+          }}>
             Get started free
           </Link>
         </div>
       </nav>
 
       {/* Hero */}
-      <div style={{ textAlign: 'center', padding: '72px 24px 48px' }}>
-        <p style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.1em', color: '#6366f1', textTransform: 'uppercase', marginBottom: 16 }}>
-          Pricing
-        </p>
-        <h1 style={{
-          fontSize: 52, fontWeight: 900, color: '#0f172a',
-          margin: '0 0 16px', letterSpacing: '-0.03em', lineHeight: 1.1,
-        }}>
-          Simple, honest pricing
+      <div style={{ textAlign: 'center', padding: '64px 24px 52px' }}>
+        <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.1em', color: ORANGE, textTransform: 'uppercase', marginBottom: 14 }}>Pricing</p>
+        <h1 style={{ fontSize: 48, fontWeight: 900, color: INK, margin: '0 0 14px', letterSpacing: '-0.03em', lineHeight: 1.1 }}>
+          One plan. Everything included.
         </h1>
-        <p style={{ fontSize: 18, color: '#64748b', maxWidth: 480, margin: '0 auto', lineHeight: 1.6 }}>
-          Everything your local business needs to dominate Google Maps and turn reviews into customers.
+        <p style={{ fontSize: 17, color: INK3, maxWidth: 460, margin: '0 auto', lineHeight: 1.6 }}>
+          Start free. Upgrade when you want more reviews, better content, and a higher Google ranking.
         </p>
       </div>
 
       {/* Pricing cards */}
       <div style={{
         display: 'grid', gridTemplateColumns: '1fr 1fr',
-        gap: 20, maxWidth: 800, margin: '0 auto 80px', padding: '0 24px',
+        gap: 16, maxWidth: 780, margin: '0 auto 72px', padding: '0 24px',
       }}>
 
         {/* Free */}
-        <div style={{
-          background: 'white', borderRadius: 20,
-          border: '1px solid #e2e8f0', padding: '36px 32px',
-        }}>
-          <p style={{ fontSize: 13, fontWeight: 700, color: '#64748b', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 8 }}>Free</p>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginBottom: 6 }}>
-            <span style={{ fontSize: 48, fontWeight: 900, color: '#0f172a', letterSpacing: '-0.03em' }}>$0</span>
-            <span style={{ fontSize: 15, color: '#94a3b8' }}>/month</span>
+        <div style={{ background: 'white', borderRadius: 20, border: `1px solid ${BORDER}`, padding: '32px 28px' }}>
+          <p style={{ fontSize: 11, fontWeight: 700, color: INK4, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8 }}>Free</p>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginBottom: 4 }}>
+            <span style={{ fontSize: 46, fontWeight: 900, color: INK, letterSpacing: '-0.03em' }}>$0</span>
+            <span style={{ fontSize: 14, color: INK4 }}>/month</span>
           </div>
-          <p style={{ fontSize: 14, color: '#94a3b8', marginBottom: 28 }}>Forever free. No credit card.</p>
-          <Link
-            href="/login"
-            style={{
-              display: 'block', textAlign: 'center', padding: '13px',
-              borderRadius: 12, border: '1.5px solid #e2e8f0',
-              fontSize: 14, fontWeight: 700, color: '#334155',
-              textDecoration: 'none', marginBottom: 28,
-              transition: 'border-color 0.2s',
-            }}
-          >
+          <p style={{ fontSize: 13, color: INK4, marginBottom: 24 }}>No credit card required.</p>
+          <Link href="/login" style={{
+            display: 'block', textAlign: 'center', padding: '12px',
+            borderRadius: 11, border: `1.5px solid ${BORDER}`,
+            fontSize: 13, fontWeight: 700, color: INK,
+            textDecoration: 'none', marginBottom: 24,
+          }}>
             Get started free
           </Link>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {[
-              'Branded QR code',
-              'Custom review landing page',
-              'See generated reels',
-              '3 keyword rankings',
-              'Competitor tracking',
-              'GBP health score',
-            ].map(f => (
-              <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <span style={{ color: '#16a34a', fontSize: 14, flexShrink: 0 }}>✓</span>
-                <span style={{ fontSize: 14, color: '#475569' }}>{f}</span>
+              ['🔲', 'Branded QR code that drives reviews on autopilot'],
+              ['📱', 'Custom review page — customers post in under 10 seconds'],
+              ['🎬', 'See your AI-generated reels (upgrade to download)'],
+              ['📍', 'Track 3 local keywords and your Google Maps position'],
+              ['📊', 'Competitor ranking tracker'],
+            ].map(([icon, text]) => (
+              <div key={text} style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                <span style={{ fontSize: 14, flexShrink: 0, marginTop: 1 }}>{icon}</span>
+                <span style={{ fontSize: 13, color: '#475569', lineHeight: 1.45 }}>{text}</span>
               </div>
             ))}
           </div>
@@ -331,80 +304,80 @@ export function PricingPage() {
 
         {/* Pro */}
         <div style={{
-          background: 'linear-gradient(145deg, #6366f1 0%, #4f46e5 100%)',
-          borderRadius: 20, padding: '36px 32px', position: 'relative', overflow: 'hidden',
+          borderRadius: 20, padding: '32px 28px', position: 'relative', overflow: 'hidden',
+          background: INK, border: `1px solid ${INK}`,
         }}>
-          {/* Glow */}
           <div style={{
-            position: 'absolute', top: -40, right: -40,
-            width: 180, height: 180, borderRadius: '50%',
-            background: 'rgba(255,255,255,0.08)', pointerEvents: 'none',
+            position: 'absolute', top: -60, right: -60, width: 200, height: 200,
+            borderRadius: '50%', background: `${ORANGE}22`, pointerEvents: 'none',
+          }} />
+          <div style={{
+            position: 'absolute', bottom: -40, left: -40, width: 150, height: 150,
+            borderRadius: '50%', background: `${ORANGE}11`, pointerEvents: 'none',
           }} />
 
-          <p style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.7)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 8 }}>Pro</p>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginBottom: 6 }}>
-            <span style={{ fontSize: 48, fontWeight: 900, color: 'white', letterSpacing: '-0.03em' }}>$49</span>
-            <span style={{ fontSize: 15, color: 'rgba(255,255,255,0.6)' }}>/month</span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+            <p style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.08em', textTransform: 'uppercase', margin: 0 }}>Pro</p>
+            <span style={{ fontSize: 11, fontWeight: 700, color: ORANGE, background: `${ORANGE}22`, padding: '3px 8px', borderRadius: 6, letterSpacing: '0.04em' }}>
+              MOST POPULAR
+            </span>
           </div>
-          <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', marginBottom: 28 }}>Cancel anytime.</p>
-          <Link
-            href="/login"
-            style={{
-              display: 'block', textAlign: 'center', padding: '13px',
-              borderRadius: 12, background: 'white',
-              fontSize: 14, fontWeight: 700, color: '#4f46e5',
-              textDecoration: 'none', marginBottom: 28,
-            }}
-          >
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginBottom: 4 }}>
+            <span style={{ fontSize: 46, fontWeight: 900, color: 'white', letterSpacing: '-0.03em' }}>$49</span>
+            <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)' }}>/month</span>
+          </div>
+          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 24 }}>Cancel anytime.</p>
+          <Link href="/login" style={{
+            display: 'block', textAlign: 'center', padding: '12px',
+            borderRadius: 11, background: ORANGE,
+            fontSize: 13, fontWeight: 700, color: 'white',
+            textDecoration: 'none', marginBottom: 24,
+          }}>
             Start free trial →
           </Link>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {[
-              'Everything in Free',
-              'Download & share reels',
-              'SMS review outreach',
-              'AI review replies',
-              'Post directly to Google',
-              'Unlimited keywords',
-              'GBP description optimizer',
-              'Priority support',
-            ].map(f => (
-              <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <span style={{ color: 'rgba(255,255,255,0.9)', fontSize: 14, flexShrink: 0 }}>✓</span>
-                <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.85)' }}>{f}</span>
+              ['🎬', 'Download & share premium reels — straight from your reviews'],
+              ['💬', 'AI reply tool writes perfect responses to every Google review'],
+              ['📲', 'SMS outreach — text customers to get reviews automatically'],
+              ['🔍', 'Track unlimited keywords — see every search you rank for'],
+              ['📝', 'GBP optimizer rewrites your profile to rank for more searches'],
+              ['📮', 'Post replies directly to Google with one click'],
+            ].map(([icon, text]) => (
+              <div key={text} style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                <span style={{ fontSize: 14, flexShrink: 0, marginTop: 1 }}>{icon}</span>
+                <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', lineHeight: 1.45 }}>{text}</span>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Feature comparison table */}
-      <div style={{ maxWidth: 720, margin: '0 auto 80px', padding: '0 24px' }}>
-        <h2 style={{ fontSize: 24, fontWeight: 800, color: '#0f172a', textAlign: 'center', marginBottom: 32, letterSpacing: '-0.02em' }}>
+      {/* Value statement */}
+      <div style={{ textAlign: 'center', padding: '0 24px 72px', maxWidth: 560, margin: '0 auto' }}>
+        <p style={{ fontSize: 15, color: INK3, lineHeight: 1.7 }}>
+          For a dental clinic, <strong style={{ color: INK }}>one new patient from better Google ranking</strong> pays for Buzzloop for the entire year.
+          For a restaurant, it&apos;s one extra table on a Friday night.
+        </p>
+      </div>
+
+      {/* Feature comparison */}
+      <div style={{ maxWidth: 700, margin: '0 auto 80px', padding: '0 24px' }}>
+        <h2 style={{ fontSize: 22, fontWeight: 800, color: INK, textAlign: 'center', marginBottom: 24, letterSpacing: '-0.02em' }}>
           Compare plans
         </h2>
-        <div style={{ background: 'white', borderRadius: 16, border: '1px solid #e2e8f0', padding: '8px 24px' }}>
-          {/* Header */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px 100px', padding: '14px 0', borderBottom: '2px solid #f1f5f9' }}>
-            <span style={{ fontSize: 13, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Feature</span>
-            <span style={{ fontSize: 13, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.06em', textAlign: 'center' }}>Free</span>
-            <span style={{ fontSize: 13, fontWeight: 700, color: '#6366f1', textTransform: 'uppercase', letterSpacing: '0.06em', textAlign: 'center' }}>Pro</span>
+        <div style={{ background: 'white', borderRadius: 16, border: `1px solid ${BORDER}`, padding: '8px 22px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 110px 110px', padding: '12px 0', borderBottom: `2px solid ${BG}` }}>
+            <span style={{ fontSize: 11, fontWeight: 700, color: INK4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Feature</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: INK4, textTransform: 'uppercase', letterSpacing: '0.06em', textAlign: 'center' }}>Free</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: ORANGE, textTransform: 'uppercase', letterSpacing: '0.06em', textAlign: 'center' }}>Pro</span>
           </div>
-          <Feature label="Branded QR code" free={true} pro={true} />
-          <Feature label="Review landing page" free={true} pro={true} />
-          <Feature label="Competitor tracking" free={true} pro={true} />
-          <Feature label="GBP health score" free={true} pro={true} />
-          <Feature label="Keyword rankings" free="3 keywords" pro="Unlimited" />
-          <Feature label="AI-generated reels" free="View only" pro="Download & share" />
-          <Feature label="SMS review outreach" free={false} pro={true} />
-          <Feature label="AI review replies" free={false} pro={true} />
-          <Feature label="Post replies to Google" free={false} pro={true} />
-          <Feature label="GBP description optimizer" free={false} pro={true} />
+          {FEATURES.map(f => <FeatureRow key={f.label} {...f} />)}
         </div>
       </div>
 
       {/* Testimonials */}
-      <div style={{ background: 'white', borderTop: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0', marginBottom: 80 }}>
+      <div style={{ background: 'white', borderTop: `1px solid ${BORDER}`, borderBottom: `1px solid ${BORDER}`, marginBottom: 80 }}>
         <TestimonialCarousel />
       </div>
 
@@ -415,22 +388,18 @@ export function PricingPage() {
 
       {/* Bottom CTA */}
       <div style={{
-        textAlign: 'center', padding: '64px 24px 96px',
-        background: 'linear-gradient(180deg, #fafafa 0%, #f1f5f9 100%)',
-        borderTop: '1px solid #e2e8f0',
+        textAlign: 'center', padding: '64px 24px 88px',
+        borderTop: `1px solid ${BORDER}`,
       }}>
-        <h2 style={{ fontSize: 36, fontWeight: 800, color: '#0f172a', margin: '0 0 12px', letterSpacing: '-0.02em' }}>
+        <h2 style={{ fontSize: 34, fontWeight: 800, color: INK, margin: '0 0 10px', letterSpacing: '-0.02em' }}>
           Start climbing Google Maps today
         </h2>
-        <p style={{ fontSize: 16, color: '#64748b', marginBottom: 28 }}>Free forever. No credit card required.</p>
-        <Link
-          href="/login"
-          style={{
-            display: 'inline-block', padding: '14px 32px', borderRadius: 14,
-            background: '#6366f1', color: 'white', textDecoration: 'none',
-            fontSize: 15, fontWeight: 700, letterSpacing: '-0.01em',
-          }}
-        >
+        <p style={{ fontSize: 15, color: INK3, marginBottom: 28 }}>Free forever. No credit card required.</p>
+        <Link href="/login" style={{
+          display: 'inline-block', padding: '14px 32px', borderRadius: 13,
+          background: ORANGE, color: 'white', textDecoration: 'none',
+          fontSize: 15, fontWeight: 700, letterSpacing: '-0.01em',
+        }}>
           Get started free →
         </Link>
       </div>

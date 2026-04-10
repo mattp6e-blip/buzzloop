@@ -187,6 +187,10 @@ export function LandingPage() {
           <span className="font-bold text-sm" style={{ color: 'var(--ink)' }}>Buzzloop</span>
         </div>
         <div className="flex items-center gap-3">
+          <a href="/pricing" className="text-sm font-medium px-4 py-2 rounded-xl transition-all hover:opacity-70"
+            style={{ color: 'var(--ink3)' }}>
+            Pricing
+          </a>
           <a href="/login" className="text-sm font-medium px-4 py-2 rounded-xl transition-all hover:opacity-70"
             style={{ color: 'var(--ink3)' }}>
             Log in
