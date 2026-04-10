@@ -468,13 +468,26 @@ ${cluster.hookFrameworks}
 
 ---
 
-YOUR PROCESS — two-direction thinking:
+CONTENT TYPE DEFINITIONS — follow these exactly:
 
-DIRECTION 1 — Hook first, then evidence:
-Take each framework above. Does this business have review material that fits? If yes, use it. If no, build from industry knowledge (no fabrication — only what is genuinely true about this type of business).
+educational: Teaches something procedural or informational that potential customers are actively googling. Think: "how does X actually work", "what happens during X", "how long does X take". Must be about the procedure/service itself — NOT a customer story. Source: your knowledge of this industry, not the reviews.
+GOOD educational hook: "What actually happens when an implant is placed." / "How sedation dentistry actually works." / "What most people don't know about [procedure]."
+BAD educational hook: "He flies from Norway for treatment." (that's social proof, not educational)
 
-DIRECTION 2 — Evidence first, then hook:
-Scan the reviews for anything specific and surprising that doesn't fit the frameworks above. If you find it, build a hook around it.
+myth_bust: Corrects a widespread misconception that is stopping people from booking. Must name the myth explicitly. Source: industry knowledge.
+GOOD myth_bust hook: "You think [X]. Specialists disagree." / "Most people wait because of [myth]. Here's the truth."
+
+experience: Puts the viewer inside a sensory or atmospheric moment — what it feels like to be there. Source: reviews for emotional language, industry knowledge for atmosphere.
+
+behind_scenes: Shows what happens that customers never normally see. Process, craft, preparation. Source: industry knowledge.
+
+---
+
+YOUR PROCESS:
+
+For educational and myth_bust ideas: Think about what people in this industry are actually Googling. What questions do they have at 2am before booking? What fears are holding them back? What would genuinely change their decision to book? Build hooks around those questions. Do NOT use review material for these — use your knowledge of the industry.
+
+For experience and behind_scenes ideas: Use the reviews to find emotional language and atmosphere clues. Scan the reviews for sensory words, atmosphere descriptions, or process details.
 
 CONTENT MIX REQUIRED — generate exactly ${totalVariety} ideas with this exact breakdown:
 ${countInstructions}
@@ -483,14 +496,14 @@ HOOK RULES:
 - Works on a complete stranger with zero context about this business
 - Never names the business. Never sounds like an ad.
 - Max 8 words. No filler.
-- If a framework needs review evidence — only use it if a review actually supports it.
+- contentType must exactly match the type definition above — do not label social proof stories as educational
 
-GOOD hooks: "Most people wait too long. Here's the cost." / "What actually happens in the first 10 minutes." / "She drove 2 hours. Same order every time."
-BAD hooks: "We offer a great experience." / "Come visit us today." / "Here's what we do."
+GOOD educational hooks: "What actually happens during an implant procedure." / "How sedation actually works. Most don't know." / "The thing most dentists don't explain upfront."
+BAD educational hooks: "He flies from Norway for treatment." / "Three patients. Same surprising result." (those are social proof)
 
 ---
 
-REVIEWS — scan for evidence AND find the best closing quote per theme:
+REVIEWS — scan for experience/behind_scenes evidence only:
 ${reviewList}
 
 ---
@@ -503,15 +516,16 @@ Return ONLY valid JSON with exactly ${totalVariety} themes:
       "title": "Reel idea as a scroll-stopping fact (under 10 words)",
       "hook": "The hook — max 8 words, no business name, no ad language",
       "reelType": "pattern",
-      "contentType": "educational | myth_bust | experience | behind_scenes",
+      "contentType": "educational",
       "keyPhrase": "the core topic in 4-6 words",
       "emoji": "ONE relevant emoji",
-      "reviewIds": ["id1"],
-      "anchorReviewId": "id1",
+      "reviewIds": [],
       "buzzReason": "One sentence: why would a stranger stop scrolling for this?"
     }
   ]
-}`
+}
+
+Note: educational and myth_bust themes do not need reviewIds — leave the array empty.`
 }
 
 export async function POST(req: NextRequest) {

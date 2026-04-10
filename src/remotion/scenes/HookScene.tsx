@@ -40,7 +40,7 @@ export function HookScene({ headline, subline, template, brandColor, logoUrl, bu
       {template === 'immersive' && hasPhoto ? (
         <PhotoLayer url={photo!} direction="zoom-in" overlay="bottom" overlayStrength={0.45} />
       ) : template === 'collage' && hasPhoto ? (
-        <CollageLayer photos={[photo!]} />
+        <PhotoLayer url={photo!} direction="pan-right" overlay="full" overlayStrength={0.55} />
       ) : isEditorial ? (
         <EditorialBackground brandColor={brandColor} frame={frame} />
       ) : (
