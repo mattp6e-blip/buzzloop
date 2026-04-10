@@ -228,7 +228,7 @@ export function SettingsClient({ business }: { business: Business }) {
           <div>
             <Input id="settings-website" label="Website URL" type="url" placeholder="https://yourwebsite.com"
               value={websiteUrl} onChange={e => setWebsiteUrl(e.target.value)} />
-            <p className="text-xs mt-1.5" style={{ color: 'var(--ink4)' }}>Used to personalise your AI-generated content</p>
+            <p className="text-xs mt-1.5" style={{ color: 'var(--ink4)' }}>Used to personalise your content</p>
           </div>
           <div>
             <Input id="settings-google" label="Google Business Profile URL" type="url" placeholder="https://g.page/r/..."

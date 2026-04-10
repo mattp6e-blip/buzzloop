@@ -109,9 +109,9 @@ function SectionReviews() {
             Your branded QR code turns every happy customer into a Google reviewer in under 10 seconds. No staff awkwardness. No manual follow-up. Just reviews coming in.
           </p>
           <Bullet title="Branded QR code with your logo and colors" body="Print it, display it, embed it in receipts or follow-up messages." />
-          <Bullet title="Customers answer 3 quick questions, AI writes their review" body="They don't have to think of what to write. Buzzloop drafts a polished review based on what they share." />
+          <Bullet title="Customers answer 3 quick questions, we write their review" body="They don't have to think of what to write. Buzzloop drafts a polished review based on what they share." />
           <Bullet title="One tap to post on Google" body="No login, no copying text. Customers tap once and it's live." />
-          <Bullet title="Track every review, reply in one click" body="All reviews in one place. AI replies in your brand voice, in any language." />
+          <Bullet title="Track every review, reply in one click" body="All reviews in one place. We reply in your brand voice, in any language." />
           <a href="/signup" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 8, fontSize: 14, fontWeight: 700, color: ACCENT, textDecoration: 'none' }}>
             Start collecting reviews free →
           </a>
@@ -153,7 +153,7 @@ function SectionRanking() {
           <Bullet dark title="Track up to 10 local keywords" body="See your real Google Maps position for each search, updated daily." />
           <Bullet dark title="Monitor competitors side by side" body="Know instantly when you move above or below a nearby rival." />
           <Bullet dark title="GBP health score" body="Buzzloop scores your profile and flags exactly what's hurting your ranking." />
-          <Bullet dark title="AI profile optimizer" body="One click and Buzzloop rewrites your Google Business description to rank for more searches." />
+          <Bullet dark title="Profile optimizer" body="One click and Buzzloop rewrites your Google Business description to rank for more searches." />
           <a href="/signup" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 8, fontSize: 14, fontWeight: 700, color: ACCENT, textDecoration: 'none' }}>
             Start tracking your ranking free →
           </a>
@@ -194,7 +194,7 @@ export function LandingPage() {
           <div style={{ flex: '1 1 480px', minWidth: 0 }}>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold mb-8"
               style={{ background: `${ACCENT}12`, color: ACCENT, border: `1px solid ${ACCENT}28` }}>
-              ⚡ The AI growth platform for local businesses
+              ⚡ The growth platform for local businesses
             </div>
 
             <h1 className="font-bold mb-5" style={{ letterSpacing: '-0.03em', lineHeight: 1.08 }}>

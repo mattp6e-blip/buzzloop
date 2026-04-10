@@ -341,7 +341,7 @@ function OnboardingInner() {
                   style={{ border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--ink)', outline: 'none' }}
                 />
                 <p className="text-xs mt-1.5" style={{ color: 'var(--ink4)' }}>
-                  Buzzloop reads your website so the AI knows exactly what you offer, making Social Clips and keyword suggestions far more accurate.
+                  Buzzloop reads your website so Buzzloop knows exactly what you offer, making Social Clips and keyword suggestions far more accurate.
                 </p>
               </div>
 

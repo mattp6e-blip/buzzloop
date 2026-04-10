@@ -144,14 +144,14 @@ export function BusinessReels() {
             Your reviews are your best marketing asset.
           </h2>
           <p style={{ fontSize: 16, color: 'var(--ink3)', lineHeight: 1.75, maxWidth: 540, margin: '0 auto 32px' }}>
-            AI reads your Google reviews, finds the most compelling stories, and turns them into branded Social Clips, ready to post on Instagram, TikTok, or anywhere.
+            Buzzloop reads your Google reviews, finds the most compelling stories, and turns them into branded Social Clips, ready to post on Instagram, TikTok, or anywhere.
           </p>
           {/* Feature bullets in 2 cols */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '10px 32px', textAlign: 'left', maxWidth: 640, margin: '0 auto 44px' }}>
             {[
               ['Branded Social Clips from real reviews', 'Not generic templates, actual content built from what your customers say.'],
               ['Download and post anywhere', 'Instagram, TikTok, WhatsApp, your website. One download, use everywhere.'],
-              ['AI replies to every Google review', 'On-brand, in the right language, posted to Google in one click.'],
+              ['We reply to every Google review', 'On-brand, in the right language, posted to Google in one click.'],
               ['Fresh content every week, automatically', 'As new reviews come in, Buzzloop generates new clip ideas automatically.'],
             ].map(([title, body]) => (
               <div key={title} style={{ display: 'flex', gap: 10 }}>

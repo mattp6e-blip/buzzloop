@@ -100,7 +100,7 @@ function DescriptionCard({ currentDescription, missingKeywords, improvedDescript
             className="text-xs font-semibold"
             style={{ color: 'var(--ink3)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
           >
-            {expanded ? '▲ Hide' : '▼ View / edit AI-improved description'}
+            {expanded ? '▲ Hide' : '▼ View / edit your optimised description'}
           </button>
           {expanded && (
             <>

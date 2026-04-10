@@ -23,7 +23,7 @@ const TESTIMONIALS = [
   },
   {
     quote: "new patient inquiries are up significantly",
-    full: "The AI turns our patient reviews into actual premium content. Our Instagram engagement went up 3x and new patient inquiries are up significantly.",
+    full: "Buzzloop turns our patient reviews into actual premium content. Our Instagram engagement went up 3x and new patient inquiries are up significantly.",
     name: "Dr. Sarah Chen",
     role: "Principal dentist · San Francisco CA",
     initials: "SC",
@@ -155,10 +155,10 @@ const FAQS = [
   },
   {
     q: "What's included in the free plan?",
-    a: "The free plan includes your fully branded QR code, the customer review landing page, the ability to see your AI-generated Social Clips (without downloading), and keyword ranking tracking for 3 local search terms.",
+    a: "The free plan includes your fully branded QR code, the customer review landing page, the ability to see your Social Clips (without downloading), and keyword ranking tracking for 3 local search terms.",
   },
   {
-    q: "How does the AI review reply tool work?",
+    q: "How does the review reply tool work?",
     a: "Buzzloop reads each Google review and generates a short, personalized reply in the same language as the review, using your brand tone and business context. You can edit it before posting, or post directly to Google in one click.",
   },
   {
@@ -213,11 +213,11 @@ const FEATURES: { label: string; sublabel: string; free: boolean | string; pro: 
   { label: 'Competitor tracking', sublabel: 'See how you rank vs nearby businesses', free: true, pro: true },
   { label: 'GBP health score', sublabel: 'Know exactly what to fix to rank higher', free: true, pro: true },
   { label: 'Keyword rankings', sublabel: 'Track your position in local Google search', free: '3 keywords', pro: '10 keywords' },
-  { label: 'AI-generated Social Clips', sublabel: 'Premium video content from your reviews', free: 'View only', pro: 'Download & share' },
+  { label: 'Social Clips', sublabel: 'Premium video content from your reviews', free: 'View only', pro: 'Download & share' },
   { label: 'SMS review outreach', sublabel: 'Text customers directly to get reviews', free: false, pro: true },
-  { label: 'AI review replies', sublabel: 'Auto-draft replies in your tone, in any language', free: false, pro: true },
+  { label: 'Review replies', sublabel: 'Auto-draft replies in your tone, in any language', free: false, pro: true },
   { label: 'Post replies to Google', sublabel: 'One click to respond publicly', free: false, pro: true },
-  { label: 'GBP description optimizer', sublabel: 'AI rewrites your profile to rank for more searches', free: false, pro: true },
+  { label: 'GBP description optimizer', sublabel: 'Buzzloop rewrites your profile to rank for more searches', free: false, pro: true },
 ]
 
 function FeatureRow({ label, sublabel, free, pro }: typeof FEATURES[0]) {
@@ -317,7 +317,7 @@ export function PricingPage() {
             {[
               'Branded QR code that drives reviews on autopilot',
               'Custom review page, customers post in under 10 seconds',
-              'See your AI-generated Social Clips (upgrade to download)',
+              'See your Social Clips (upgrade to download)',
               'Track 3 local keywords and your Google Maps position',
               'Competitor ranking tracker',
             ].map((text) => (
@@ -368,7 +368,7 @@ export function PricingPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {[
               'Download and share your Social Clips anywhere',
-              'AI reply tool writes perfect responses to every Google review',
+              'Buzzloop writes perfect responses to every Google review',
               'SMS outreach to text customers and get reviews automatically',
               'Track unlimited keywords and every search you rank for',
               'GBP optimizer rewrites your profile to rank for more searches',

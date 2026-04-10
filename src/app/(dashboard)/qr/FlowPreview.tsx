@@ -156,7 +156,7 @@ export function CustomerJourney({ brandColor, slug }: { brandColor: string; slug
   const steps = [
     { step: 1 as const, title: 'Customer scans', desc: 'They land on a branded page personalised to your business' },
     { step: 2 as const, title: '3 quick questions', desc: 'Tailored to your industry, done in under 10 seconds' },
-    { step: 3 as const, title: 'AI writes the review', desc: 'They copy it and post to Google in one tap' },
+    { step: 3 as const, title: 'Buzzloop writes the review', desc: 'They copy it and post to Google in one tap' },
   ]
 
   return (
@@ -356,7 +356,7 @@ export function QuestionsEditor({
       </div>
 
       <p className="text-xs mt-4" style={{ color: 'var(--ink4)' }}>
-        After the questions, AI writes a personalised review draft. The customer edits it if they want, then posts to Google in one tap.
+        After the questions, Buzzloop writes a personalised review draft. The customer edits it if they want, then posts to Google in one tap.
       </p>
     </div>
   )

@@ -284,7 +284,7 @@ export function ReelsClient({ reviews, businessId, businessName, industry, brand
         <h3 className="font-bold text-lg mb-2" style={{ color: 'var(--ink)' }}>No Reels yet</h3>
         <p className="text-sm max-w-sm mx-auto mb-6" style={{ color: 'var(--ink3)' }}>
           {googleConnected
-            ? 'Once you have more reviews, the AI will find patterns and generate Reel ideas ranked by engagement potential, automatically.'
+            ? 'Once you have more reviews, Buzzloop will find patterns and generate Reel ideas ranked by engagement potential, automatically.'
             : 'Connect your Google Business Profile so we can import your reviews and start generating Reel ideas.'}
         </p>
         {googleConnected ? (

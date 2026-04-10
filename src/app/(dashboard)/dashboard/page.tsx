@@ -162,7 +162,7 @@ function generateTasks(params: {
       priority: 'high',
       icon: '💬',
       title: `${unrepliedCount} review${unrepliedCount > 1 ? 's' : ''} without a reply`,
-      why: `Google rewards businesses that engage with every reviewer. Replying publicly shows care and improves local pack visibility, takes under 2 minutes with AI.`,
+      why: `Google rewards businesses that engage with every reviewer. Replying publicly shows care and improves local pack visibility, takes under 2 minutes with Buzzloop.`,
       action: { label: 'Reply to reviews', href: '/reviews?tab=reply' },
     })
   }

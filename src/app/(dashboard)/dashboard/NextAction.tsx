@@ -28,7 +28,7 @@ function pickAction({
     return {
       icon: '🎬',
       heading: 'Your reviews are ready to become content',
-      body: `You have ${totalReviews} reviews. The AI can turn them into a Social Clip right now, it takes about 30 seconds.`,
+      body: `You have ${totalReviews} reviews. Buzzloop can turn them into a Social Clip right now, it takes about 30 seconds.`,
       cta: 'Create your first Social Clip →',
       href: '/reels',
     }
@@ -74,7 +74,7 @@ function pickAction({
     return {
       icon: '⭐',
       heading: 'Collect a few more reviews to unlock the best content',
-      body: `You have ${totalReviews} review${totalReviews > 1 ? 's' : ''}. With 5+ the AI finds stronger patterns and creates more compelling Social Clips.`,
+      body: `You have ${totalReviews} review${totalReviews > 1 ? 's' : ''}. With 5+ Buzzloop finds stronger patterns and creates more compelling Social Clips.`,
       cta: 'Get your QR code →',
       href: '/qr',
     }
