@@ -38,8 +38,10 @@ What customers said (context only — do NOT quote or repeat): ${reviewText}
 
 The caption's job is NOT to retell what's in the video. The video already hooks attention. The caption hooks the INTENT to act.
 
+CONTEXT: The business owner is posting this to their own Instagram. They are proud of what happened. They are speaking directly to their followers — potential customers in the area. They are NOT a marketer describing their own business from the outside.
+
 STRUCTURE (follow exactly):
-Line 1 — Hook (max 125 characters, must work as a standalone statement before "more" is tapped): Echo the most surprising or emotional moment from the reel in one sharp line. Should make someone who only reads captions want to watch. Or ask a question that makes them comment. Never start with the business name or "We".
+Line 1 — Hook (max 125 characters, must work as a standalone statement before "more" is tapped): One sharp line that puts the reader inside the moment. Write from the owner's perspective, speaking directly — as if saying it to a friend. NOT a detached narrator ("This one changed things for someone" is wrong — too far removed). NOT a question unless it's specific and personal. Never start with the business name or "We". Avoid "this one", "for someone", "this place" — language that distances the writer from the business.
 
 Line 2–3 — One specific thing that makes ${businessName} worth visiting. Plain language, no clichés, no hype. Something a real person would say to a friend.
 
@@ -58,9 +60,11 @@ RULES:
 - No customer names
 - No quotes from reviews
 - Maximum 1 emoji in the entire caption
-- Tone: warm, confident, human — never corporate or salesy
+- Tone: warm, confident, human — written by the owner, not about the owner
 - Do not start with the business name
 - Do not use "we" more than once
+- Never use distancing language: "this one", "for someone", "this place", "this business" — these make it sound like an ad written by someone else, not the owner
+- Never narrate the reel ("In this video..." or "Watch as...") — the caption speaks directly, not about the video
 
 Return ONLY the caption text and hashtags. Nothing else.`
 

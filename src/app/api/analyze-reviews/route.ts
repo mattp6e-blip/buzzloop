@@ -19,9 +19,340 @@ export function buildReviewList(reviews: Review[]): string {
   }).join('\n')
 }
 
-// ── Social proof prompt (review-based) ───────────────────────────────────────
+// ── Cluster system ────────────────────────────────────────────────────────────
 
-export function getAnalysisPrompt(reviewList: string, industry: string, businessName: string, reviewCount: number, language: string): string {
+type ClusterName =
+  | 'dental' | 'medical' | 'therapeutic' | 'mental_health' | 'cosmetic'
+  | 'hair' | 'nails' | 'wellness' | 'fitness' | 'tattoo'
+  | 'restaurant' | 'cafe' | 'bar' | 'hospitality'
+  | 'vet' | 'professional' | 'automotive' | 'education' | 'event' | 'default'
+
+interface ClusterConfig {
+  name: string
+  contentFocus: string
+  hookFrameworks: string
+  avoidTypes: string
+  counts: { socialProof: number; educational: number; mythBust: number; experience: number; behindScenes: number }
+}
+
+const INDUSTRY_TO_CLUSTER: Record<string, ClusterName> = {
+  // Dental & Oral
+  dental: 'dental', orthodontist: 'dental', oral_surgeon: 'dental',
+  // Medical & Diagnostic
+  optician: 'medical', gp: 'medical', audiologist: 'medical', podiatrist: 'medical',
+  paediatrician: 'medical', sleep_clinic: 'medical',
+  // Therapeutic & Recovery
+  physiotherapy: 'therapeutic', chiropractor: 'therapeutic', osteopath: 'therapeutic', sports_medicine: 'therapeutic',
+  // Mental & Emotional Health
+  therapist: 'mental_health', psychiatrist: 'mental_health', psychologist: 'mental_health',
+  fertility_clinic: 'mental_health', counselling: 'mental_health',
+  // Cosmetic & Aesthetics
+  cosmetic_clinic: 'cosmetic', dermatologist: 'cosmetic', plastic_surgery: 'cosmetic',
+  weight_loss_clinic: 'cosmetic', aesthetics: 'cosmetic',
+  // Hair & Barbershop
+  salon: 'hair', barbershop: 'hair', hair_extensions: 'hair',
+  // Nails, Lash & Brow
+  nail_salon: 'nails', lash_brow: 'nails', waxing: 'nails',
+  // Body & Wellness
+  spa: 'wellness', yoga: 'wellness', pilates: 'wellness', massage: 'wellness',
+  meditation: 'wellness', float_tank: 'wellness',
+  // Fitness & Performance
+  gym: 'fitness', personal_trainer: 'fitness', crossfit: 'fitness', boxing: 'fitness',
+  martial_arts: 'fitness', cycling_studio: 'fitness', swimming: 'fitness',
+  // Tattoo & Permanent Art
+  tattoo: 'tattoo', microblading: 'tattoo', permanent_makeup: 'tattoo', piercing: 'tattoo',
+  // Restaurant & Dining
+  restaurant: 'restaurant', fine_dining: 'restaurant', casual_dining: 'restaurant',
+  // Cafe, Bakery & Dessert
+  cafe: 'cafe', bakery: 'cafe', dessert_shop: 'cafe', juice_bar: 'cafe',
+  // Bar & Nightlife
+  bar: 'bar', cocktail_bar: 'bar', pub: 'bar', wine_bar: 'bar', nightclub: 'bar',
+  // Hospitality
+  hotel: 'hospitality', boutique_hotel: 'hospitality', bnb: 'hospitality',
+  vacation_rental: 'hospitality', event_venue: 'hospitality',
+  // Veterinary & Paediatric
+  veterinary: 'vet', pet_grooming: 'vet', pet_boarding: 'vet', dog_training: 'vet',
+  // Professional & High Stakes
+  lawyer: 'professional', accountant: 'professional', financial_advisor: 'professional',
+  mortgage_broker: 'professional', real_estate: 'professional',
+  // Automotive
+  mechanic: 'automotive', car_detailing: 'automotive', tyre_shop: 'automotive',
+  body_shop: 'automotive', car_dealership: 'automotive',
+  // Education & Skills
+  tutoring: 'education', language_school: 'education', music_school: 'education',
+  art_school: 'education', driving_school: 'education', dance_studio: 'education',
+  // Event & Occasion
+  photographer: 'event', florist: 'event', catering: 'event', wedding_planner: 'event',
+}
+
+const CLUSTER_CONFIGS: Record<ClusterName, ClusterConfig> = {
+  dental: {
+    name: 'Dental & Oral',
+    contentFocus: 'Address real fears. The viewer is avoiding something they know they should do. Meet the anxiety directly — pain, cost, appearance. Teach things that change the booking decision.',
+    hookFrameworks: `1. FEAR OVERCOME: "Most people avoid [treatment] because of [specific fear]. Here's what actually happens." — myth_bust
+2. PROCESS REVEAL: "What actually happens in the first [X] minutes. Nobody explains this." — behind_scenes
+3. COST OF WAITING: "The [symptom] most people ignore. What it becomes in [time]." — educational
+4. EXPECTATION FLIP: "She expected [negative]. Instead: [positive surprise]." — needs review evidence
+5. CAPABILITY PROOF: "[Treatment] in [surprisingly short time]. Most don't know this exists." — educational
+6. LOYALTY BEHAVIOR: "She drove [distance]. Every [frequency]. Her reason:" — social proof
+7. BEHAVIORAL PROOF: "[Specific unexpected behavior that implies quality]" — social proof`,
+    avoidTypes: 'sensory/experience — nobody feels sensory joy about dental visits',
+    counts: { socialProof: 2, educational: 2, mythBust: 2, experience: 0, behindScenes: 1 },
+  },
+
+  medical: {
+    name: 'Medical & Diagnostic',
+    contentFocus: 'Health anxiety and the cost of ignoring symptoms. The viewer is googling their symptoms at 2am and putting off booking. Teach things that make them act.',
+    hookFrameworks: `1. COST OF IGNORING: "The [symptom] most people push through. What it becomes." — educational
+2. HIDDEN SIGN: "The [sign] most people miss. What it actually means." — educational
+3. FEAR ADDRESSED: "She put it off for [time]. Here's what she found out." — needs review evidence
+4. PROCESS REVEAL: "What a [checkup/test] actually involves. Most people are surprised." — behind_scenes
+5. LOYALTY BEHAVIOR: "[Patient behavior that implies trust and quality]" — social proof
+6. MYTH BUST: "Most people think [health belief]. Specialists disagree." — myth_bust`,
+    avoidTypes: 'sensory — not relevant for medical',
+    counts: { socialProof: 2, educational: 2, mythBust: 1, experience: 0, behindScenes: 1 },
+  },
+
+  therapeutic: {
+    name: 'Therapeutic & Recovery',
+    contentFocus: 'Pain, recovery, and widespread myths about both. The viewer is pushing through pain they shouldn\'t or avoiding treatment they need. Correct the myths, show real results.',
+    hookFrameworks: `1. PAIN MYTH: "You think you should push through [pain]. Physios disagree." — myth_bust
+2. RECOVERY MYTH: "Most people think recovery means [wrong belief]. Here's what actually works." — myth_bust
+3. TRANSFORMATION: "[Problem] for [time]. Fixed in [X sessions]." — needs review evidence
+4. FEAR OF WORSENING: "Ignoring [pain signal] for [time]. What it means." — educational
+5. PROCESS REVEAL: "What the first session actually involves. Most people are surprised." — educational
+6. LOYALTY PROOF: "She's been coming every [frequency] for [time]. Her reason:" — social proof`,
+    avoidTypes: 'sensory — not relevant',
+    counts: { socialProof: 2, educational: 2, mythBust: 2, experience: 1, behindScenes: 0 },
+  },
+
+  mental_health: {
+    name: 'Mental & Emotional Health',
+    contentFocus: 'Stigma, vulnerability, and "is this normal." The viewer has been putting this off because of shame or fear of judgement. Meet them where they are — not with clinical language, with human honesty.',
+    hookFrameworks: `1. NORMALISATION: "Most people feel [thing] and think they\'re alone. They\'re not." — myth_bust
+2. STIGMA BUST: "She was ashamed to book. Here\'s what she found out." — needs review evidence
+3. IS THIS NORMAL: "The [thought/feeling] most people never say out loud. It\'s more common than you think." — educational
+4. TRANSFORMATION: "She\'d been managing [struggle] for [time]. [X months] later:" — needs review evidence
+5. FEAR OF JUDGEMENT: "What actually happens in the first session. No judgement, no pressure." — educational
+6. LOYALTY PROOF: "[Patient behavior that shows ongoing trust]" — social proof`,
+    avoidTypes: 'sensory, behind_scenes — inappropriate for this industry',
+    counts: { socialProof: 2, educational: 2, mythBust: 2, experience: 1, behindScenes: 0 },
+  },
+
+  cosmetic: {
+    name: 'Cosmetic & Aesthetics',
+    contentFocus: 'Self-image, transformation, and fear of looking unnatural. The viewer wants results but is scared of going too far or looking wrong. Show real transformations and address the fear directly.',
+    hookFrameworks: `1. FEAR OF OVERDOING: "She was scared of looking [unnatural/overdone]. Here\'s what happened." — myth_bust
+2. TRANSFORMATION: "[Concern] she\'d had for [time]. Here\'s what changed." — needs review evidence
+3. BEFORE/AFTER PROOF: "What [treatment] actually looks like when it\'s done right." — experience
+4. LOYALTY BEHAVIOR: "She comes every [frequency]. Has for [time]. Her reason:" — social proof
+5. PROCESS REVEAL: "What [treatment] actually involves. From start to finish." — behind_scenes
+6. NATURAL RESULT PROOF: "Nobody guessed she\'d had [treatment]. Her words:" — social proof`,
+    avoidTypes: 'nothing specific',
+    counts: { socialProof: 3, educational: 1, mythBust: 1, experience: 1, behindScenes: 1 },
+  },
+
+  hair: {
+    name: 'Hair & Barbershop',
+    contentFocus: 'Transformation, trust in the stylist, and the emotional weight of a bad haircut. The viewer has had a bad experience elsewhere and is hesitant. Show the result and the relationship.',
+    hookFrameworks: `1. TRANSFORMATION: "She\'d been wearing the same style for [time]. Here\'s what changed." — needs review evidence
+2. TRUST PROOF: "She drives [distance] past [number] salons. Her reason:" — social proof
+3. FEAR ADDRESSED: "She was nervous about going [short/different]. Here\'s what happened." — needs review evidence
+4. LOYALTY: "Same stylist for [time]. Every [frequency]. Her reason:" — social proof
+5. RESULT REVEAL: "What [hair transformation] looks like when it\'s done right." — experience
+6. MYTH BUST: "[Hair myth most people believe]. Here\'s what actually damages your hair." — myth_bust`,
+    avoidTypes: 'educational — nobody wants a hair science lecture',
+    counts: { socialProof: 3, educational: 0, mythBust: 1, experience: 1, behindScenes: 1 },
+  },
+
+  nails: {
+    name: 'Nails, Lash & Brow',
+    contentFocus: 'Precision, result, and self-expression. The viewer wants to see the work. Show the transformation and the craft. Loyalty behavior is powerful here — regular clients tell the story.',
+    hookFrameworks: `1. RESULT REVEAL: "What [service] looks like when it\'s done right." — experience
+2. LOYALTY: "She books every [frequency]. Has for [time]. Same technician." — social proof
+3. TRANSFORMATION: "[Before state] to [after state]. Her reaction:" — needs review evidence
+4. PRECISION PROOF: "What goes into [service] that most people never see." — behind_scenes
+5. MYTH BUST: "Most people think [gel/lash/brow myth]. Here\'s the truth." — myth_bust
+6. BEHAVIORAL PROOF: "[Specific behavior that implies quality — drove distance, rebooks immediately]" — social proof`,
+    avoidTypes: 'educational',
+    counts: { socialProof: 3, educational: 0, mythBust: 1, experience: 1, behindScenes: 1 },
+  },
+
+  wellness: {
+    name: 'Body & Wellness',
+    contentFocus: 'Sensory escape, ritual, and decompression. The viewer is stressed and overwhelmed. Make them feel calm just watching. Education is welcome when it explains why something works.',
+    hookFrameworks: `1. SENSORY MOMENT: "What [treatment] actually feels like. From the first minute." — experience
+2. TRANSFORMATION: "She came in [state]. Left [feeling]. Her words:" — needs review evidence
+3. RITUAL PROOF: "She comes every [frequency]. Has for [time]." — social proof
+4. EDUCATION: "What actually happens to your body during [treatment]. Most people don\'t know this." — educational
+5. MYTH BUST: "Most people think [wellness myth]. Here\'s what actually helps." — myth_bust
+6. FIRST VISIT: "What your first [class/session] actually feels like. Nobody tells you this." — experience`,
+    avoidTypes: 'nothing specific',
+    counts: { socialProof: 2, educational: 1, mythBust: 1, experience: 2, behindScenes: 1 },
+  },
+
+  fitness: {
+    name: 'Fitness & Performance',
+    contentFocus: 'Transformation, community, and the fear of starting. The viewer wants to change but is intimidated. Show real results. Address the fear of feeling out of place.',
+    hookFrameworks: `1. TRANSFORMATION: "She came in [state/fear]. [Time] later: [result]." — needs review evidence
+2. FEAR OF STARTING: "The thing stopping most people from starting. It\'s not what you think." — myth_bust
+3. COMMUNITY PROOF: "He hasn\'t missed [frequency] in [time]. His reason:" — social proof
+4. MYTH BUST: "The [exercise/fitness belief] most people get wrong. Here\'s why it matters." — myth_bust
+5. FIRST SESSION: "What the first [class/session] actually feels like. Nobody tells you this." — educational
+6. RESULTS PROOF: "[Specific achievement] in [time]. Her words:" — social proof`,
+    avoidTypes: 'sensory, behind_scenes',
+    counts: { socialProof: 3, educational: 1, mythBust: 1, experience: 1, behindScenes: 0 },
+  },
+
+  tattoo: {
+    name: 'Tattoo & Permanent Art',
+    contentFocus: 'The artist\'s reputation, the permanence, and the design itself. The viewer is deciding who to trust with something on their body forever. Show the craft. Show the process.',
+    hookFrameworks: `1. ARTIST REPUTATION: "She researched [number] artists before choosing. Her reason:" — social proof
+2. PROCESS REVEAL: "What actually happens during a [type] tattoo. Most people don\'t know this." — behind_scenes
+3. CRAFT REVEAL: "What goes into designing [type] that most clients never see." — behind_scenes
+4. PERMANENCE PROOF: "She\'d been thinking about this for [time]. Here\'s what she chose." — social proof
+5. MYTH BUST: "Most people think [tattoo myth]. Here\'s the truth." — myth_bust
+6. RESULT REVEAL: "What [style] looks like when it\'s done right." — experience`,
+    avoidTypes: 'educational',
+    counts: { socialProof: 2, educational: 0, mythBust: 1, experience: 1, behindScenes: 2 },
+  },
+
+  restaurant: {
+    name: 'Restaurant & Dining',
+    contentFocus: 'Food quality, atmosphere, and loyalty. Make people hungry, envious, or feel like they\'re missing out. Nobody wants to be educated about food — they want to feel something.',
+    hookFrameworks: `1. LOYALTY BEHAVIOR: "She\'s been coming every [day/week] for [time]. Same order every time." — social proof
+2. DRIVE-FOR-IT: "She drove [distance] for this. Came back [frequency]." — social proof
+3. SENSORY REVEAL: "What [signature dish] looks like when it\'s done right." — experience
+4. ATMOSPHERE MOMENT: "What a [Friday/Saturday] night here actually looks like." — experience
+5. BEHIND THE PASS: "What goes into [signature dish] that most people never see." — behind_scenes
+6. RESERVATION PROOF: "The table they book [X weeks] in advance. Every [day]." — social proof`,
+    avoidTypes: 'educational, myth_bust',
+    counts: { socialProof: 3, educational: 0, mythBust: 0, experience: 2, behindScenes: 1 },
+  },
+
+  cafe: {
+    name: 'Cafe, Bakery & Dessert',
+    contentFocus: 'Ritual, craft, and the sensory moment. The morning coffee, the fresh bread, the treat. Make people feel the ritual and crave the product.',
+    hookFrameworks: `1. RITUAL PROOF: "She stops here every morning. Has for [time]." — social proof
+2. CRAFT REVEAL: "What goes into [product] that most people never see." — behind_scenes
+3. SENSORY MOMENT: "What [signature item] looks like when it comes out of the oven." — experience
+4. LOYALTY: "He\'s had the same order for [time]. Here\'s why he never changes it." — social proof
+5. MORNING RITUAL: "What [time] looks like here. Every single day." — experience
+6. PRODUCT REVEAL: "The [item] most people don\'t order. It\'s the best thing we make." — experience`,
+    avoidTypes: 'educational, myth_bust',
+    counts: { socialProof: 2, educational: 0, mythBust: 0, experience: 3, behindScenes: 1 },
+  },
+
+  bar: {
+    name: 'Bar & Nightlife',
+    contentFocus: 'Atmosphere, craft, and FOMO. Make people feel like they\'re missing the best night. Show the craft behind the drinks and the energy of the space.',
+    hookFrameworks: `1. ATMOSPHERE FOMO: "What a [Friday/Saturday] night here actually looks like." — experience
+2. CRAFT REVEAL: "How we make [signature cocktail]. It\'s not what you think." — behind_scenes
+3. LOYALTY: "He\'s been here every [day] for [time]. Same order." — social proof
+4. SENSORY: "What [signature drink] looks like when it\'s done right." — experience
+5. HIDDEN GEM: "The [menu item/cocktail] nobody orders. It\'s the best thing we make." — experience
+6. BEHAVIORAL PROOF: "[Customer behavior that implies this is the best in the area]" — social proof`,
+    avoidTypes: 'educational, myth_bust',
+    counts: { socialProof: 2, educational: 0, mythBust: 0, experience: 3, behindScenes: 1 },
+  },
+
+  hospitality: {
+    name: 'Hospitality',
+    contentFocus: 'Experience, hidden details, and discovery. Make people feel like they\'d be missing something special if they stayed anywhere else.',
+    hookFrameworks: `1. HIDDEN DETAIL: "The thing guests find in their room every morning." — experience
+2. LOYALTY: "She stays here every time she visits [city]. Her reason:" — social proof
+3. LOCAL SECRET: "The spot our guests ask about every single checkout." — experience
+4. EXPERIENCE MOMENT: "What checking in here actually feels like." — experience
+5. BEHIND THE SCENES: "What happens before you arrive that you never see." — behind_scenes
+6. BEHAVIORAL PROOF: "[Guest behavior that implies this is worth the price]" — social proof`,
+    avoidTypes: 'educational, myth_bust',
+    counts: { socialProof: 2, educational: 0, mythBust: 0, experience: 2, behindScenes: 1 },
+  },
+
+  vet: {
+    name: 'Veterinary & Pet Care',
+    contentFocus: 'Emotional investment and fear. The owner is anxious, often avoidant, and highly protective. Reassure them. Teach them the signs they\'re missing. Show the care.',
+    hookFrameworks: `1. HIDDEN SIGN: "The [sign] in your dog/cat most owners miss. What it means." — educational
+2. FEAR ADDRESSED: "She was terrified to bring him in. Here\'s what happened." — needs review evidence
+3. COST OF IGNORING: "[Symptom] most pet owners push through. What it becomes." — educational
+4. MYTH BUST: "Most owners think [belief]. Vets disagree. Here\'s why." — myth_bust
+5. LOYALTY: "She\'s been bringing [pet name/breed] here for [time]. Her reason:" — social proof
+6. CARE PROOF: "[Specific behavior from staff or outcome that proves genuine care]" — social proof`,
+    avoidTypes: 'sensory',
+    counts: { socialProof: 2, educational: 3, mythBust: 1, experience: 1, behindScenes: 0 },
+  },
+
+  professional: {
+    name: 'Professional & High Stakes',
+    contentFocus: 'Fear of complexity, being taken advantage of, and making the wrong decision. The viewer is intimidated. Simplify. Demystify. Show outcomes, not process.',
+    hookFrameworks: `1. FEAR OF COMPLEXITY: "Most people think [legal/financial process] is complicated. It\'s not." — myth_bust
+2. COST OF WAITING: "She put off [legal/financial decision] for [time]. What it cost her." — educational
+3. MYTH BUST: "Most people believe [common misconception]. Here\'s what\'s actually true." — myth_bust
+4. OUTCOME PROOF: "She came in with [problem]. Left with [resolution]. Her words:" — social proof
+5. TRUST PROOF: "[Number] years. [Specific outcome or credential]. What it means for you." — educational
+6. BEHAVIORAL PROOF: "[Client behavior that implies trust — returned, referred, stayed for years]" — social proof`,
+    avoidTypes: 'sensory, experience',
+    counts: { socialProof: 2, educational: 2, mythBust: 2, experience: 0, behindScenes: 0 },
+  },
+
+  automotive: {
+    name: 'Automotive',
+    contentFocus: 'Distrust and transparency. The viewer assumes they\'ll be overcharged or misled. Earn trust by being radically transparent. Myth bust is the single most powerful format here.',
+    hookFrameworks: `1. TRANSPARENCY MYTH: "Most mechanics charge for [thing]. You don\'t need it. Here\'s why." — myth_bust
+2. RIP-OFF MYTH: "The [warning light/symptom] most garages use to overcharge. What it actually means." — myth_bust
+3. COST MYTH: "She was quoted [price] elsewhere. Here\'s what it actually cost." — social proof
+4. PROCESS REVEAL: "What actually happens when your car goes in. Most people never see this." — behind_scenes
+5. LOYALTY: "He\'s been bringing his car here for [time]. His reason:" — social proof
+6. MYTH BUST: "[Common car care belief] that\'s costing you money." — myth_bust`,
+    avoidTypes: 'sensory, experience',
+    counts: { socialProof: 2, educational: 1, mythBust: 3, experience: 0, behindScenes: 1 },
+  },
+
+  education: {
+    name: 'Education & Skills',
+    contentFocus: 'Progress, transformation, and the fear of not being good enough to start. Show the journey. Make people believe they can do it.',
+    hookFrameworks: `1. TRANSFORMATION: "She couldn\'t [skill] at all. [Time] later:" — needs review evidence
+2. FEAR OF STARTING: "Most people think they\'re too [old/bad/busy] to start. Here\'s the truth." — myth_bust
+3. PROGRESS PROOF: "[Specific milestone achieved]. How long it actually took." — educational
+4. LOYALTY: "She\'s been coming every [frequency] for [time]. What changed:" — social proof
+5. MYTH BUST: "Most people think learning [skill] takes [long time]. Here\'s what actually works." — myth_bust
+6. PROCESS: "What the first [lesson/session] actually looks like. No pressure, no judgement." — educational`,
+    avoidTypes: 'sensory',
+    counts: { socialProof: 2, educational: 2, mythBust: 2, experience: 1, behindScenes: 0 },
+  },
+
+  event: {
+    name: 'Event & Occasion',
+    contentFocus: 'High-stakes moments. The viewer is trusting this business with something that cannot be redone. Show craft, care, and the emotional weight of getting it right.',
+    hookFrameworks: `1. CRAFT REVEAL: "What goes into [service] that most clients never see." — behind_scenes
+2. HIGH STAKES PROOF: "She trusted us with [important occasion]. Her words:" — social proof
+3. PROCESS REVEAL: "What [service] looks like on the day. From the first hour." — behind_scenes
+4. LOYALTY/REFERRAL: "She recommended us to [number] people after her [event]. Her reason:" — social proof
+5. EMOTIONAL MOMENT: "The moment [bride/client] saw [result] for the first time." — experience
+6. MYTH BUST: "Most people think [planning myth]. Here\'s what actually matters." — myth_bust`,
+    avoidTypes: 'educational',
+    counts: { socialProof: 2, educational: 0, mythBust: 1, experience: 2, behindScenes: 2 },
+  },
+
+  default: {
+    name: 'Local Business',
+    contentFocus: 'Show what makes this business worth choosing over every alternative nearby.',
+    hookFrameworks: `1. LOYALTY BEHAVIOR: "[Specific customer behavior that implies quality]" — social proof
+2. UNEXPECTED PROOF: "[Thing a stranger would find surprising about this business]" — social proof
+3. PROCESS REVEAL: "What most customers never see that would impress them." — behind_scenes
+4. FEAR ADDRESSED: "The thing holding most people back from booking." — myth_bust
+5. TRANSFORMATION: "[Before state]. [After state]. Their words." — needs review evidence`,
+    avoidTypes: 'nothing specific',
+    counts: { socialProof: 2, educational: 1, mythBust: 1, experience: 1, behindScenes: 1 },
+  },
+}
+
+function getClusterConfig(industry: string): ClusterConfig {
+  const clusterName = INDUSTRY_TO_CLUSTER[industry] ?? 'default'
+  return CLUSTER_CONFIGS[clusterName]
+}
+
+export function getAnalysisPrompt(reviewList: string, industry: string, businessName: string, reviewCount: number, language: string, socialProofCount: number): string {
   return `You are the creative director behind the highest-performing local business Instagram Reels. Find the reel ideas that will genuinely stop someone's scroll.
 
 Business: ${businessName} (${industry})
@@ -36,7 +367,7 @@ LANGUAGE: Write every field of your JSON in ${language}.
 
 ---
 
-Find the best review-based reel ideas. Each is one of two types:
+Find exactly ${socialProofCount} social proof reel ideas from these reviews. Each is one of two types:
 
 ## TYPE: story
 Built around ONE extraordinary review. The anchor sentence is so specific and surprising it can carry a full reel.
@@ -64,7 +395,7 @@ BUZZ SCORE (1-100):
 90-100: Hook writes itself. Behavioral proof or expectation violation so strong a stranger stops scrolling.
 75-89: Strong specific material. Needs light shaping.
 60-74: Good material but hook requires more work.
-Below 60: Interesting but no single hook moment.
+Below 60: Skip it.
 
 ---
 
@@ -72,8 +403,8 @@ RULES:
 - Only include themes where the hook does NOT name the business or sound like an ad
 - Story reels need one extraordinary anchor — skip if anchor is generic
 - Pattern reels need 3+ reviews genuinely sharing the signal
-- Never generate two themes built around the same underlying story or behaviour (e.g. if one theme is about travelling from abroad, do not create a second theme also about travelling from abroad)
-- Return 3-5 themes maximum, ranked by buzzScore descending
+- Never generate two themes built around the same underlying story or behaviour
+- Return exactly ${socialProofCount} themes, ranked by buzzScore descending
 - Set contentType to "social_proof" for all themes
 
 Return ONLY valid JSON:
@@ -99,173 +430,60 @@ For story reels: reviewIds = anchor + 1-2 supporting reviews. anchorReviewId = p
 For pattern reels: reviewIds = all reviews sharing the pattern (min 3). anchorReviewId omitted.`
 }
 
-// ── Industry content mix ──────────────────────────────────────────────────────
-
-function getIndustryConfig(industry: string): {
-  contentFocus: string
-  hookFrameworks: string
-  avoidTypes: string
-} {
-  const configs: Record<string, { contentFocus: string; hookFrameworks: string; avoidTypes: string }> = {
-    restaurant: {
-      contentFocus: 'Sensory and emotional. Make people hungry, envious, or feel like they are missing out. Nobody wants to be educated about food — they want to feel something.',
-      hookFrameworks: `PROVEN FRAMEWORKS FOR RESTAURANTS:
-1. SENSORY REVEAL: "What [signature dish] looks like when it's done right." — triggers craving, FOMO
-2. LOYALTY BEHAVIOR: "The table they book [X weeks] in advance. Every [day]." — behavioral proof from reviews
-3. ATMOSPHERE MOMENT: "What a [Friday/Saturday] night here actually looks like." — puts viewer inside the experience
-4. DRIVE-FOR-IT: "She drove [distance] for this. Came back [frequency]." — needs review evidence
-5. BEHIND THE PASS: "What goes into [signature dish] that most people never see." — craft reveal, earns respect`,
-      avoidTypes: 'educational, myth_bust — nobody wants a food science lesson',
-    },
-    bar: {
-      contentFocus: 'Atmosphere, craft, FOMO. Make people feel like they are missing the best night out.',
-      hookFrameworks: `PROVEN FRAMEWORKS FOR BARS:
-1. ATMOSPHERE MOMENT: "What a [night/Friday] here actually looks like."
-2. CRAFT REVEAL: "How we actually make [signature cocktail]. It's not what you think."
-3. LOYALTY: "He's been here every [day] for [time]. Same order."
-4. SENSORY: "What [signature drink/dish] looks like when it's done right."
-5. HIDDEN GEM: "The [menu item] nobody orders. It's the best thing we make."`,
-      avoidTypes: 'educational — nobody wants a cocktail chemistry lesson',
-    },
-    hotel: {
-      contentFocus: 'Aspiration, experience, hidden details. Make people want to stay there.',
-      hookFrameworks: `PROVEN FRAMEWORKS FOR HOTELS:
-1. HIDDEN DETAIL: "The thing guests find in their room every morning."
-2. LOYALTY: "She stays here every time she visits [city]. Her reason:"
-3. LOCAL SECRET: "The spot our guests ask about every single checkout."
-4. EXPERIENCE: "What checking in here actually feels like."
-5. BEHIND THE SCENES: "What happens before you arrive that you never see."`,
-      avoidTypes: 'myth_bust — hotel guests don\'t have misconceptions to bust',
-    },
-    gym: {
-      contentFocus: 'Transformation, results, community. Show what\'s possible. Address the fear of starting.',
-      hookFrameworks: `PROVEN FRAMEWORKS FOR GYMS:
-1. TRANSFORMATION: "She came in [state/fear]. [Time] later: [result]." — needs review evidence
-2. FEAR ADDRESSED: "The thing stopping most people from starting. It's not what you think."
-3. MYTH BUST: "The [exercise/belief] everyone gets wrong. Here's why it matters."
-4. COMMUNITY PROOF: "He hasn't missed [frequency] in [time]. His reason:" — needs review evidence
-5. FIRST SESSION: "What the first [class/session] actually feels like. Nobody tells you this."`,
-      avoidTypes: 'local_guide, trust — not relevant',
-    },
-    salon: {
-      contentFocus: 'Transformation, aspiration, results. Show what\'s possible. The before/after is the story.',
-      hookFrameworks: `PROVEN FRAMEWORKS FOR SALONS:
-1. TRANSFORMATION: "[Hair/look problem] for [time]. Here's what changed."  — needs review evidence
-2. FEAR OVERCOME: "She was nervous about [change]. Here's what happened."
-3. PROCESS REVEAL: "What [service] actually looks like. From start to finish."
-4. LOYALTY: "She's been coming every [frequency] for [time]. Same stylist every time." — review evidence
-5. MYTH BUST: "The [service] most people are afraid to try. Here's why they shouldn't be."`,
-      avoidTypes: 'educational, trust — not relevant for salons',
-    },
-    spa: {
-      contentFocus: 'Sensory experience, transformation, escape. Make people feel relaxed just watching.',
-      hookFrameworks: `PROVEN FRAMEWORKS FOR SPAS:
-1. SENSORY: "What [signature treatment] actually feels like. From the first minute."
-2. TRANSFORMATION: "She came in [stressed/state]. Left [feeling]. Her words:"  — review evidence
-3. MYTH BUST: "Most people think [treatment] is [misconception]. Here's the truth."
-4. PROCESS REVEAL: "What happens in the first 10 minutes of [treatment]. Nobody shows this."
-5. LOYALTY: "She books every [frequency]. Has for [time]." — review evidence`,
-      avoidTypes: 'educational — spa guests want to feel, not learn',
-    },
-    dental: {
-      contentFocus: 'Address real fears. Teach things that change decisions. The viewer has unspoken anxiety — meet it directly.',
-      hookFrameworks: `PROVEN FRAMEWORKS FOR DENTAL:
-1. FEAR OVERCOME: "Most people avoid [treatment] because of [specific fear]. Here's what actually happens." — myth_bust
-2. PROCESS REVEAL: "What actually happens in the first [X] minutes. Nobody explains this." — behind_scenes
-3. COST OF WAITING: "The [symptom] most people ignore. What it becomes in [time]." — educational
-4. EXPECTATION FLIP: "She expected [negative]. Instead: [positive surprise]." — needs review evidence
-5. CAPABILITY PROOF: "[Treatment] in [surprisingly short time]. Most don't know this exists." — educational`,
-      avoidTypes: 'experience, local_guide — not relevant',
-    },
-    physiotherapy: {
-      contentFocus: 'Teach. Address fears about pain and recovery. Show results.',
-      hookFrameworks: `PROVEN FRAMEWORKS FOR PHYSIO:
-1. MYTH BUST: "Most people think [pain/problem] means [wrong conclusion]. It doesn't."
-2. PROCESS: "What the first session actually involves. Most people are surprised."
-3. COST OF IGNORING: "[Pain signal] that most people push through. Here's what it means."
-4. TRANSFORMATION: "[Problem] for [time]. Fixed in [X sessions]." — needs review evidence
-5. FEAR ADDRESSED: "You think you need surgery. You probably don't. Here's why."`,
-      avoidTypes: 'experience, local_guide',
-    },
-    veterinary: {
-      contentFocus: 'Reassure worried pet owners. Teach things that affect pet health. Show care.',
-      hookFrameworks: `PROVEN FRAMEWORKS FOR VETS:
-1. HIDDEN SIGN: "The [sign] in your dog/cat most owners miss. What it means."
-2. FEAR ADDRESSED: "She was terrified to bring him in. Here's what happened."
-3. MYTH BUST: "Most owners think [belief]. Vets disagree. Here's why."
-4. PROCESS: "What a routine checkup actually involves. From your pet's perspective."
-5. LOYALTY: "She's been bringing [pet] here for [time]. Her reason:" — review evidence`,
-      avoidTypes: 'local_guide',
-    },
-    optician: {
-      contentFocus: 'Teach. Correct assumptions. Address fears about eye health.',
-      hookFrameworks: `PROVEN FRAMEWORKS FOR OPTICIANS:
-1. COST OF WAITING: "The [symptom] most people ignore. What it means in [time]."
-2. MYTH BUST: "Most people think [belief about eyes/glasses]. Opticians disagree."
-3. PROCESS: "What actually happens during an eye test. Most people don't know."
-4. FEAR: "She put it off for [time]. Here's what she found out."
-5. TECH REVEAL: "The [equipment/test] that can detect [condition] before symptoms appear."`,
-      avoidTypes: 'experience, local_guide',
-    },
-  }
-
-  const healthIndustries = ['dental', 'physiotherapy', 'veterinary', 'optician']
-  const isHealth = healthIndustries.includes(industry)
-
-  return configs[industry] ?? {
-    contentFocus: isHealth
-      ? 'Teach, address fears, show results. The viewer has questions they haven\'t asked.'
-      : 'Create emotional connection. Make people feel something about this business.',
-    hookFrameworks: `PROVEN FRAMEWORKS:
-1. UNEXPECTED BEHAVIOR: Specific customer action that implies quality without stating it.
-2. FEAR ADDRESSED: The real hesitation most people have. Met directly.
-3. PROCESS REVEAL: Something about how this works that most people would never guess.
-4. TRANSFORMATION: Before → after. Specific, not generic.
-5. LOYALTY PROOF: Frequency or sacrifice that proves quality.`,
-    avoidTypes: 'nothing specific',
-  }
-}
-
-// ── Top-down hook prompt ───────────────────────────────────────────────────────
-
-export function getVarietyPrompt(industry: string, businessName: string, reviewList: string, language: string, businessContext?: string | null): string {
+export function getVarietyPrompt(
+  industry: string,
+  businessName: string,
+  reviewList: string,
+  language: string,
+  businessContext: string | null | undefined,
+  cluster: ClusterConfig,
+): string {
   const contextBlock = businessContext
     ? `\nBUSINESS CONTEXT (use this to make every idea specific to what they actually offer):\n${businessContext}\n`
     : ''
 
-  const { contentFocus, hookFrameworks, avoidTypes } = getIndustryConfig(industry)
+  const { educational, mythBust, experience, behindScenes } = cluster.counts
+  const totalVariety = educational + mythBust + experience + behindScenes
 
-  return `You are a creative director who builds scroll-stopping Reels for local businesses. You start with a strong hook concept, then find the review evidence that makes it real.
+  const countInstructions = [
+    educational > 0 ? `- ${educational} educational` : '',
+    mythBust > 0 ? `- ${mythBust} myth_bust` : '',
+    experience > 0 ? `- ${experience} experience (sensory/atmosphere)` : '',
+    behindScenes > 0 ? `- ${behindScenes} behind_scenes` : '',
+  ].filter(Boolean).join('\n')
+
+  return `You are a creative director building scroll-stopping Reels for a ${cluster.name} business.
 
 Business: ${businessName} (${industry})
 LANGUAGE: Write every field in ${language}.
 ${contextBlock}
 CONTENT FOCUS FOR THIS INDUSTRY:
-${contentFocus}
+${cluster.contentFocus}
 
-AVOID: ${avoidTypes}
+AVOID: ${cluster.avoidTypes}
 
 ---
 
-${hookFrameworks}
+${cluster.hookFrameworks}
 
 ---
 
 YOUR PROCESS — two-direction thinking:
 
 DIRECTION 1 — Hook first, then evidence:
-Take each framework above. Ask: does this business have review material that fits? If yes, build the reel. If no, build it from industry knowledge alone (no fabrication — just what's true about this type of business).
+Take each framework above. Does this business have review material that fits? If yes, use it. If no, build from industry knowledge (no fabrication — only what is genuinely true about this type of business).
 
 DIRECTION 2 — Evidence first, then hook:
 Scan the reviews for anything specific and surprising that doesn't fit the frameworks above. If you find it, build a hook around it.
 
-RULES:
-- Hook must work on a complete stranger with zero context about this business
+CONTENT MIX REQUIRED — generate exactly ${totalVariety} ideas with this exact breakdown:
+${countInstructions}
+
+HOOK RULES:
+- Works on a complete stranger with zero context about this business
 - Never names the business. Never sounds like an ad.
-- Max 8 words. Short. No filler words.
-- If a framework needs review evidence — only use it if a review actually supports it. Mark reviewIds accordingly.
-- If a framework works from industry knowledge alone — reviewIds can be empty, but anchorReviewId must be the single most relevant review for the closing quote.
-- Generic is worthless. "Dental implants in one day" beats "something about dentistry."
+- Max 8 words. No filler.
+- If a framework needs review evidence — only use it if a review actually supports it.
 
 GOOD hooks: "Most people wait too long. Here's the cost." / "What actually happens in the first 10 minutes." / "She drove 2 hours. Same order every time."
 BAD hooks: "We offer a great experience." / "Come visit us today." / "Here's what we do."
@@ -277,7 +495,7 @@ ${reviewList}
 
 ---
 
-Return ONLY valid JSON with exactly 5 themes:
+Return ONLY valid JSON with exactly ${totalVariety} themes:
 {
   "themes": [
     {
@@ -285,7 +503,7 @@ Return ONLY valid JSON with exactly 5 themes:
       "title": "Reel idea as a scroll-stopping fact (under 10 words)",
       "hook": "The hook — max 8 words, no business name, no ad language",
       "reelType": "pattern",
-      "contentType": "educational | myth_bust | experience | behind_scenes | trust",
+      "contentType": "educational | myth_bust | experience | behind_scenes",
       "keyPhrase": "the core topic in 4-6 words",
       "emoji": "ONE relevant emoji",
       "reviewIds": ["id1"],
@@ -332,19 +550,21 @@ export async function POST(req: NextRequest) {
     const reviewList = buildReviewList(topReviews)
     const langSystem = `You must respond in ${language} only. Every word of your JSON output must be in ${language}. This is non-negotiable regardless of the business name or location.`
 
+    const cluster = getClusterConfig(industry)
+
     // Run social proof analysis + content variety generation in parallel
     const [proofMessage, varietyMessage] = await Promise.all([
       client.messages.create({
         model: 'claude-opus-4-6',
         max_tokens: 2000,
         system: langSystem,
-        messages: [{ role: 'user', content: getAnalysisPrompt(reviewList, industry, businessName, gbpReviews.length, language) }],
+        messages: [{ role: 'user', content: getAnalysisPrompt(reviewList, industry, businessName, gbpReviews.length, language, cluster.counts.socialProof) }],
       }),
       client.messages.create({
         model: 'claude-opus-4-6',
         max_tokens: 2500,
         system: langSystem,
-        messages: [{ role: 'user', content: getVarietyPrompt(industry, businessName, reviewList, language, businessContext) }],
+        messages: [{ role: 'user', content: getVarietyPrompt(industry, businessName, reviewList, language, businessContext, cluster) }],
       }),
     ])
 

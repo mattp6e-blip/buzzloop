@@ -1,16 +1,43 @@
 export type Industry =
-  | 'restaurant'
-  | 'gym'
-  | 'salon'
-  | 'dental'
-  | 'spa'
-  | 'hotel'
-  | 'bar'
-  | 'physiotherapy'
-  | 'veterinary'
-  | 'lawyer'
-  | 'tattoo'
-  | 'optician'
+  // Dental & Oral
+  | 'dental' | 'orthodontist' | 'oral_surgeon'
+  // Medical & Diagnostic
+  | 'optician' | 'gp' | 'audiologist' | 'podiatrist' | 'paediatrician' | 'sleep_clinic'
+  // Therapeutic & Recovery
+  | 'physiotherapy' | 'chiropractor' | 'osteopath' | 'sports_medicine'
+  // Mental & Emotional Health
+  | 'therapist' | 'psychiatrist' | 'psychologist' | 'fertility_clinic' | 'counselling'
+  // Cosmetic & Aesthetics
+  | 'cosmetic_clinic' | 'dermatologist' | 'plastic_surgery' | 'weight_loss_clinic' | 'aesthetics'
+  // Hair & Barbershop
+  | 'salon' | 'barbershop' | 'hair_extensions'
+  // Nails, Lash & Brow
+  | 'nail_salon' | 'lash_brow' | 'waxing'
+  // Body & Wellness
+  | 'spa' | 'yoga' | 'pilates' | 'massage' | 'meditation' | 'float_tank'
+  // Fitness & Performance
+  | 'gym' | 'personal_trainer' | 'crossfit' | 'boxing' | 'martial_arts' | 'cycling_studio' | 'swimming'
+  // Tattoo & Permanent Art
+  | 'tattoo' | 'microblading' | 'permanent_makeup' | 'piercing'
+  // Restaurant & Dining
+  | 'restaurant' | 'fine_dining' | 'casual_dining'
+  // Cafe, Bakery & Dessert
+  | 'cafe' | 'bakery' | 'dessert_shop' | 'juice_bar'
+  // Bar & Nightlife
+  | 'bar' | 'cocktail_bar' | 'pub' | 'wine_bar' | 'nightclub'
+  // Hospitality
+  | 'hotel' | 'boutique_hotel' | 'bnb' | 'vacation_rental' | 'event_venue'
+  // Veterinary & Paediatric
+  | 'veterinary' | 'pet_grooming' | 'pet_boarding' | 'dog_training'
+  // Professional & High Stakes
+  | 'lawyer' | 'accountant' | 'financial_advisor' | 'mortgage_broker' | 'real_estate'
+  // Automotive
+  | 'mechanic' | 'car_detailing' | 'tyre_shop' | 'body_shop' | 'car_dealership'
+  // Education & Skills
+  | 'tutoring' | 'language_school' | 'music_school' | 'art_school' | 'driving_school' | 'dance_studio'
+  // Event & Occasion
+  | 'photographer' | 'florist' | 'catering' | 'wedding_planner'
+  // Other
   | 'other'
 
 export interface Business {
