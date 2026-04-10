@@ -28,8 +28,8 @@ function pickAction({
     return {
       icon: '🎬',
       heading: 'Your reviews are ready to become content',
-      body: `You have ${totalReviews} reviews. The AI can turn them into a cinematic Reel right now — it takes about 30 seconds.`,
-      cta: 'Create your first Reel →',
+      body: `You have ${totalReviews} reviews. The AI can turn them into a Social Clip right now — it takes about 30 seconds.`,
+      cta: 'Create your first Social Clip →',
       href: '/reels',
     }
   }
@@ -38,7 +38,7 @@ function pickAction({
   if (drafts > 0) {
     return {
       icon: '📤',
-      heading: `${drafts} Reel${drafts > 1 ? 's' : ''} waiting to be published`,
+      heading: `${drafts} Social Clip${drafts > 1 ? 's' : ''} waiting to be published`,
       body: 'You created content but never posted it. Every day it sits in drafts is a day it\'s not bringing in customers.',
       cta: 'View drafts →',
       href: '/content',
@@ -63,7 +63,7 @@ function pickAction({
     return {
       icon: '📸',
       heading: 'Connect Instagram to publish in one click',
-      body: `You've created ${reelsCreated} Reel${reelsCreated > 1 ? 's' : ''} but they're not reaching anyone yet. Connect Instagram and post directly from Buzzloop.`,
+      body: `You've created ${reelsCreated} Social Clip${reelsCreated > 1 ? 's' : ''} but they're not reaching anyone yet. Connect Instagram and post directly from Buzzloop.`,
       cta: 'Connect Instagram →',
       href: '/api/auth/instagram',
     }
@@ -74,7 +74,7 @@ function pickAction({
     return {
       icon: '⭐',
       heading: 'Collect a few more reviews to unlock the best content',
-      body: `You have ${totalReviews} review${totalReviews > 1 ? 's' : ''}. With 5+ the AI finds stronger patterns and creates more compelling Reels.`,
+      body: `You have ${totalReviews} review${totalReviews > 1 ? 's' : ''}. With 5+ the AI finds stronger patterns and creates more compelling Social Clips.`,
       cta: 'Get your QR code →',
       href: '/qr',
     }

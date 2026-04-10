@@ -262,7 +262,7 @@ function OnboardingInner() {
               <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: 'var(--ink3)' }}>Step 3 of {TOTAL_STEPS}</p>
               <h2 className="text-2xl font-bold mb-1" style={{ color: 'var(--ink)' }}>Your brand identity</h2>
               <p className="text-sm mb-6" style={{ color: 'var(--ink3)' }}>
-                Upload your logo so we can use your exact brand colors, fonts, and style in every Reel and social post we create for you.
+                Upload your logo so we can use your exact brand colors, fonts, and style in every Social Clip we create for you.
               </p>
 
               {/* Logo upload */}
@@ -341,7 +341,7 @@ function OnboardingInner() {
                   style={{ border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--ink)', outline: 'none' }}
                 />
                 <p className="text-xs mt-1.5" style={{ color: 'var(--ink4)' }}>
-                  Buzzloop reads your website so the AI knows exactly what you offer — makes Reels and keyword suggestions far more accurate.
+                  Buzzloop reads your website so the AI knows exactly what you offer, making Social Clips and keyword suggestions far more accurate.
                 </p>
               </div>
 
@@ -363,7 +363,7 @@ function OnboardingInner() {
               <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: 'var(--ink3)' }}>Step 4 of {TOTAL_STEPS}</p>
               <h2 className="text-2xl font-bold mb-2" style={{ color: 'var(--ink)' }}>One last step — connect Google</h2>
               <p className="text-sm mb-6" style={{ color: 'var(--ink3)' }}>
-                We need this to get you more reviews and turn your best ones into Reels that bring in new customers.
+                We need this to get you more reviews and turn your best ones into Social Clips that bring in new customers.
               </p>
 
               <div className="flex flex-col gap-4">

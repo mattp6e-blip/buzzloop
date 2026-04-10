@@ -10,8 +10,8 @@ const NAV = [
   { href: '/dashboard', label: 'Growth Hub', icon: '◼' },
   { href: '/qr', label: 'Get Reviews', icon: '▦' },
   { href: '/reviews', label: 'Reviews', icon: '★' },
-  { href: '/reels', label: 'Reels', icon: '✦' },
-  { href: '/content', label: 'Saved Reels', icon: '❐' },
+  { href: '/reels', label: 'Social Clips', icon: '✦' },
+  { href: '/content', label: 'Saved Clips', icon: '❐' },
   { href: '/media', label: 'My Photos', icon: '⊞' },
   { href: '/settings', label: 'Settings', icon: '⚙' },
 ]

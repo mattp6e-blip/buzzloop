@@ -57,7 +57,7 @@ export function MediaClient({ businessId, gbpPhotos, uploadedPhotos: initialUplo
       <div className="mb-8">
         <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--ink)', letterSpacing: '-0.03em' }}>Media</h1>
         <p className="text-sm" style={{ color: 'var(--ink4)' }}>
-          Photos used in your Reels. {totalPhotos} photo{totalPhotos !== 1 ? 's' : ''} in your library.
+          Photos used in your Social Clips. {totalPhotos} photo{totalPhotos !== 1 ? 's' : ''} in your library.
         </p>
       </div>
 
@@ -83,7 +83,7 @@ export function MediaClient({ businessId, gbpPhotos, uploadedPhotos: initialUplo
           <>
             <div className="text-3xl mb-3">⊞</div>
             <p className="text-sm font-semibold mb-1" style={{ color: 'var(--ink2)' }}>Drop photos here or click to upload</p>
-            <p className="text-xs" style={{ color: 'var(--ink4)' }}>JPG, PNG, WebP — these will be used in your Reels</p>
+            <p className="text-xs" style={{ color: 'var(--ink4)' }}>JPG, PNG, WebP — these will be used in your Social Clips</p>
           </>
         )}
       </div>

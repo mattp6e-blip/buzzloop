@@ -197,9 +197,9 @@ function generateTasks(params: {
       id: 'first_reel',
       priority: 'high',
       icon: '🎬',
-      title: `Turn your best review into a Reel`,
+      title: `Turn your best review into a Social Clip`,
       why: `Social proof content drives 40% more GBP profile visits. You have ${totalReviews} reviews ready to use right now.`,
-      action: { label: 'Create a Reel', href: '/reels' },
+      action: { label: 'Create a Social Clip', href: '/reels' },
     })
   }
 

@@ -83,7 +83,7 @@ const HOW_STEPS = [
   },
   {
     n: '03',
-    title: 'Turn your best reviews into Reels',
+    title: 'Turn your best reviews into Social Clips',
     body: ['AI reads your reviews, finds what makes people choose you, and turns it into ', <strong key="k">scroll-stopping video content</strong>, ' — branded, professional, ready to post.'],
     flywheel: false,
   },

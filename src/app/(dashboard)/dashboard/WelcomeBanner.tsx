@@ -54,7 +54,7 @@ export function WelcomeBanner({ businessName, importedCount, brandColor }: Props
               We found and imported{' '}
               <strong style={{ color: 'var(--ink)' }}>{importedCount} reviews</strong>{' '}
               from your Google Business Profile. The AI has already analysed them —
-              head to <strong style={{ color: 'var(--ink)' }}>Reels</strong> to turn them into content.
+              head to <strong style={{ color: 'var(--ink)' }}>Social Clips</strong> to turn them into content.
             </p>
           ) : (
             <p className="text-sm" style={{ color: 'var(--ink3)' }}>

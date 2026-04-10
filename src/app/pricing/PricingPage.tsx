@@ -15,31 +15,55 @@ const BORDER = '#e8e5df'
 
 const TESTIMONIALS = [
   {
-    quote: "We went from #8 to #3 on Google Maps in six weeks. The QR code alone doubled our monthly reviews, without us asking a single customer manually.",
+    quote: "The QR code alone doubled our monthly reviews",
+    full: "We went from #8 to #3 on Google Maps in six weeks. The QR code alone doubled our monthly reviews, without us asking a single customer manually.",
     name: "James Whitfield",
-    business: "CrossFit gym, Austin TX",
+    role: "Owner, CrossFit gym · Austin TX",
+    initials: "JW",
   },
   {
-    quote: "The AI turns our patient reviews into actual premium content. Our Instagram engagement went up 3x and new patient inquiries are up significantly.",
+    quote: "new patient inquiries are up significantly",
+    full: "The AI turns our patient reviews into actual premium content. Our Instagram engagement went up 3x and new patient inquiries are up significantly.",
     name: "Dr. Sarah Chen",
-    business: "Dental clinic, San Francisco CA",
+    role: "Principal dentist · San Francisco CA",
+    initials: "SC",
   },
   {
-    quote: "I used to spend hours every week on marketing. Now Buzzloop handles the content side completely. We're ranking #1 for our main keyword.",
+    quote: "We're ranking #1 for our main keyword",
+    full: "I used to spend hours every week on marketing. Now Buzzloop handles the content side completely. We're ranking #1 for our main keyword.",
     name: "Marco DeLuca",
-    business: "Italian restaurant, Chicago IL",
+    role: "Owner, Italian restaurant · Chicago IL",
+    initials: "MD",
   },
   {
-    quote: "The reply tool saves me 20 minutes a day. Every Google review gets a thoughtful, on-brand response. Customers notice.",
+    quote: "Every Google review gets a thoughtful, on-brand response",
+    full: "The reply tool saves me 20 minutes a day. Every Google review gets a thoughtful, on-brand response. Customers notice.",
     name: "Priya Nair",
-    business: "Med spa, Miami FL",
+    role: "Founder, Med spa · Miami FL",
+    initials: "PN",
   },
   {
-    quote: "Went from 47 to 190 Google reviews in 3 months. Our phone doesn't stop ringing with new clients.",
+    quote: "Went from 47 to 190 Google reviews in 3 months",
+    full: "Went from 47 to 190 Google reviews in 3 months. Our phone doesn't stop ringing with new clients.",
     name: "Carlos Mendez",
-    business: "Law firm, Los Angeles CA",
+    role: "Managing partner, Law firm · Los Angeles CA",
+    initials: "CM",
   },
 ]
+
+function highlightQuote(full: string, highlight: string) {
+  const idx = full.indexOf(highlight)
+  if (idx === -1) return <>{full}</>
+  return (
+    <>
+      {full.slice(0, idx)}
+      <mark style={{ background: '#fef08a', color: 'inherit', borderRadius: 3, padding: '0 2px' }}>
+        {full.slice(idx, idx + highlight.length)}
+      </mark>
+      {full.slice(idx + highlight.length)}
+    </>
+  )
+}
 
 function TestimonialCarousel() {
   const [current, setCurrent] = useState(0)
@@ -60,36 +84,39 @@ function TestimonialCarousel() {
   const t = TESTIMONIALS[current]
 
   return (
-    <div style={{ textAlign: 'center', padding: '40px 24px', maxWidth: 660, margin: '0 auto' }}>
+    <div style={{ padding: '40px 24px', maxWidth: 680, margin: '0 auto' }}>
       <div style={{
         opacity: fading ? 0 : 1,
         transform: fading ? 'translateY(6px)' : 'translateY(0)',
         transition: 'opacity 0.35s ease, transform 0.35s ease',
+        display: 'flex', gap: 20, alignItems: 'flex-start',
       }}>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 3, marginBottom: 22 }}>
-          {Array.from({ length: 5 }).map((_, i) => (
-            <span key={i} style={{ color: '#f59e0b', fontSize: 17 }}>★</span>
-          ))}
+        {/* Avatar */}
+        <div style={{
+          width: 52, height: 52, borderRadius: '50%', flexShrink: 0,
+          background: `linear-gradient(135deg, ${ORANGE}, ${ORANGE2})`,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 16, fontWeight: 800, color: 'white', letterSpacing: '-0.01em',
+        }}>
+          {t.initials}
         </div>
-        <p style={{ fontSize: 21, fontWeight: 500, lineHeight: 1.55, color: INK, marginBottom: 28, fontStyle: 'italic', letterSpacing: '-0.01em' }}>
-          &ldquo;{t.quote}&rdquo;
-        </p>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
-          <div style={{
-            width: 40, height: 40, borderRadius: '50%', flexShrink: 0,
-            background: `linear-gradient(135deg, ${ORANGE}, ${ORANGE2})`,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 15, fontWeight: 700, color: 'white',
-          }}>
-            {t.name[0]}
+        {/* Content */}
+        <div style={{ flex: 1 }}>
+          <div style={{ display: 'flex', gap: 2, marginBottom: 10 }}>
+            {Array.from({ length: 5 }).map((_, i) => (
+              <span key={i} style={{ color: '#f59e0b', fontSize: 15 }}>★</span>
+            ))}
           </div>
-          <div style={{ textAlign: 'left' }}>
-            <p style={{ fontSize: 14, fontWeight: 700, color: INK, margin: 0 }}>{t.name}</p>
-            <p style={{ fontSize: 13, color: INK3, margin: 0 }}>{t.business}</p>
+          <p style={{ fontSize: 16, fontWeight: 400, lineHeight: 1.65, color: INK, margin: '0 0 14px' }}>
+            &ldquo;{highlightQuote(t.full, t.quote)}&rdquo;
+          </p>
+          <div>
+            <p style={{ fontSize: 13, fontWeight: 700, color: INK, margin: '0 0 2px' }}>{t.name}</p>
+            <p style={{ fontSize: 12, color: INK3, margin: 0 }}>{t.role}</p>
           </div>
         </div>
       </div>
-      <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginTop: 32 }}>
+      <div style={{ display: 'flex', gap: 6, marginTop: 28, paddingLeft: 72 }}>
         {TESTIMONIALS.map((_, i) => (
           <button key={i} onClick={() => { setFading(false); setCurrent(i) }} style={{
             width: i === current ? 20 : 6, height: 6, borderRadius: 3,
@@ -120,7 +147,7 @@ const FAQS = [
   },
   {
     q: "What kind of social content does it create?",
-    a: "Buzzloop reads your real Google reviews, finds the most compelling stories, and turns them into premium short-form video reels branded to your colors and logo. Not generic templates. Actual content built from what your customers say.",
+    a: "Buzzloop reads your real Google reviews, finds the most compelling stories, and turns them into premium short-form Social Clips branded to your colors and logo. Not generic templates. Actual content built from what your customers say.",
   },
   {
     q: "Do I need to be a technical person to set this up?",
@@ -128,7 +155,7 @@ const FAQS = [
   },
   {
     q: "What's included in the free plan?",
-    a: "The free plan includes your fully branded QR code, the customer review landing page, the ability to see your AI-generated reels (without downloading), and keyword ranking tracking for 3 local search terms.",
+    a: "The free plan includes your fully branded QR code, the customer review landing page, the ability to see your AI-generated Social Clips (without downloading), and keyword ranking tracking for 3 local search terms.",
   },
   {
     q: "How does the AI review reply tool work?",
@@ -185,8 +212,8 @@ const FEATURES: { label: string; sublabel: string; free: boolean | string; pro: 
   { label: 'Custom review landing page', sublabel: 'Branded to your colors and logo', free: true, pro: true },
   { label: 'Competitor tracking', sublabel: 'See how you rank vs nearby businesses', free: true, pro: true },
   { label: 'GBP health score', sublabel: 'Know exactly what to fix to rank higher', free: true, pro: true },
-  { label: 'Keyword rankings', sublabel: 'Track your position in local Google search', free: '3 keywords', pro: 'Unlimited' },
-  { label: 'AI-generated reels', sublabel: 'Premium video content from your reviews', free: 'View only', pro: 'Download & share' },
+  { label: 'Keyword rankings', sublabel: 'Track your position in local Google search', free: '3 keywords', pro: '10 keywords' },
+  { label: 'AI-generated Social Clips', sublabel: 'Premium video content from your reviews', free: 'View only', pro: 'Download & share' },
   { label: 'SMS review outreach', sublabel: 'Text customers directly to get reviews', free: false, pro: true },
   { label: 'AI review replies', sublabel: 'Auto-draft replies in your tone, in any language', free: false, pro: true },
   { label: 'Post replies to Google', sublabel: 'One click to respond publicly', free: false, pro: true },
@@ -290,7 +317,7 @@ export function PricingPage() {
             {[
               'Branded QR code that drives reviews on autopilot',
               'Custom review page, customers post in under 10 seconds',
-              'See your AI-generated reels (upgrade to download)',
+              'See your AI-generated Social Clips (upgrade to download)',
               'Track 3 local keywords and your Google Maps position',
               'Competitor ranking tracker',
             ].map((text) => (
@@ -335,9 +362,12 @@ export function PricingPage() {
           }}>
             Start free trial →
           </Link>
+          <p style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.06em', textTransform: 'uppercase', margin: '0 0 12px' }}>
+            Everything in Free, plus:
+          </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {[
-              'Download and share premium reels from your reviews',
+              'Download and share your Social Clips anywhere',
               'AI reply tool writes perfect responses to every Google review',
               'SMS outreach to text customers and get reviews automatically',
               'Track unlimited keywords and every search you rank for',

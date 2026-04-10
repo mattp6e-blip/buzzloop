@@ -13,7 +13,7 @@ export function GoogleConnectBanner() {
             Connect your Google Business Profile
           </p>
           <p className="text-xs" style={{ color: 'var(--ink3)' }}>
-            Unlocks your Reels and activates your QR code so you can start getting more reviews immediately.
+            Unlocks your Social Clips and activates your QR code so you can start getting more reviews immediately.
           </p>
         </div>
       </div>

@@ -27,9 +27,9 @@ export default async function ContentPage() {
   return (
     <div className="p-8" style={{ maxWidth: 900 }}>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--ink)' }}>Saved Reels</h1>
+        <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--ink)' }}>Saved Clips</h1>
         <p className="text-sm" style={{ color: 'var(--ink3)' }}>
-          {posts?.length ?? 0} reel{posts?.length !== 1 ? 's' : ''} saved
+          {posts?.length ?? 0} clip{posts?.length !== 1 ? 's' : ''} saved
         </p>
       </div>
       <ContentClient
