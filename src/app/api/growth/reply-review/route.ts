@@ -72,14 +72,14 @@ Write a reply that:
 - References something SPECIFIC from the review text (a detail, feeling, or outcome they mentioned)
 - Is appropriately toned for ${stars} stars: ${isNegative ? 'empathetic and solution-oriented — acknowledge the issue, apologise sincerely, invite them to contact you directly to resolve it. Do NOT be defensive.' : isMixed ? 'appreciative but also gently addressing any concern mentioned' : 'warm and grateful, reinforcing what made their experience good'}
 - ${customerName ? `Addresses the customer by first name (${customerName.split(' ')[0]})` : 'Does not invent a name'}
-- Is 2-3 sentences MAX. Short and human. No hashtags. No emojis. No "Dear valued customer."
-- Ends naturally — optionally with a warm invitation to return or to contact if needed
+- Is 2 sentences MAX. Concise. No hashtags. No emojis. No "Dear valued customer." No em dashes (—).
+- Ends naturally, no filler closing lines
 
 Return ONLY the reply text. No quotes, no explanation.`
 
     const aiRes = await anthropic.messages.create({
       model: 'claude-sonnet-4-6',
-      max_tokens: 200,
+      max_tokens: 120,
       messages: [{ role: 'user', content: prompt }],
     })
 
