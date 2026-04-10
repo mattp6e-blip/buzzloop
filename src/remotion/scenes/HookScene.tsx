@@ -47,8 +47,6 @@ export function HookScene({ headline, subline, template, brandColor, logoUrl, bu
         <Background brandColor={brandColor} industry={industry} />
       )}
 
-      {/* Motif layer — sits above background, behind text */}
-      <MotifLayer motif={motif} brandColor={brandColor} value={motifValue} />
       <Grain opacity={0.045} />
       <CinematicBars height={68} />
 
@@ -58,7 +56,7 @@ export function HookScene({ headline, subline, template, brandColor, logoUrl, bu
         display: 'flex',
         flexDirection: 'column',
         alignItems: isEditorial ? 'flex-start' : 'center',
-        justifyContent: (hasPhoto || isEditorial) ? 'flex-end' : 'center',
+        justifyContent: isEditorial ? 'flex-end' : 'center',
         padding: isEditorial ? '80px 72px 140px 80px' : '80px 72px 140px 72px',
         textAlign: isEditorial ? 'left' : 'center',
       }}>
