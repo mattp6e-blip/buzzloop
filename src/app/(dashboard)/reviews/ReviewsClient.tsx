@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/Button'
-import { PostCreator } from './PostCreator'
 import type { Review } from '@/types'
 
 // ─── Reply card ───────────────────────────────────────────────────────────────
@@ -181,8 +180,6 @@ export function ReviewsClient({
   )
   const [syncing, setSyncing] = useState(false)
   const [syncResult, setSyncResult] = useState<string | null>(null)
-  const [selectedReview, setSelectedReview] = useState<Review | null>(null)
-
   async function handleSeedTestData() {
     setSyncing(true)
     const res = await fetch('/api/dev/seed-reviews', { method: 'POST' })
@@ -204,20 +201,6 @@ export function ReviewsClient({
       setSyncResult(data.message ?? data.error ?? 'No new reviews found')
     }
     setSyncing(false)
-  }
-
-  if (selectedReview) {
-    return (
-      <PostCreator
-        review={selectedReview}
-        reviews={reviews}
-        businessName={businessName}
-        industry={industry}
-        brandColor={brandColor}
-        brandFont={brandFont}
-        onBack={() => setSelectedReview(null)}
-      />
-    )
   }
 
   return (
@@ -314,7 +297,6 @@ export function ReviewsClient({
                 <ReviewCard
                   key={review.id}
                   review={review}
-                  onCreatePost={() => setSelectedReview(review)}
                 />
               ))}
             </div>
@@ -327,7 +309,7 @@ export function ReviewsClient({
 
 // ─── Content review card ──────────────────────────────────────────────────────
 
-function ReviewCard({ review, onCreatePost }: { review: Review; onCreatePost: () => void }) {
+function ReviewCard({ review }: { review: Review }) {
   const date = new Date(review.created_at).toLocaleDateString('en-GB', {
     day: 'numeric', month: 'short', year: 'numeric',
   })
@@ -365,9 +347,6 @@ function ReviewCard({ review, onCreatePost }: { review: Review; onCreatePost: ()
             )}
           </div>
         </div>
-        <Button size="sm" onClick={onCreatePost} className="flex-shrink-0">
-          ✦ Create post
-        </Button>
       </div>
     </div>
   )

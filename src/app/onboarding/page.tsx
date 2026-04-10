@@ -9,19 +9,125 @@ import { Input } from '@/components/ui/Input'
 import { slugify } from '@/lib/utils'
 import type { Industry } from '@/types'
 
-const INDUSTRIES: { value: Industry; label: string; icon: string }[] = [
+// Popular industries shown as quick-pick tiles
+const POPULAR_INDUSTRIES: { value: Industry; label: string; icon: string }[] = [
   { value: 'restaurant', label: 'Restaurant', icon: '🍽️' },
-  { value: 'gym', label: 'Gym / Fitness', icon: '💪' },
-  { value: 'salon', label: 'Hair Salon', icon: '✂️' },
   { value: 'dental', label: 'Dental Clinic', icon: '🦷' },
-  { value: 'spa', label: 'Spa / Beauty', icon: '💆' },
+  { value: 'salon', label: 'Hair Salon', icon: '✂️' },
+  { value: 'gym', label: 'Gym / Fitness', icon: '💪' },
+  { value: 'spa', label: 'Spa & Wellness', icon: '💆' },
   { value: 'hotel', label: 'Hotel', icon: '🏨' },
   { value: 'bar', label: 'Bar / Pub', icon: '🍺' },
-  { value: 'physiotherapy', label: 'Physiotherapy', icon: '🏃' },
   { value: 'veterinary', label: 'Veterinary', icon: '🐾' },
-  { value: 'lawyer', label: 'Law Firm', icon: '⚖️' },
-  { value: 'tattoo', label: 'Tattoo Studio', icon: '🎨' },
+]
+
+// Full searchable list
+const ALL_INDUSTRIES: { value: Industry; label: string; icon: string }[] = [
+  // Dental & Oral
+  { value: 'dental', label: 'Dental Clinic', icon: '🦷' },
+  { value: 'orthodontist', label: 'Orthodontist', icon: '🦷' },
+  { value: 'oral_surgeon', label: 'Oral Surgeon', icon: '🦷' },
+  // Medical
+  { value: 'gp', label: 'GP / Doctor', icon: '🩺' },
   { value: 'optician', label: 'Optician', icon: '👓' },
+  { value: 'audiologist', label: 'Audiologist', icon: '👂' },
+  { value: 'podiatrist', label: 'Podiatrist', icon: '🦶' },
+  { value: 'paediatrician', label: 'Paediatrician', icon: '👶' },
+  { value: 'sleep_clinic', label: 'Sleep Clinic', icon: '😴' },
+  // Therapeutic
+  { value: 'physiotherapy', label: 'Physiotherapy', icon: '🏃' },
+  { value: 'chiropractor', label: 'Chiropractor', icon: '🦴' },
+  { value: 'osteopath', label: 'Osteopath', icon: '🦴' },
+  { value: 'sports_medicine', label: 'Sports Medicine', icon: '⚽' },
+  // Mental Health
+  { value: 'therapist', label: 'Therapist', icon: '🧠' },
+  { value: 'psychologist', label: 'Psychologist', icon: '🧠' },
+  { value: 'psychiatrist', label: 'Psychiatrist', icon: '🧠' },
+  { value: 'counselling', label: 'Counselling', icon: '💬' },
+  { value: 'fertility_clinic', label: 'Fertility Clinic', icon: '🌱' },
+  // Cosmetic
+  { value: 'cosmetic_clinic', label: 'Cosmetic Clinic', icon: '✨' },
+  { value: 'aesthetics', label: 'Aesthetics', icon: '✨' },
+  { value: 'dermatologist', label: 'Dermatologist', icon: '🧴' },
+  { value: 'plastic_surgery', label: 'Plastic Surgery', icon: '✨' },
+  { value: 'weight_loss_clinic', label: 'Weight Loss Clinic', icon: '⚖️' },
+  // Hair
+  { value: 'salon', label: 'Hair Salon', icon: '✂️' },
+  { value: 'barbershop', label: 'Barbershop', icon: '💈' },
+  { value: 'hair_extensions', label: 'Hair Extensions', icon: '✂️' },
+  // Nails & Beauty
+  { value: 'nail_salon', label: 'Nail Salon', icon: '💅' },
+  { value: 'lash_brow', label: 'Lash & Brow', icon: '👁️' },
+  { value: 'waxing', label: 'Waxing', icon: '🌸' },
+  // Wellness
+  { value: 'spa', label: 'Spa', icon: '💆' },
+  { value: 'massage', label: 'Massage', icon: '💆' },
+  { value: 'yoga', label: 'Yoga Studio', icon: '🧘' },
+  { value: 'pilates', label: 'Pilates', icon: '🧘' },
+  { value: 'meditation', label: 'Meditation', icon: '🧘' },
+  { value: 'float_tank', label: 'Float Tank', icon: '💧' },
+  // Fitness
+  { value: 'gym', label: 'Gym', icon: '💪' },
+  { value: 'personal_trainer', label: 'Personal Trainer', icon: '💪' },
+  { value: 'crossfit', label: 'CrossFit', icon: '🏋️' },
+  { value: 'boxing', label: 'Boxing', icon: '🥊' },
+  { value: 'martial_arts', label: 'Martial Arts', icon: '🥋' },
+  { value: 'cycling_studio', label: 'Cycling Studio', icon: '🚴' },
+  { value: 'swimming', label: 'Swimming', icon: '🏊' },
+  // Tattoo
+  { value: 'tattoo', label: 'Tattoo Studio', icon: '🎨' },
+  { value: 'microblading', label: 'Microblading', icon: '✏️' },
+  { value: 'permanent_makeup', label: 'Permanent Makeup', icon: '💄' },
+  { value: 'piercing', label: 'Piercing', icon: '💎' },
+  // Food & Drink
+  { value: 'restaurant', label: 'Restaurant', icon: '🍽️' },
+  { value: 'fine_dining', label: 'Fine Dining', icon: '🍷' },
+  { value: 'casual_dining', label: 'Casual Dining', icon: '🍔' },
+  { value: 'cafe', label: 'Cafe', icon: '☕' },
+  { value: 'bakery', label: 'Bakery', icon: '🥐' },
+  { value: 'dessert_shop', label: 'Dessert Shop', icon: '🍰' },
+  { value: 'juice_bar', label: 'Juice Bar', icon: '🥤' },
+  { value: 'bar', label: 'Bar', icon: '🍺' },
+  { value: 'cocktail_bar', label: 'Cocktail Bar', icon: '🍸' },
+  { value: 'pub', label: 'Pub', icon: '🍺' },
+  { value: 'wine_bar', label: 'Wine Bar', icon: '🍷' },
+  { value: 'nightclub', label: 'Nightclub', icon: '🎵' },
+  // Hospitality
+  { value: 'hotel', label: 'Hotel', icon: '🏨' },
+  { value: 'boutique_hotel', label: 'Boutique Hotel', icon: '🏨' },
+  { value: 'bnb', label: 'B&B', icon: '🏡' },
+  { value: 'vacation_rental', label: 'Vacation Rental', icon: '🏡' },
+  { value: 'event_venue', label: 'Event Venue', icon: '🎉' },
+  // Pets
+  { value: 'veterinary', label: 'Veterinary', icon: '🐾' },
+  { value: 'pet_grooming', label: 'Pet Grooming', icon: '🐶' },
+  { value: 'pet_boarding', label: 'Pet Boarding', icon: '🐱' },
+  { value: 'dog_training', label: 'Dog Training', icon: '🐕' },
+  // Professional
+  { value: 'lawyer', label: 'Law Firm', icon: '⚖️' },
+  { value: 'accountant', label: 'Accountant', icon: '📊' },
+  { value: 'financial_advisor', label: 'Financial Advisor', icon: '💰' },
+  { value: 'mortgage_broker', label: 'Mortgage Broker', icon: '🏠' },
+  { value: 'real_estate', label: 'Real Estate', icon: '🏠' },
+  // Automotive
+  { value: 'mechanic', label: 'Mechanic', icon: '🔧' },
+  { value: 'car_detailing', label: 'Car Detailing', icon: '🚗' },
+  { value: 'tyre_shop', label: 'Tyre Shop', icon: '🛞' },
+  { value: 'body_shop', label: 'Body Shop', icon: '🚗' },
+  { value: 'car_dealership', label: 'Car Dealership', icon: '🚘' },
+  // Education
+  { value: 'tutoring', label: 'Tutoring', icon: '📚' },
+  { value: 'language_school', label: 'Language School', icon: '🗣️' },
+  { value: 'music_school', label: 'Music School', icon: '🎵' },
+  { value: 'art_school', label: 'Art School', icon: '🎨' },
+  { value: 'driving_school', label: 'Driving School', icon: '🚗' },
+  { value: 'dance_studio', label: 'Dance Studio', icon: '💃' },
+  // Events
+  { value: 'photographer', label: 'Photographer', icon: '📸' },
+  { value: 'florist', label: 'Florist', icon: '💐' },
+  { value: 'catering', label: 'Catering', icon: '🍽️' },
+  { value: 'wedding_planner', label: 'Wedding Planner', icon: '💒' },
+  // Other
   { value: 'other', label: 'Other', icon: '🏢' },
 ]
 
@@ -67,7 +173,7 @@ function OnboardingInner() {
   const [businessName, setBusinessName] = useState('')
 
   const [industry, setIndustry] = useState<Industry | null>(null)
-  const [customIndustry, setCustomIndustry] = useState('')
+  const [industrySearch, setIndustrySearch] = useState('')
   const [logoFile, setLogoFile] = useState<File | null>(null)
   const [logoPreview, setLogoPreview] = useState<string | null>(null)
   const [brandColor, setBrandColor] = useState('#6366f1')
@@ -129,9 +235,6 @@ function OnboardingInner() {
       website_url: cleanWebsite,
       brand_color: brandColor,
       slug,
-      ...(industry === 'other' && customIndustry.trim() && {
-        brand_personality: JSON.stringify({ custom_industry: customIndustry.trim() }),
-      }),
     }
 
     let businessId: string | null = null
@@ -222,36 +325,83 @@ function OnboardingInner() {
             <div>
               <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: 'var(--ink3)' }}>Step 2 of {TOTAL_STEPS}</p>
               <h2 className="text-2xl font-bold mb-1" style={{ color: 'var(--ink)' }}>What type of business?</h2>
-              <p className="text-sm mb-7" style={{ color: 'var(--ink3)' }}>We&apos;ll personalise your content for your industry.</p>
-              <div className="grid grid-cols-2 gap-2.5">
-                {INDUSTRIES.map(ind => (
-                  <button key={ind.value} onClick={() => setIndustry(ind.value)}
-                    className="flex items-center gap-3 px-4 py-3 rounded-xl border text-left transition-all duration-150"
-                    style={{
-                      borderColor: industry === ind.value ? 'var(--accent)' : 'var(--border)',
-                      background: industry === ind.value ? 'var(--accent-bg)' : 'white',
-                      color: 'var(--ink2)',
-                    }}>
-                    <span className="text-xl">{ind.icon}</span>
-                    <span className="text-sm font-medium">{ind.label}</span>
-                  </button>
-                ))}
+              <p className="text-sm mb-5" style={{ color: 'var(--ink3)' }}>We&apos;ll personalise your content for your industry.</p>
+
+              {/* Search */}
+              <div className="relative mb-4">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                  style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--ink4)', pointerEvents: 'none' }}>
+                  <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                </svg>
+                <input
+                  type="text"
+                  placeholder="Search your business type..."
+                  value={industrySearch}
+                  onChange={e => setIndustrySearch(e.target.value)}
+                  autoFocus
+                  className="w-full py-3 rounded-xl text-sm"
+                  style={{ paddingLeft: 40, paddingRight: 16, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--ink)', outline: 'none' }}
+                />
               </div>
-              {industry === 'other' && (
-                <div className="mt-3">
-                  <Input
-                    id="custom-industry"
-                    label="What type of business?"
-                    placeholder="e.g. Florist, Photography studio, Accountant..."
-                    value={customIndustry}
-                    onChange={e => setCustomIndustry(e.target.value)}
-                    autoFocus
-                  />
+
+              {industrySearch.trim() ? (
+                // Search results
+                <div className="flex flex-col gap-1.5 max-h-64 overflow-y-auto">
+                  {ALL_INDUSTRIES.filter(ind =>
+                    ind.label.toLowerCase().includes(industrySearch.toLowerCase())
+                  ).map(ind => (
+                    <button key={ind.value} onClick={() => { setIndustry(ind.value); setIndustrySearch('') }}
+                      className="flex items-center gap-3 px-4 py-3 rounded-xl border text-left transition-all duration-150 w-full"
+                      style={{
+                        borderColor: industry === ind.value ? 'var(--accent)' : 'var(--border)',
+                        background: industry === ind.value ? 'var(--accent-bg)' : 'white',
+                        color: 'var(--ink2)',
+                      }}>
+                      <span className="text-lg">{ind.icon}</span>
+                      <span className="text-sm font-medium">{ind.label}</span>
+                      {industry === ind.value && <span className="ml-auto text-xs font-semibold" style={{ color: 'var(--accent)' }}>Selected</span>}
+                    </button>
+                  ))}
+                  {ALL_INDUSTRIES.filter(ind => ind.label.toLowerCase().includes(industrySearch.toLowerCase())).length === 0 && (
+                    <p className="text-sm text-center py-4" style={{ color: 'var(--ink4)' }}>No match. Try a different term or pick &quot;Other&quot;.</p>
+                  )}
+                </div>
+              ) : (
+                // Quick-pick tiles
+                <div>
+                  <p className="text-xs font-medium mb-2.5" style={{ color: 'var(--ink4)' }}>Popular</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {POPULAR_INDUSTRIES.map(ind => (
+                      <button key={ind.value} onClick={() => setIndustry(ind.value)}
+                        className="flex items-center gap-3 px-4 py-3 rounded-xl border text-left transition-all duration-150"
+                        style={{
+                          borderColor: industry === ind.value ? 'var(--accent)' : 'var(--border)',
+                          background: industry === ind.value ? 'var(--accent-bg)' : 'white',
+                          color: 'var(--ink2)',
+                        }}>
+                        <span className="text-xl">{ind.icon}</span>
+                        <span className="text-sm font-medium">{ind.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-xs mt-3" style={{ color: 'var(--ink4)' }}>
+                    Don&apos;t see yours? Type above to search 90+ business types.
+                  </p>
                 </div>
               )}
+
+              {/* Selected state when not searching */}
+              {industry && !industrySearch && !POPULAR_INDUSTRIES.find(i => i.value === industry) && (
+                <div className="mt-3 flex items-center gap-2 px-4 py-2.5 rounded-xl border" style={{ borderColor: 'var(--accent)', background: 'var(--accent-bg)' }}>
+                  <span>{ALL_INDUSTRIES.find(i => i.value === industry)?.icon}</span>
+                  <span className="text-sm font-medium" style={{ color: 'var(--ink2)' }}>{ALL_INDUSTRIES.find(i => i.value === industry)?.label}</span>
+                  <button onClick={() => setIndustry(null)} className="ml-auto text-xs" style={{ color: 'var(--ink4)', background: 'none', border: 'none', cursor: 'pointer' }}>Change</button>
+                </div>
+              )}
+
               <div className="flex gap-3 mt-6">
-                <Button variant="outline" size="lg" className="flex-1" onClick={() => setStep(1)}>← Back</Button>
-                <Button size="lg" className="flex-1" disabled={!industry || (industry === 'other' && !customIndustry.trim())} onClick={() => setStep(3)}>Continue →</Button>
+                <Button variant="outline" size="lg" className="flex-1" onClick={() => setStep(1)}>Back</Button>
+                <Button size="lg" className="flex-1" disabled={!industry} onClick={() => setStep(3)}>Continue</Button>
               </div>
             </div>
           )}

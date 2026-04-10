@@ -577,8 +577,18 @@ export async function POST(req: NextRequest) {
       } catch { return [] }
     }
 
-    const proofThemes = parseThemes((proofMessage.content[0] as { text: string }).text)
-    const varietyThemes = parseThemes((varietyMessage.content[0] as { text: string }).text)
+    const proofRaw = (proofMessage.content[0] as { text: string }).text
+    const varietyRaw = (varietyMessage.content[0] as { text: string }).text
+
+    console.log('[analyze-reviews] proof raw length:', proofRaw.length)
+    console.log('[analyze-reviews] variety raw length:', varietyRaw.length)
+    console.log('[analyze-reviews] variety raw snippet:', varietyRaw.slice(0, 300))
+
+    const proofThemes = parseThemes(proofRaw)
+    const varietyThemes = parseThemes(varietyRaw)
+
+    console.log('[analyze-reviews] proof themes:', proofThemes.length)
+    console.log('[analyze-reviews] variety themes:', varietyThemes.length, varietyThemes.map(t => t.contentType))
 
     // Social proof sorted by buzzScore, variety appended after
     const proofSorted = proofThemes.sort((a, b) => (b.buzzScore ?? 0) - (a.buzzScore ?? 0))
