@@ -146,7 +146,7 @@ export interface ReelScript {
   themeTitle: string
   totalDuration: number
   slides: ReelSlide[]
-  template?: 'immersive' | 'collage' | 'editorial'
+  template?: 'immersive' | 'editorial'
 }
 
 export interface SocialPost {

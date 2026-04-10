@@ -85,7 +85,7 @@ const GYM_VARIATION: ReelVariation = {
   hookSubline: "Here's what members say.",
   ctaHeadline: "Stop starting over.",
   ctaText: "Join the gym you'll actually stick with. First week free.",
-  template: 'collage',
+  template: 'immersive',
   script: {
     themeTitle: "The gym you actually stick with",
     totalDuration: 29,

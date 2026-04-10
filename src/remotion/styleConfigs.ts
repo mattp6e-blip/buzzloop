@@ -24,8 +24,7 @@ export const TEMPLATE_CONFIGS: Record<VisualTemplate, {
   logo: 'corner' | 'center' | 'none'
 }> = {
   immersive: { textAnim: 'slam', logo: 'corner' },
-  collage:   { textAnim: 'fade-up',     logo: 'corner' },
-  editorial: { textAnim: 'scale-in',    logo: 'none'   },
+  editorial: { textAnim: 'scale-in', logo: 'none' },
 }
 
 function shiftColor(hex: string, amount: number): string {

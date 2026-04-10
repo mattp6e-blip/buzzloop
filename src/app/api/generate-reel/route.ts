@@ -21,7 +21,7 @@ const TONE_CONFIGS: Record<Tone, {
   proof: {
     label: 'Proof',
     description: 'Evidence-led · most saved',
-    template: 'collage',
+    template: 'immersive',
     durationSeconds: 20,
   },
   bold: {
@@ -658,8 +658,8 @@ export async function POST(req: NextRequest) {
     variations.forEach(v => {
       // CTA always gets a photo
       v.ctaPhoto = uploadedPhotos[1] ?? uploadedPhotos[0]
-      // Hook gets a photo only on immersive/collage templates (not editorial)
-      if (v.template === 'immersive' || v.template === 'collage') {
+      // Hook gets a photo on immersive template (not editorial)
+      if (v.template === 'immersive') {
         v.hookPhoto = uploadedPhotos[0]
       }
     })

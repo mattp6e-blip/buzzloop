@@ -1,7 +1,7 @@
 import type { ReelScript } from '@/types'
 import type { ReelMotif } from './motifs'
 
-export type VisualTemplate = 'immersive' | 'collage' | 'editorial'
+export type VisualTemplate = 'immersive' | 'editorial'
 
 export interface ReelVariation {
   id: number
