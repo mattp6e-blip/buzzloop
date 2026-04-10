@@ -406,8 +406,35 @@ function ReelFeed({ themes, brandColor, savedThemeTitles, seenThemes, savedPosts
     return !bucket || bucket.length < VARIETY_ROW_THRESHOLD
   })
 
+  // Next Monday date
+  const nextMonday = (() => {
+    const d = new Date()
+    const day = d.getDay()
+    const daysUntil = day === 0 ? 1 : day === 1 ? 7 : 8 - day
+    d.setDate(d.getDate() + daysUntil)
+    return d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' })
+  })()
+
   return (
     <div>
+      {/* Weekly cadence notice */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        padding: '10px 14px',
+        borderRadius: 10,
+        marginBottom: 28,
+        background: 'var(--accent-bg)',
+        border: '1px solid var(--accent-border, var(--border))',
+      }}>
+        <span style={{ fontSize: 14 }}>✦</span>
+        <p style={{ fontSize: 13, color: 'var(--ink2)', margin: 0 }}>
+          <strong style={{ fontWeight: 600 }}>Fresh ideas arrive every Monday.</strong>{' '}
+          <span style={{ color: 'var(--ink3)' }}>Next batch: {nextMonday}. Build and post this week&apos;s ideas in the meantime.</span>
+        </p>
+      </div>
+
       {newThisWeek.length > 0 && (
         <ReelRow label="🆕 New this week" subtitle="Fresh ideas added since your last visit" themes={newThisWeek} cardProps={cardProps} />
       )}
@@ -471,6 +498,7 @@ function ReelRow({ label, subtitle, themes, cardProps }: {
   themes: ReelTheme[]
   cardProps: (t: ReelTheme) => { theme: ReelTheme; brandColor: string; saved: boolean; isNew: boolean; onClick: () => void }
 }) {
+  const showFade = themes.length > 2
   return (
     <div style={{ marginBottom: 40 }}>
       <div style={{ marginBottom: 16 }}>
@@ -479,7 +507,6 @@ function ReelRow({ label, subtitle, themes, cardProps }: {
         </h2>
         <p style={{ fontSize: 13, color: 'var(--ink3)', marginTop: 2, marginBottom: 0 }}>{subtitle}</p>
       </div>
-      {/* position:relative wrapper so the fade overlay can be absolutely positioned */}
       <div style={{ position: 'relative' }}>
         <div style={{ overflowX: 'clip' } as AnyStyle}>
           <div
@@ -487,9 +514,9 @@ function ReelRow({ label, subtitle, themes, cardProps }: {
               display: 'flex',
               gap: 16,
               paddingBottom: 8,
-              paddingRight: 32,
+              paddingRight: showFade ? 32 : 0,
               overflowX: 'auto',
-              cursor: 'grab',
+              cursor: themes.length > 2 ? 'grab' : 'default',
             }}
           >
             {themes.map(theme => (
@@ -497,18 +524,19 @@ function ReelRow({ label, subtitle, themes, cardProps }: {
             ))}
           </div>
         </div>
-        {/* Right-edge fade, signals more content */}
-        <div
-          style={{
-            position: 'absolute',
-            top: 0,
-            right: 0,
-            width: 80,
-            bottom: 8,
-            background: 'linear-gradient(to right, transparent, var(--bg))',
-            pointerEvents: 'none',
-          }}
-        />
+        {showFade && (
+          <div
+            style={{
+              position: 'absolute',
+              top: 0,
+              right: 0,
+              width: 80,
+              bottom: 8,
+              background: 'linear-gradient(to right, transparent, var(--bg))',
+              pointerEvents: 'none',
+            }}
+          />
+        )}
       </div>
     </div>
   )
