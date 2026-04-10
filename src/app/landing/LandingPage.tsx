@@ -54,7 +54,7 @@ function StatBar() {
   ]
 
   return (
-    <section className="py-12 border-y" style={{ borderColor: BORDER, background: 'white' }}>
+    <section className="py-12 border-y" style={{ borderColor: BORDER, background: '#f5f3ef' }}>
       <style>{`.stat-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 28px 16px; } @media(min-width: 640px) { .stat-bar { display: flex; align-items: center; justify-content: space-around; } }`}</style>
       <div ref={ref} className="stat-bar max-w-4xl mx-auto px-8">
         {stats.map((s, i) => (
@@ -93,7 +93,7 @@ function Bullet({ title, body, dark }: { title: string; body: string; dark?: boo
 
 function SectionReviews() {
   return (
-    <section style={{ background: 'white', padding: '100px 40px' }}>
+    <section style={{ background: 'white', padding: '100px 40px', borderBottom: `1px solid ${BORDER}` }}>
       <style>{`
         .sec-reviews-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; max-width: 1100px; margin: 0 auto; }
         @media (max-width: 900px) { .sec-reviews-grid { grid-template-columns: 1fr; gap: 56px; } .sec-reviews-demo { order: -1; display: flex; justify-content: center; } }
