@@ -10,7 +10,7 @@ const ReelCompositionModule = dynamic(
   { ssr: false }
 )
 
-// Real Harmonia Dental reel — pulled from account (ID: c166f0e6-75b2-48b8-bcb7-0aaeb3501aa7)
+// Real Harmonia Dental reel — pulled from account (ID: fa85cd1e-59ba-4a90-a85f-9beb591ab0ce)
 const HARMONIA_VARIATION: ReelVariation = {
   id: 1,
   label: 'Bold',
@@ -21,6 +21,8 @@ const HARMONIA_VARIATION: ReelVariation = {
   ctaHeadline: "When did you last look forward to the dentist?",
   ctaText: "Book your first visit. 30 minutes. Zero pressure.",
   template: 'immersive',
+  hookPhoto: 'https://rhggudgximifbtyygyyh.supabase.co/storage/v1/object/public/business-media/fa85cd1e-59ba-4a90-a85f-9beb591ab0ce/1775636780080-lyrufrtuy4r.jpg',
+  ctaPhoto: 'https://rhggudgximifbtyygyyh.supabase.co/storage/v1/object/public/business-media/fa85cd1e-59ba-4a90-a85f-9beb591ab0ce/1775636789729-gof39er4tnv.jpg',
   script: {
     themeTitle: "Patients travel far just to return",
     totalDuration: 29,
@@ -44,7 +46,10 @@ const HARMONIA_PROPS: ReelCompositionProps = {
   businessName: 'Harmonia Dental',
   industry: 'clinic',
   websiteUrl: 'harmoniadental.es',
-  gbpPhotos: [],
+  gbpPhotos: [
+    'https://rhggudgximifbtyygyyh.supabase.co/storage/v1/object/public/business-media/fa85cd1e-59ba-4a90-a85f-9beb591ab0ce/1775636780080-lyrufrtuy4r.jpg',
+    'https://rhggudgximifbtyygyyh.supabase.co/storage/v1/object/public/business-media/fa85cd1e-59ba-4a90-a85f-9beb591ab0ce/1775636789729-gof39er4tnv.jpg',
+  ],
 }
 
 const TOTAL_FRAMES = Math.round(HARMONIA_VARIATION.script.totalDuration * REEL_FPS)
@@ -117,7 +122,7 @@ function ReviewCard({ onConvert }: { onConvert: () => void }) {
             letterSpacing: '-0.01em',
           }}
         >
-          Turn this into a Reel →
+          Turn this into a Social Clip →
         </button>
       </div>
 
