@@ -3,6 +3,8 @@ import { Background } from '../components/Background'
 import { PhotoLayer } from '../components/PhotoLayer'
 import { AnimatedText } from '../components/AnimatedText'
 import { LogoMark } from '../components/LogoMark'
+import { Grain } from '../components/Grain'
+import { CinematicBars } from '../components/CinematicBars'
 import type { VisualTemplate } from '../types'
 import { TEMPLATE_CONFIGS } from '../styleConfigs'
 
@@ -37,6 +39,9 @@ export function CTAScene({ ctaHeadline, ctaText, websiteUrl, businessName, logoU
       ) : (
         <Background brandColor={brandColor} industry={industry} />
       )}
+
+      <Grain opacity={0.045} />
+      <CinematicBars height={68} />
 
       <AbsoluteFill style={{
         display: 'flex',

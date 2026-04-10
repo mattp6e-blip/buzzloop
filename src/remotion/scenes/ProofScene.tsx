@@ -1,8 +1,9 @@
 import { AbsoluteFill, useCurrentFrame, useVideoConfig, interpolate, spring } from 'remotion'
 import { Background } from '../components/Background'
-import { PhotoLayer } from '../components/PhotoLayer'
 import { AnimatedText } from '../components/AnimatedText'
 import { LogoMark } from '../components/LogoMark'
+import { Grain } from '../components/Grain'
+import { CinematicBars } from '../components/CinematicBars'
 import type { VisualTemplate } from '../types'
 import { TEMPLATE_CONFIGS } from '../styleConfigs'
 
@@ -21,76 +22,73 @@ export function ProofScene({ stat, headline, template, brandColor, logoUrl, busi
   const { fps } = useVideoConfig()
   const config = TEMPLATE_CONFIGS[template]
 
-  const photo = null // Proof slides always dark
+  // Detect whether stat is a short metric (e.g. "4.9★", "97%") or a sentence
+  const isSentence = (stat ?? '').length > 28
 
-  const statSpring = spring({ frame, fps, config: { stiffness: 60, damping: 12 }, delay: 5 })
-  const statScale = interpolate(statSpring, [0, 1], [0.7, 1])
-  const statOpacity = interpolate(statSpring, [0, 0.3], [0, 1])
-  const lineProgress = interpolate(frame, [20, 40], [0, 1], { extrapolateRight: 'clamp' })
+  const blockProgress = spring({ frame, fps, config: { stiffness: 70, damping: 14 }, delay: 5 })
+  const blockY = interpolate(blockProgress, [0, 1], [30, 0])
+  const blockOpacity = interpolate(blockProgress, [0, 1], [0, 1])
+
+  const lineWidth = interpolate(frame, [18, 42], [0, 120], { extrapolateRight: 'clamp' })
+  const subOpacity = interpolate(frame, [22, 38], [0, 1], { extrapolateRight: 'clamp' })
 
   return (
     <AbsoluteFill>
-      {photo && template === 'immersive' ? (
-        <PhotoLayer url={photo} direction="zoom-out" overlay="full" overlayStrength={0.65} />
-      ) : (
-        <Background brandColor={brandColor} industry={industry} />
-      )}
+      <Background brandColor={brandColor} industry={industry} />
+      <Grain opacity={0.045} />
+      <CinematicBars height={68} />
 
       <LogoMark logoUrl={logoUrl} businessName={businessName} placement={config.logo} color={brandColor} delay={5} />
 
       <AbsoluteFill style={{
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         justifyContent: 'center',
-        padding: '80px 72px',
-        textAlign: 'center',
+        padding: '148px 72px 160px 72px',
       }}>
+        {/* Accent line */}
         <div style={{
-          width: `${lineProgress * 80}px`,
+          width: lineWidth,
           height: 4,
           background: brandColor,
           borderRadius: 2,
-          marginBottom: 48,
+          marginBottom: 44,
         }} />
 
+        {/* Main proof text */}
         {stat && (
           <div style={{
-            transform: `scale(${statScale})`,
-            opacity: statOpacity,
-            fontSize: 88,
-            fontWeight: 900,
-            color: '#ffffff',
-            letterSpacing: '-0.04em',
-            lineHeight: 1.0,
-            marginBottom: 24,
+            transform: `translateY(${blockY}px)`,
+            opacity: blockOpacity,
           }}>
-            {stat}
+            <div style={{
+              fontSize: isSentence ? 66 : 100,
+              fontWeight: 800,
+              color: '#ffffff',
+              letterSpacing: isSentence ? '-0.03em' : '-0.05em',
+              lineHeight: isSentence ? 1.18 : 1.0,
+              marginBottom: 28,
+            }}>
+              {stat}
+            </div>
           </div>
         )}
 
+        {/* Supporting line */}
         {headline && (
-          <AnimatedText
-            text={headline}
-            anim="fade-up"
-            delay={22}
-            style={{
-              fontSize: 40,
-              fontWeight: 500,
-              color: 'rgba(255,255,255,0.6)',
-              letterSpacing: '-0.01em',
-            }}
-          />
+          <div style={{
+            opacity: subOpacity,
+            fontSize: 36,
+            fontWeight: 400,
+            color: 'rgba(255,255,255,0.5)',
+            letterSpacing: '-0.01em',
+            lineHeight: 1.4,
+            maxWidth: 800,
+          }}>
+            {headline}
+          </div>
         )}
-
-        <div style={{
-          width: `${lineProgress * 40}px`,
-          height: 3,
-          background: brandColor,
-          opacity: 0.5,
-          borderRadius: 2,
-          marginTop: 48,
-        }} />
       </AbsoluteFill>
     </AbsoluteFill>
   )

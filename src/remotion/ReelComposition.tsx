@@ -26,9 +26,19 @@ export function ReelComposition({
   const template = variation.template ?? 'immersive'
   const photos = gbpPhotos ?? []
 
-  // Use only explicitly assigned photos (no auto-fallback to pool)
+  // Explicitly assigned photos for hook/cta
   const hookPhoto = variation.hookPhoto ?? null
   const ctaPhoto = variation.ctaPhoto ?? null
+
+  // Pre-assign photos to quote slides — cycle through the pool
+  const quotePhotos: Record<number, string | null> = {}
+  let qIdx = 0
+  for (let i = 0; i < script.slides.length; i++) {
+    if (script.slides[i].type === 'quote') {
+      quotePhotos[i] = photos.length > 0 ? photos[qIdx % photos.length] : null
+      qIdx++
+    }
+  }
 
   // Build scene timeline
   let cursor = 0
@@ -71,6 +81,7 @@ export function ReelComposition({
                   quote={slide.content.quote ?? ''}
                   author={slide.content.author}
                   highlightWords={slide.content.highlightWords ?? []}
+                  photo={quotePhotos[index] ?? null}
                   {...commonProps}
                 />
               )}

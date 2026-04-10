@@ -3,6 +3,8 @@ import { Background } from '../components/Background'
 import { PhotoLayer, CollageLayer } from '../components/PhotoLayer'
 import { AnimatedText } from '../components/AnimatedText'
 import { LogoMark } from '../components/LogoMark'
+import { Grain } from '../components/Grain'
+import { CinematicBars } from '../components/CinematicBars'
 import { MotifLayer } from '../motifs'
 import type { VisualTemplate } from '../types'
 import type { ReelMotif } from '../motifs'
@@ -47,6 +49,8 @@ export function HookScene({ headline, subline, template, brandColor, logoUrl, bu
 
       {/* Motif layer — sits above background, behind text */}
       <MotifLayer motif={motif} brandColor={brandColor} value={motifValue} />
+      <Grain opacity={0.045} />
+      <CinematicBars height={68} />
 
       <LogoMark logoUrl={logoUrl} businessName={businessName} placement={config.logo} color={brandColor} delay={10} />
 

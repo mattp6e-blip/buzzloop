@@ -1,7 +1,10 @@
 import { AbsoluteFill, useCurrentFrame, interpolate, spring, useVideoConfig } from 'remotion'
 import { Background } from '../components/Background'
+import { PhotoLayer } from '../components/PhotoLayer'
 import { AnimatedText } from '../components/AnimatedText'
 import { LogoMark } from '../components/LogoMark'
+import { Grain } from '../components/Grain'
+import { CinematicBars } from '../components/CinematicBars'
 import type { VisualTemplate } from '../types'
 import { TEMPLATE_CONFIGS } from '../styleConfigs'
 
@@ -14,73 +17,96 @@ interface QuoteSceneProps {
   logoUrl: string | null
   businessName: string
   industry: string
+  photo?: string | null
 }
 
-export function QuoteScene({ quote, author, highlightWords = [], template, brandColor, logoUrl, businessName, industry }: QuoteSceneProps) {
+export function QuoteScene({ quote, author, highlightWords = [], template, brandColor, logoUrl, businessName, industry, photo }: QuoteSceneProps) {
   const frame = useCurrentFrame()
   const { fps } = useVideoConfig()
   const config = TEMPLATE_CONFIGS[template]
+  const hasPhoto = !!photo
 
-  const hasPhotos = false // Quote slides always dark — photos only on Hook + CTA
-
-  // Star rating animation
+  // Stars
   const starOpacity = interpolate(frame, [5, 20], [0, 1], { extrapolateRight: 'clamp' })
   const starScale = spring({ frame, fps, config: { stiffness: 120, damping: 15 }, delay: 5 })
 
-  // Quote card entrance
+  // Quote entrance
   const cardProgress = spring({ frame, fps, config: { stiffness: 80, damping: 14 }, delay: 8 })
-  const cardY = interpolate(cardProgress, [0, 1], [40, 0])
+  const cardY = interpolate(cardProgress, [0, 1], [36, 0])
   const cardOpacity = interpolate(cardProgress, [0, 1], [0, 1])
 
-  // Author fade
-  const authorOpacity = interpolate(frame, [25, 38], [0, 1], { extrapolateRight: 'clamp' })
+  // Author
+  const authorOpacity = interpolate(frame, [26, 40], [0, 1], { extrapolateRight: 'clamp' })
+  const authorX = interpolate(frame, [26, 40], [-16, 0], { extrapolateRight: 'clamp' })
 
   return (
     <AbsoluteFill>
-      {/* Background — always dark for quote slides */}
-      <Background brandColor={brandColor} industry={industry} />
+      {hasPhoto ? (
+        <PhotoLayer url={photo!} direction="zoom-out" overlay="full" overlayStrength={0.74} />
+      ) : (
+        <Background brandColor={brandColor} industry={industry} />
+      )}
+
+      <Grain opacity={0.045} />
+      <CinematicBars height={68} />
 
       <LogoMark logoUrl={logoUrl} businessName={businessName} placement={config.logo} color={brandColor} delay={5} />
 
       <AbsoluteFill style={{
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: hasPhotos ? 'flex-end' : 'center',
-        padding: '80px 64px 140px 64px',
+        justifyContent: 'center',
+        padding: '148px 72px 160px 72px',
       }}>
         {/* Stars */}
         <div style={{
           display: 'flex',
           gap: 8,
-          marginBottom: 28,
+          marginBottom: 32,
           opacity: starOpacity,
           transform: `scale(${starScale})`,
           transformOrigin: 'left center',
         }}>
           {[1,2,3,4,5].map(i => (
-            <span key={i} style={{ fontSize: 32, color: brandColor }}>★</span>
+            <span key={i} style={{ fontSize: 34, color: brandColor }}>★</span>
           ))}
         </div>
 
         {/* Quote */}
-        <div style={{
-          transform: `translateY(${cardY}px)`,
-          opacity: cardOpacity,
-        }}>
-          <QuoteText quote={quote} highlightWords={highlightWords} brandColor={brandColor} template={template} delay={12} />
+        <div style={{ transform: `translateY(${cardY}px)`, opacity: cardOpacity }}>
+          <QuoteText
+            quote={quote}
+            highlightWords={highlightWords}
+            brandColor={brandColor}
+            template={template}
+            delay={12}
+          />
         </div>
 
-        {/* Author */}
+        {/* Author — brand bar + name, no em dash */}
         {author && (
           <div style={{
-            marginTop: 28,
+            marginTop: 40,
             opacity: authorOpacity,
-            fontSize: 32,
-            fontWeight: 500,
-            color: 'rgba(255,255,255,0.55)',
-            letterSpacing: '0.02em',
+            transform: `translateX(${authorX}px)`,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 14,
           }}>
-            — {author}
+            <div style={{
+              width: 4,
+              height: 32,
+              borderRadius: 2,
+              background: brandColor,
+            }} />
+            <span style={{
+              fontSize: 30,
+              fontWeight: 500,
+              color: 'rgba(255,255,255,0.62)',
+              letterSpacing: '0.015em',
+            }}>
+              {author}
+            </span>
           </div>
         )}
       </AbsoluteFill>
@@ -99,9 +125,9 @@ function QuoteText({ quote, highlightWords, brandColor, template, delay = 0 }: {
   const highlighted = new Set(highlightWords.map(w => w.toLowerCase()))
   const words = quote.split(' ')
   const f = Math.max(0, frame - delay)
-  const stagger = 4 // frames between each word
+  const stagger = 4
 
-  const fontSize = template === 'editorial' ? 72 : 58
+  const fontSize = template === 'editorial' ? 74 : 62
   const fontWeight = template === 'editorial' ? 900 : 700
 
   return (
@@ -110,17 +136,24 @@ function QuoteText({ quote, highlightWords, brandColor, template, delay = 0 }: {
       fontWeight,
       color: '#ffffff',
       letterSpacing: '-0.025em',
-      lineHeight: 1.2,
+      lineHeight: 1.22,
       flexWrap: 'wrap',
       display: 'flex',
       alignItems: 'flex-start',
     }}>
-      {/* Opening quote mark */}
-      <span style={{ color: brandColor, marginRight: 4, fontWeight: 900, fontSize: fontSize * 1.4, lineHeight: 0.8, verticalAlign: 'top', opacity: f > 0 ? 1 : 0 }}>&ldquo;</span>
+      <span style={{
+        color: brandColor,
+        marginRight: 4,
+        fontWeight: 900,
+        fontSize: fontSize * 1.4,
+        lineHeight: 0.8,
+        verticalAlign: 'top',
+        opacity: f > 0 ? 1 : 0,
+      }}>&ldquo;</span>
       {words.map((word, i) => {
         const wf = Math.max(0, f - i * stagger)
         const opacity = interpolate(wf, [0, 8], [0, 1], { extrapolateRight: 'clamp' })
-        const translateY = interpolate(wf, [0, 8], [12, 0], { extrapolateRight: 'clamp' })
+        const translateY = interpolate(wf, [0, 8], [14, 0], { extrapolateRight: 'clamp' })
         const clean = word.toLowerCase().replace(/[^a-z]/g, '')
         const isHighlighted = highlighted.has(clean)
         return (
