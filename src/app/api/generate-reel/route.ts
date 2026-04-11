@@ -125,8 +125,7 @@ function getVarietyReelPrompt(
   theme: ReelTheme,
   hookHeadline: string,
   hookSubline: string | null,
-  closingReview: string,
-  closingAuthor: string | null,
+  reviewOptions: { text: string; author: string | null }[],
   businessName: string,
   industry: string,
   language: string,
@@ -167,8 +166,9 @@ ${tone === 'bold'
 - quote: 4s — closing emotional proof (verbatim from the review below)
 - cta: ${tone === 'bold' ? 5 : 6}s — call to action
 
-CLOSING REVIEW (use verbatim for the quote slide — pick the best 18-word excerpt):
-"${closingReview}"${closingAuthor ? ` — ${closingAuthor}` : ''}
+CLOSING REVIEW — pick the ONE review below most relevant to the reel topic ("${theme.keyPhrase}"). Use a verbatim excerpt (max 18 words) as the quote slide. If none mention the topic directly, pick the one that best emotionally validates what the reel just taught.
+
+${reviewOptions.map((r, i) => `Option ${i + 1}: "${r.text}"${r.author ? ` — ${r.author}` : ''}`).join('\n')}
 
 ---
 
@@ -205,7 +205,7 @@ Return ONLY valid JSON:
       ? `{ "type": "insight", "duration": 4, "content": { "headline": "First insight (max 10 words)", "highlightWords": ["word1"] } },
     { "type": "insight", "duration": 4, "content": { "headline": "Second insight (max 10 words)", "highlightWords": ["word1"] } },`
       : `{ "type": "insight", "duration": 4, "content": { "headline": "The sharpest insight (max 10 words)", "highlightWords": ["word1"] } },`}
-    { "type": "quote", "duration": 4, "content": { "quote": "Verbatim excerpt (max 18 words)", "highlightWords": ["word1"], "author": "${closingAuthor ?? 'null'}" } },
+    { "type": "quote", "duration": 4, "content": { "quote": "Verbatim excerpt (max 18 words)", "highlightWords": ["word1"], "author": "author name or null" } },
     { "type": "cta", "duration": ${tone === 'bold' ? 5 : 6}, "content": { "headline": "Topic callback", "cta": "Friction reduction" } }
   ]
 }`
@@ -525,15 +525,18 @@ async function generateVariation(
     // Pass 2 — full reel
     let parsed: Record<string, unknown>
     if (isVariety) {
-      const closing = closingReview ?? reviews[0]
+      // Pass up to 8 reviews so Claude can pick the most topically relevant one
+      const reviewPool = closingReview
+        ? [closingReview, ...reviews.filter(r => r.id !== closingReview.id).slice(0, 7)]
+        : reviews.slice(0, 8)
+      const reviewOptions = reviewPool.map(r => ({ text: r.what_they_liked, author: r.customer_name ?? null }))
       const reelMessage = await client.messages.create({
         model: 'claude-opus-4-6',
         max_tokens: 1500,
         system: langSystem,
         messages: [{ role: 'user', content: getVarietyReelPrompt(
           tone, theme, hookHeadline, hookSubline,
-          closing?.what_they_liked ?? theme.keyPhrase,
-          closing?.customer_name ?? null,
+          reviewOptions,
           businessName, industry, language,
         ) }],
       })
