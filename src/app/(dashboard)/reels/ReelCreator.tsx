@@ -78,14 +78,20 @@ export function ReelCreator({ theme, reviews, businessName, industry, brandColor
   }, [variations.length])
 
   useEffect(() => {
+    // For variety themes (educational, myth_bust etc), reviewIds is empty — pass all reviews
+    // so the API can find the best closing review from the full pool
+    const themeReviews = theme.reviewIds?.length
+      ? reviews.filter(r => theme.reviewIds.includes(r.id))
+      : reviews
+
     // Use cache if it has motif data (photos may or may not be assigned — that's fine)
     if (theme.cachedVariations?.length && theme.cachedVariations[0]?.script && theme.cachedVariations[0]?.motif) {
       setVariations(theme.cachedVariations)
       setGenerating(false)
-      generateCaption(reviews.filter(r => theme.reviewIds.includes(r.id)))
+      generateCaption(themeReviews)
       return
     }
-    generateScript(reviews.filter(r => theme.reviewIds.includes(r.id)))
+    generateScript(themeReviews)
   }, [])
 
   async function generateScript(themeReviews: Review[]) {
@@ -114,7 +120,7 @@ export function ReelCreator({ theme, reviews, businessName, industry, brandColor
     }
     setCityMissing(false)
     setGeneratingCaption(true)
-    const sourceReviews = themeReviews ?? reviews.filter(r => theme.reviewIds.includes(r.id))
+    const sourceReviews = themeReviews ?? (theme.reviewIds?.length ? reviews.filter(r => theme.reviewIds.includes(r.id)) : reviews)
     const reviewText = sourceReviews.map(r => r.what_they_liked).join(' ')
     const res = await fetch('/api/generate-post', {
       method: 'POST',
