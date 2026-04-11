@@ -1,9 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
 import type { Review } from '@/types'
 
 const client = new Anthropic()
+
+// Service client for server-to-server calls (no user session)
+function getDb(useService = false) {
+  if (useService) {
+    return createServiceClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    )
+  }
+  return createClient()
+}
 
 const BATCH_SIZE = 20
 
@@ -52,12 +64,20 @@ Return ONLY a valid JSON array, one object per review in the same order:
 
 export async function POST(req: NextRequest) {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
-    const { businessId } = await req.json()
+    const body = await req.json()
+    const { businessId, internal } = body
     if (!businessId) return NextResponse.json({ error: 'businessId required' }, { status: 400 })
+
+    // Allow server-to-server internal calls (from syncGoogleReviews, cron jobs)
+    // Otherwise require a logged-in user
+    let supabase: Awaited<ReturnType<typeof createClient>>
+    if (internal) {
+      supabase = getDb(true) as unknown as Awaited<ReturnType<typeof createClient>>
+    } else {
+      supabase = await createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
 
     // Only score GBP reviews (posted_to_google = true) that haven't been scored yet
     const { data: reviews, error } = await supabase

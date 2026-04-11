@@ -162,6 +162,18 @@ export function ReelsClient({ reviews, businessId, businessName, industry, brand
       return
     }
 
+    // Trigger scoring if any reviews are unscored — fire-and-forget, analyze-reviews fetches fresh from DB
+    const unscoredCount = reviews.filter(r => r.remarkability_score == null).length
+    if (unscoredCount > 0) {
+      fetch('/api/score-reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ businessId }),
+      })
+        .then(() => analyze()) // analyze after scoring completes so it sees fresh scores
+        .catch(() => analyze()) // fall back to analyzing anyway
+      return
+    }
     analyze()
   }, [])
 

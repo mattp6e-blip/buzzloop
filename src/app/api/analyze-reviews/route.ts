@@ -489,9 +489,12 @@ behind_scenes: Reveals something that happens that customers never see. Specific
 
 YOUR PROCESS:
 
-For educational and myth_bust: Think like a patient/customer who is scared, confused, or avoidant. What specific thing are they wrong about? What would genuinely change their decision if they knew it? The hook must reveal something specific — not a generic question, not a template. Source: industry knowledge only, not the reviews.
+For educational and myth_bust:
+Step 1 — Generate the topic from industry knowledge. Think like a patient/customer who is scared, confused, or avoidant. What specific thing are they wrong about? What would genuinely change their decision if they knew it?
+Step 2 — After deciding the topic, scan the reviews for ONE that would work as a closing validation quote. The review must topically match — it should mention the same treatment, fear, or outcome the reel is about. A patient saying "I was so scared, now I wish I'd done it years ago" works for a sedation myth bust. A generic "great service" review does NOT.
+Step 3 — If a matching review is found, include its ID in reviewIds. If nothing matches well enough, leave reviewIds as [].
 
-For experience and behind_scenes: Scan the reviews for specific sensory words, emotional moments, or process details. Build the hook around the most specific, vivid detail you find.
+For experience and behind_scenes: Scan the reviews for specific sensory words, emotional moments, or process details. Build the hook around the most specific, vivid detail you find. Include the source review ID in reviewIds.
 
 HOOK QUALITY TEST — before writing any hook, ask: would a stranger scrolling at 150 posts per second stop for this? If the hook sounds like a template ("You think X. Here's the truth.") — rewrite it. If it could apply to any dental/gym/salon in the world — it's too generic, make it specific. If it answers a question nobody was asking — scrap it.
 
@@ -506,7 +509,7 @@ HOOK RULES:
 
 ---
 
-REVIEWS — scan for experience/behind_scenes evidence only:
+REVIEWS — scan for topic matching (edu/myth_bust closing quotes) and experience/behind_scenes evidence:
 ${reviewList}
 
 ---
@@ -522,7 +525,7 @@ Return ONLY valid JSON with exactly ${totalVariety} themes. Each theme must have
       "contentType": "educational | myth_bust | experience | behind_scenes",
       "keyPhrase": "the specific topic in 4-6 words",
       "emoji": "ONE relevant emoji",
-      "reviewIds": [],
+      "reviewIds": ["matched-review-id-or-empty"],
       "buzzReason": "One sentence: the specific reason a stranger would stop for this — not generic praise"
     }
   ]
@@ -545,14 +548,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ themes: [] })
     }
 
-    // Use GBP reviews only
-    const gbpReviews = rawReviews.filter(r => r.posted_to_google)
+    // Always fetch fresh reviews from DB — client-side props may have stale/null remarkability scores
+    const supabase = await createClient()
+    const { data: freshReviews } = await supabase
+      .from('reviews')
+      .select('id, what_they_liked, customer_name, star_rating, posted_to_google, remarkability_score, anchor_sentence, remarkability_signal')
+      .eq('business_id', businessId)
+      .eq('posted_to_google', true)
+
+    // Use DB data if available, fall back to client-provided reviews
+    const gbpReviews = (freshReviews?.length ? freshReviews : rawReviews.filter(r => r.posted_to_google)) as Review[]
     if (!gbpReviews.length) return NextResponse.json({ themes: [] })
 
-    // Sort by remarkability score (scored reviews first, then unscored by length as proxy)
+    // Sort by remarkability score (scored reviews first, unscored last)
     const sorted = [...gbpReviews].sort((a, b) => {
-      const aScore = a.remarkability_score ?? (a.what_they_liked.length > 100 ? 30 : 10)
-      const bScore = b.remarkability_score ?? (b.what_they_liked.length > 100 ? 30 : 10)
+      const aScore = a.remarkability_score ?? -1
+      const bScore = b.remarkability_score ?? -1
       return bScore - aScore
     })
 

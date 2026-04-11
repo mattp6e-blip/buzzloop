@@ -125,20 +125,43 @@ function getVarietyReelPrompt(
   theme: ReelTheme,
   hookHeadline: string,
   hookSubline: string | null,
-  reviewOptions: { text: string; author: string | null }[],
+  closingReview: { text: string; author: string | null } | null,
   businessName: string,
   industry: string,
   language: string,
 ): string {
   const durationSeconds = TONE_CONFIGS[tone].durationSeconds
+  const hasQuote = closingReview !== null
 
   const toneInstructions: Record<Tone, string> = {
-    story: `TONE — Story (${durationSeconds}s): Educational journey. Hook poses the question. Each insight builds understanding. The closing review is the emotional proof that it works. CTA feels like a natural next step.`,
-    proof: `TONE — Proof (${durationSeconds}s): Evidence-led education. Each insight is a verifiable fact. The closing review confirms the theory with a real human. CTA is a confident invitation.`,
-    bold: `TONE — Bold (${durationSeconds}s): Fast, punchy education. Cut to the most surprising insight. One closing quote. Move fast.`,
+    story: `TONE — Story (${durationSeconds}s): Educational journey. Hook poses the question. Each insight builds understanding.${hasQuote ? ' The closing review is the human proof that it works.' : ''} CTA feels like a natural next step.`,
+    proof: `TONE — Proof (${durationSeconds}s): Evidence-led education. Each insight is a verifiable fact.${hasQuote ? ' The closing review confirms the theory with a real voice.' : ''} CTA is a confident invitation.`,
+    bold: `TONE — Bold (${durationSeconds}s): Fast, punchy education. Cut to the most surprising insight.${hasQuote ? ' One closing quote.' : ''} Move fast.`,
   }
 
   const insightCount = tone === 'bold' ? 1 : 2
+  const ctaDuration = tone === 'bold' ? 5 : 6
+  const totalDuration = 4 + (insightCount * 4) + (hasQuote ? 4 : 0) + ctaDuration
+
+  const slideStructure = `SLIDE STRUCTURE:
+- hook: 4s — already written above
+${tone === 'bold'
+  ? `- insight: 4s — the single most surprising or counterintuitive fact about the topic`
+  : `- insight: 4s — first key point (most surprising or counterintuitive)
+- insight: 4s — second key point (deepens understanding or changes perception)`}${hasQuote ? `
+- quote: 4s — closing validation (verbatim from the review below)` : ''}
+- cta: ${ctaDuration}s — call to action`
+
+  const closingReviewBlock = hasQuote
+    ? `\nCLOSING REVIEW (already matched — use verbatim, do NOT change or invent):
+"${closingReview!.text}"${closingReview!.author ? ` — ${closingReview!.author}` : ''}
+
+Use a verbatim excerpt (max 18 words) that emotionally validates what the insights just taught.\n`
+    : ''
+
+  const quoteSlideJson = hasQuote
+    ? `\n    { "type": "quote", "duration": 4, "content": { "quote": "Verbatim excerpt from the review above (max 18 words)", "highlightWords": ["word1"], "author": ${closingReview!.author ? `"${closingReview!.author}"` : 'null'} } },`
+    : ''
 
   return `You are completing an Instagram Reel about ${theme.contentType?.replace('_', ' ')} content. The hook has been written. Build the educational content around it.
 
@@ -157,19 +180,8 @@ ${toneInstructions[tone]}
 
 ---
 
-SLIDE STRUCTURE:
-- hook: 3s — already written above
-${tone === 'bold'
-  ? `- insight: 4s — the single most surprising or counterintuitive fact about the topic`
-  : `- insight: 4s — first key point (most surprising or counterintuitive)
-- insight: 4s — second key point (deepens understanding or changes perception)`}
-- quote: 4s — closing emotional proof (verbatim from the review below)
-- cta: ${tone === 'bold' ? 5 : 6}s — call to action
-
-CLOSING REVIEW — pick the ONE review below most relevant to the reel topic ("${theme.keyPhrase}"). Use a verbatim excerpt (max 18 words) as the quote slide. If none mention the topic directly, pick the one that best emotionally validates what the reel just taught.
-
-${reviewOptions.map((r, i) => `Option ${i + 1}: "${r.text}"${r.author ? ` — ${r.author}` : ''}`).join('\n')}
-
+${slideStructure}
+${closingReviewBlock}
 ---
 
 INSIGHT SLIDES — rules:
@@ -177,11 +189,6 @@ INSIGHT SLIDES — rules:
 - Surprising, specific, or counterintuitive — something the viewer didn't know
 - Never generic ("it's important to...") — always specific ("most people feel nothing after 20 minutes")
 - highlightWords: the 1-2 words that carry the most weight
-
-QUOTE SLIDE — rules:
-- Verbatim excerpt from the closing review above — max 18 words
-- Choose the excerpt that emotionally validates what the insights just taught
-- highlightWords: the 1-2 words with the most weight
 
 CTA — two lines:
 Line 1 (ctaHeadline): Callback to the topic. Bridge from the education to taking action.
@@ -196,7 +203,7 @@ Line 2 (ctaText): Friction reduction. Make the next step feel smaller than expec
 Return ONLY valid JSON:
 {
   "themeTitle": "${theme.title}",
-  "totalDuration": ${durationSeconds + 1},
+  "totalDuration": ${totalDuration},
   "ctaHeadline": "Topic callback — specific",
   "ctaText": "Friction reduction",
   "slides": [
@@ -204,9 +211,8 @@ Return ONLY valid JSON:
     ${insightCount === 2
       ? `{ "type": "insight", "duration": 4, "content": { "headline": "First insight (max 10 words)", "highlightWords": ["word1"] } },
     { "type": "insight", "duration": 4, "content": { "headline": "Second insight (max 10 words)", "highlightWords": ["word1"] } },`
-      : `{ "type": "insight", "duration": 4, "content": { "headline": "The sharpest insight (max 10 words)", "highlightWords": ["word1"] } },`}
-    { "type": "quote", "duration": 4, "content": { "quote": "Verbatim excerpt (max 18 words)", "highlightWords": ["word1"], "author": "author name or null" } },
-    { "type": "cta", "duration": ${tone === 'bold' ? 5 : 6}, "content": { "headline": "Topic callback", "cta": "Friction reduction" } }
+      : `{ "type": "insight", "duration": 4, "content": { "headline": "The sharpest insight (max 10 words)", "highlightWords": ["word1"] } },`}${quoteSlideJson}
+    { "type": "cta", "duration": ${ctaDuration}, "content": { "headline": "Topic callback", "cta": "Friction reduction" } }
   ]
 }`
 }
@@ -525,18 +531,17 @@ async function generateVariation(
     // Pass 2 — full reel
     let parsed: Record<string, unknown>
     if (isVariety) {
-      // Pass up to 8 reviews so Claude can pick the most topically relevant one
-      const reviewPool = closingReview
-        ? [closingReview, ...reviews.filter(r => r.id !== closingReview.id).slice(0, 7)]
-        : reviews.slice(0, 8)
-      const reviewOptions = reviewPool.map(r => ({ text: r.what_they_liked, author: r.customer_name ?? null }))
+      // Use the pre-matched closing review from analyze-reviews (or null if none matched)
+      const confirmedClosing = closingReview
+        ? { text: closingReview.what_they_liked, author: closingReview.customer_name ?? null }
+        : null
       const reelMessage = await client.messages.create({
         model: 'claude-opus-4-6',
         max_tokens: 1500,
         system: langSystem,
         messages: [{ role: 'user', content: getVarietyReelPrompt(
           tone, theme, hookHeadline, hookSubline,
-          reviewOptions,
+          confirmedClosing,
           businessName, industry, language,
         ) }],
       })
@@ -567,7 +572,7 @@ async function generateVariation(
 
     // Guarantee all quote slides contain real customer words
     const quoteSourceReviews = isVariety
-      ? (closingReview ? [closingReview, ...reviews.slice(0, 3)] : reviews.slice(0, 4))
+      ? (closingReview ? [closingReview] : [])
       : reviews
     const script = validateQuotes(rawScript, quoteSourceReviews)
 
@@ -608,12 +613,12 @@ export async function POST(req: NextRequest) {
   const isVariety = theme.contentType && theme.contentType !== 'social_proof'
   const lang = language ?? 'English'
 
-  // For variety themes: find the best closing review (topically relevant > highest score)
+  // For variety themes: use the pre-matched review from analyze-reviews (reviewIds[0])
+  // No fallback — if analyze-reviews found no topical match, we skip the quote slide entirely
   const themeReviewIds = new Set(theme.reviewIds)
-  const themeReviews = gbpReviews.filter(r => themeReviewIds.has(r.id))
-  const closingReview = theme.anchorReviewId
-    ? gbpReviews.find(r => r.id === theme.anchorReviewId)
-    : themeReviews[0] ?? gbpReviews.sort((a, b) => (b.remarkability_score ?? 0) - (a.remarkability_score ?? 0))[0]
+  const closingReview = isVariety
+    ? (theme.reviewIds?.[0] ? gbpReviews.find(r => r.id === theme.reviewIds[0]) : undefined)
+    : (theme.anchorReviewId ? gbpReviews.find(r => r.id === theme.anchorReviewId) : gbpReviews.filter(r => themeReviewIds.has(r.id))[0])
 
   // For social proof themes: find anchor + build review context
   const anchorReview = theme.anchorReviewId

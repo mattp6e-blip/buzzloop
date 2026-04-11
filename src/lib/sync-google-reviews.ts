@@ -199,12 +199,12 @@ export async function syncGoogleReviews(
     await supabase.from('reviews').update({ has_owner_reply }).eq('id', id)
   }
 
-  // Trigger remarkability scoring for new high-quality reviews (fire-and-forget)
+  // Trigger remarkability scoring for new reviews (fire-and-forget, internal = no user auth needed)
   if (toInsert.length > 0 && process.env.NEXT_PUBLIC_APP_URL) {
     fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/score-reviews`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ businessId }),
+      body: JSON.stringify({ businessId, internal: true }),
     }).catch(() => {})
   }
 
