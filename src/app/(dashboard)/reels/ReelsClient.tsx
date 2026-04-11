@@ -165,14 +165,14 @@ export function ReelsClient({ reviews, businessId, businessName, industry, brand
     analyze()
   }, [])
 
-  async function analyze() {
+  async function analyze(excludeTitles: string[] = []) {
     setAnalyzing(true)
     setError(null)
     try {
       const res = await fetch('/api/analyze-reviews', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reviews, businessId, industry, businessName, language: detectLanguage(reviews), businessContext: activeBusinessContext }),
+        body: JSON.stringify({ reviews, businessId, industry, businessName, language: detectLanguage(reviews), businessContext: activeBusinessContext, excludeThemeTitles: excludeTitles }),
       })
       const data = await res.json()
       if (data.themes?.length) {
@@ -233,6 +233,8 @@ export function ReelsClient({ reviews, businessId, businessName, industry, brand
   }
 
   async function forceReanalyze() {
+    // Capture existing titles before wiping so the API can exclude them
+    const existingTitles = (themes ?? []).map(t => t.title)
     try {
       Object.keys(localStorage)
         .filter(k => k.startsWith(`reel_themes_${businessId}_`))
@@ -241,7 +243,7 @@ export function ReelsClient({ reviews, businessId, businessName, industry, brand
     const supabase = createClient()
     await supabase.from('businesses').update({ reel_themes: null, reel_themes_review_count: 0 }).eq('id', businessId)
     setThemes(null)
-    analyze()
+    analyze(existingTitles)
   }
 
   const activeBrandColor       = extractedBrand?.primaryColor ?? brandColor

@@ -352,7 +352,10 @@ export function getClusterConfig(industry: string): ClusterConfig {
   return CLUSTER_CONFIGS[clusterName]
 }
 
-export function getAnalysisPrompt(reviewList: string, industry: string, businessName: string, reviewCount: number, language: string, socialProofCount: number): string {
+export function getAnalysisPrompt(reviewList: string, industry: string, businessName: string, reviewCount: number, language: string, socialProofCount: number, excludeTitles: string[] = []): string {
+  const excludeBlock = excludeTitles.length > 0
+    ? `\nALREADY GENERATED — do NOT produce ideas that overlap with these themes:\n${excludeTitles.map(t => `- "${t}"`).join('\n')}\nEach new theme must be built around a different review, a different behavior, or a different angle entirely.\n`
+    : ''
   return `You are the creative director behind the highest-performing local business Instagram Reels. Find the reel ideas that will genuinely stop someone's scroll.
 
 Business: ${businessName} (${industry})
@@ -364,7 +367,7 @@ ${reviewList}
 ---
 
 LANGUAGE: Write every field of your JSON in ${language}.
-
+${excludeBlock}
 ---
 
 Find exactly ${socialProofCount} social proof reel ideas from these reviews. Each is one of two types:
@@ -437,9 +440,13 @@ export function getVarietyPrompt(
   language: string,
   businessContext: string | null | undefined,
   cluster: ClusterConfig,
+  excludeTitles: string[] = [],
 ): string {
   const contextBlock = businessContext
     ? `\nBUSINESS CONTEXT (use this to make every idea specific to what they actually offer):\n${businessContext}\n`
+    : ''
+  const excludeBlock = excludeTitles.length > 0
+    ? `\nALREADY GENERATED — do NOT produce ideas that overlap with these themes:\n${excludeTitles.map(t => `- "${t}"`).join('\n')}\nFind genuinely different angles, topics, and hooks.\n`
     : ''
 
   const { educational, mythBust, experience, behindScenes } = cluster.counts
@@ -456,7 +463,7 @@ export function getVarietyPrompt(
 
 Business: ${businessName} (${industry})
 LANGUAGE: Write every field in ${language}.
-${contextBlock}
+${contextBlock}${excludeBlock}
 CONTENT FOCUS FOR THIS INDUSTRY:
 ${cluster.contentFocus}
 
@@ -524,13 +531,14 @@ Return ONLY valid JSON with exactly ${totalVariety} themes. Each theme must have
 
 export async function POST(req: NextRequest) {
   try {
-    const { reviews: rawReviews, businessId, industry = 'other', businessName = '', language = 'English', businessContext }: {
+    const { reviews: rawReviews, businessId, industry = 'other', businessName = '', language = 'English', businessContext, excludeThemeTitles = [] }: {
       reviews: Review[]
       businessId: string
       industry?: string
       businessName?: string
       language?: string
       businessContext?: string | null
+      excludeThemeTitles?: string[]
     } = await req.json()
 
     if (!rawReviews?.length) {
@@ -566,13 +574,13 @@ export async function POST(req: NextRequest) {
         model: 'claude-opus-4-6',
         max_tokens: 2000,
         system: langSystem,
-        messages: [{ role: 'user', content: getAnalysisPrompt(reviewList, industry, businessName, gbpReviews.length, language, cluster.counts.socialProof) }],
+        messages: [{ role: 'user', content: getAnalysisPrompt(reviewList, industry, businessName, gbpReviews.length, language, cluster.counts.socialProof, excludeThemeTitles) }],
       }),
       client.messages.create({
         model: 'claude-opus-4-6',
         max_tokens: 2500,
         system: langSystem,
-        messages: [{ role: 'user', content: getVarietyPrompt(industry, businessName, reviewList, language, businessContext, cluster) }],
+        messages: [{ role: 'user', content: getVarietyPrompt(industry, businessName, reviewList, language, businessContext, cluster, excludeThemeTitles) }],
       }),
     ])
 
