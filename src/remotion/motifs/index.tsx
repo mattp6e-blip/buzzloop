@@ -27,6 +27,8 @@ export type ReelMotif =
   | 'icon_tooth' | 'icon_dumbbell' | 'icon_fork_knife' | 'icon_cocktail'
   | 'icon_scissors' | 'icon_paw' | 'icon_scales' | 'icon_eye'
   | 'icon_chef_hat' | 'icon_hotel_bed' | 'icon_needle' | 'icon_camera'
+  // Brand & proof
+  | 'google_g' | 'calendar_fill' | 'phone_frame' | 'trophy'
   | 'none'
 
 // ── MotifLayer ────────────────────────────────────────────────────────────────
@@ -75,6 +77,10 @@ export function MotifLayer({ motif, brandColor, value }: {
     case 'icon_hotel_bed': return <IconMotif brandColor={brandColor} emoji="🛏️" />
     case 'icon_needle':    return <IconMotif brandColor={brandColor} emoji="🎨" />
     case 'icon_camera':    return <IconMotif brandColor={brandColor} emoji="📷" />
+    case 'google_g':       return <GoogleG brandColor={brandColor} />
+    case 'calendar_fill':  return <CalendarFill brandColor={brandColor} />
+    case 'phone_frame':    return <PhoneFrame brandColor={brandColor} />
+    case 'trophy':         return <Trophy brandColor={brandColor} />
     default:               return null
   }
 }
@@ -767,6 +773,166 @@ function IconMotif({ brandColor, emoji }: { brandColor: string; emoji: string })
         filter: `drop-shadow(0 0 70px ${brandColor}60)`,
         userSelect: 'none', lineHeight: 1,
       }}>{emoji}</div>
+    </AbsoluteFill>
+  )
+}
+
+// ── Brand & Proof ─────────────────────────────────────────────────────────────
+
+// Four Google-color arcs that fill in progressively — recognisable brand signal.
+function GoogleG({ brandColor: _ }: { brandColor: string }) {
+  const frame = useCurrentFrame()
+  const opacity = fi(frame) * 0.40
+  const progress = interpolate(frame, [5, 48], [0, 1], { extrapolateRight: 'clamp' })
+  const cx = 540, cy = 960, r = 270
+  const C = 2 * Math.PI * r
+  const colors = ['#4285F4', '#34A853', '#FBBC04', '#EA4335']
+  const rotations = [-90, 0, 90, 180]
+  return (
+    <AbsoluteFill style={{ opacity }}>
+      <svg viewBox="0 0 1080 1920" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
+        {colors.map((color, i) => {
+          const arcLen = C * 0.22 * progress
+          return (
+            <circle key={i}
+              cx={cx} cy={cy} r={r}
+              fill="none"
+              stroke={color}
+              strokeWidth={18}
+              strokeDasharray={`${arcLen} ${C}`}
+              transform={`rotate(${rotations[i]} ${cx} ${cy})`}
+              strokeLinecap="round"
+            />
+          )
+        })}
+        {/* Center G */}
+        <text
+          x={cx} y={cy + 42}
+          textAnchor="middle"
+          fontFamily="system-ui, sans-serif"
+          fontSize={160}
+          fontWeight="700"
+          fill="#4285F4"
+          opacity={interpolate(frame, [20, 40], [0, 0.55], { extrapolateRight: 'clamp' })}
+        >G</text>
+      </svg>
+    </AbsoluteFill>
+  )
+}
+
+// Calendar grid with cells filling up — great for "booked solid" proof slides.
+function CalendarFill({ brandColor }: { brandColor: string }) {
+  const frame = useCurrentFrame()
+  const { durationInFrames } = useVideoConfig()
+  const opacity = fi(frame) * 0.38
+  const COLS = 7, ROWS = 5, TOTAL = COLS * ROWS
+  const cellW = 90, cellH = 72, gapX = 20, gapY = 16
+  const gridW = COLS * cellW + (COLS - 1) * gapX
+  const gridH = ROWS * cellH + (ROWS - 1) * gapY
+  const startX = (1080 - gridW) / 2
+  const startY = (1920 - gridH) / 2
+
+  return (
+    <AbsoluteFill style={{ opacity }}>
+      <svg viewBox="0 0 1080 1920" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
+        {Array.from({ length: TOTAL }, (_, i) => {
+          const col = i % COLS
+          const row = Math.floor(i / COLS)
+          const x = startX + col * (cellW + gapX)
+          const y = startY + row * (cellH + gapY)
+          const threshold = (i / TOTAL) * durationInFrames * 0.70
+          const cellP = fi(frame, threshold, threshold + 6)
+          const filled = cellP > 0.5
+          return (
+            <rect key={i}
+              x={x} y={y} width={cellW * cellP} height={cellH}
+              rx={8}
+              fill={filled ? brandColor : `${brandColor}30`}
+              opacity={cellP * 0.72}
+            />
+          )
+        })}
+      </svg>
+    </AbsoluteFill>
+  )
+}
+
+// Phone silhouette that glows — perfect for social media / review themes.
+function PhoneFrame({ brandColor }: { brandColor: string }) {
+  const frame = useCurrentFrame()
+  const { fps } = useVideoConfig()
+  const sp = spring({ frame, fps, config: { stiffness: 40, damping: 18 } })
+  const scale = interpolate(sp, [0, 1], [0.75, 1])
+  const opacity = fi(frame) * 0.35
+  const pulse = 0.7 + Math.sin(frame * 0.10) * 0.3
+  const cx = 540, cy = 960
+  const pw = 260, ph = 520, pr = 36
+  return (
+    <AbsoluteFill style={{ opacity }}>
+      <svg viewBox="0 0 1080 1920" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
+        <g transform={`translate(${cx}, ${cy}) scale(${scale}) translate(${-cx}, ${-cy})`}>
+          {/* Phone body */}
+          <rect x={cx - pw/2} y={cy - ph/2} width={pw} height={ph} rx={pr}
+            fill="none" stroke={brandColor} strokeWidth={8} opacity={0.55} />
+          {/* Screen glow */}
+          <rect x={cx - pw/2 + 14} y={cy - ph/2 + 60} width={pw - 28} height={ph - 120} rx={pr - 10}
+            fill={brandColor} opacity={0.08 * pulse} />
+          {/* Speaker */}
+          <rect x={cx - 36} y={cy - ph/2 + 26} width={72} height={10} rx={5}
+            fill={brandColor} opacity={0.4} />
+          {/* Home button line */}
+          <rect x={cx - 28} y={cy + ph/2 - 42} width={56} height={8} rx={4}
+            fill={brandColor} opacity={0.4} />
+          {/* Notification dots */}
+          {[0, 1, 2].map(i => (
+            <circle key={i}
+              cx={cx - 30 + i * 30} cy={cy}
+              r={interpolate(frame, [i * 8, i * 8 + 14], [0, 7], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })}
+              fill={brandColor} opacity={0.55}
+            />
+          ))}
+        </g>
+        {/* Outer glow ring */}
+        <ellipse cx={cx} cy={cy} rx={pw * 0.85} ry={ph * 0.55}
+          fill="none" stroke={brandColor} strokeWidth={2}
+          opacity={interpolate(Math.sin(frame * 0.08), [-1, 1], [0.04, 0.14])}
+        />
+      </svg>
+    </AbsoluteFill>
+  )
+}
+
+// Trophy rising up — for awards, achievements, or "best in class" claims.
+function Trophy({ brandColor }: { brandColor: string }) {
+  const frame = useCurrentFrame()
+  const { fps } = useVideoConfig()
+  const sp = spring({ frame, fps, config: { stiffness: 32, damping: 16 } })
+  const translateY = interpolate(sp, [0, 1], [180, 0])
+  const opacity = fi(frame) * 0.36
+  const cx = 540, cy = 960
+  const glow = `drop-shadow(0 0 55px ${brandColor}70) drop-shadow(0 0 20px ${brandColor}50)`
+  return (
+    <AbsoluteFill style={{ opacity }}>
+      <svg viewBox="0 0 1080 1920" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
+        <g transform={`translate(0, ${translateY})`} filter={glow}>
+          {/* Cup body */}
+          <path
+            d={`M${cx - 120},${cy - 200} C${cx - 120},${cy + 60} ${cx + 120},${cy + 60} ${cx + 120},${cy - 200} Z`}
+            fill={brandColor} opacity={0.45}
+          />
+          {/* Handles */}
+          <path d={`M${cx - 120},${cy - 130} Q${cx - 190},${cy - 130} ${cx - 190},${cy - 60} Q${cx - 190},${cy + 10} ${cx - 120},${cy + 10}`}
+            fill="none" stroke={brandColor} strokeWidth={18} strokeLinecap="round" opacity={0.55} />
+          <path d={`M${cx + 120},${cy - 130} Q${cx + 190},${cy - 130} ${cx + 190},${cy - 60} Q${cx + 190},${cy + 10} ${cx + 120},${cy + 10}`}
+            fill="none" stroke={brandColor} strokeWidth={18} strokeLinecap="round" opacity={0.55} />
+          {/* Stem */}
+          <rect x={cx - 16} y={cy + 60} width={32} height={100} rx={8} fill={brandColor} opacity={0.45} />
+          {/* Base */}
+          <rect x={cx - 90} y={cy + 155} width={180} height={28} rx={10} fill={brandColor} opacity={0.50} />
+          {/* Star */}
+          <text x={cx} y={cy - 60} textAnchor="middle" fontSize={80} fill="rgba(255,255,255,0.55)" fontFamily="system-ui">★</text>
+        </g>
+      </svg>
     </AbsoluteFill>
   )
 }

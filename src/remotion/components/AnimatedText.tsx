@@ -1,7 +1,7 @@
 import { Fragment } from 'react'
 import { useCurrentFrame, useVideoConfig, interpolate, spring } from 'remotion'
 
-type TextAnim = 'fade-up' | 'scale-in' | 'slide-left' | 'typewriter' | 'word-reveal' | 'slam'
+type TextAnim = 'fade-up' | 'scale-in' | 'slide-left' | 'typewriter' | 'word-reveal' | 'slam' | 'char-spring'
 
 interface AnimatedTextProps {
   text: string
@@ -80,6 +80,38 @@ export function AnimatedText({ text, style, anim, delay = 0, highlightWords = []
         transformOrigin: 'left center',
       }}>
         <HighlightText text={text} words={highlightWords} color={highlightColor} />
+      </div>
+    )
+  }
+
+  if (anim === 'char-spring') {
+    // Each word springs in independently with staggered delay — true kinetic typography.
+    const words = text.split(' ')
+    return (
+      <div style={{ ...baseStyle, display: 'flex', flexWrap: 'wrap', columnGap: '0.25em', rowGap: '0.05em' }}>
+        {words.map((word, i) => {
+          const wordF = Math.max(0, f - i * 4)
+          const s = spring({ frame: wordF, fps, config: { stiffness: 360, damping: 15 } })
+          const wordY = interpolate(s, [0, 1], [38, 0])
+          const wordScale = interpolate(s, [0, 1], [0.72, 1])
+          const wordOpacity = interpolate(wordF, [0, 7], [0, 1], { extrapolateRight: 'clamp' })
+          const clean = word.replace(/[.,!?:;]/g, '').toLowerCase()
+          const isHighlighted = highlightWords.some(w => w.toLowerCase() === clean)
+          return (
+            <Fragment key={i}>
+              <span style={{
+                display: 'inline-block',
+                transform: `translateY(${wordY}px) scale(${wordScale})`,
+                opacity: wordOpacity,
+                transformOrigin: 'center bottom',
+                color: isHighlighted ? highlightColor : 'inherit',
+                fontWeight: isHighlighted ? 800 : undefined,
+              }}>
+                {word}
+              </span>
+            </Fragment>
+          )
+        })}
       </div>
     )
   }

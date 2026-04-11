@@ -7,6 +7,7 @@ import { Grain } from '../components/Grain'
 import { CinematicBars } from '../components/CinematicBars'
 import type { VisualTemplate } from '../types'
 import { TEMPLATE_CONFIGS } from '../styleConfigs'
+import { LightLeak } from '../components/LightLeak'
 
 interface CTASceneProps {
   ctaHeadline?: string | null   // line 1: story callback
@@ -42,6 +43,7 @@ export function CTAScene({ ctaHeadline, ctaText, websiteUrl, businessName, logoU
 
       <Grain opacity={0.045} />
       <CinematicBars height={68} />
+      <LightLeak delay={28} intensity={0.09} />
 
       <AbsoluteFill style={{
         display: 'flex',

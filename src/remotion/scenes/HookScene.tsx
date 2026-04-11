@@ -9,6 +9,7 @@ import { MotifLayer } from '../motifs'
 import type { VisualTemplate } from '../types'
 import type { ReelMotif } from '../motifs'
 import { TEMPLATE_CONFIGS } from '../styleConfigs'
+import { LightLeak } from '../components/LightLeak'
 
 interface HookSceneProps {
   headline: string
@@ -47,6 +48,7 @@ export function HookScene({ headline, subline, template, brandColor, logoUrl, bu
 
       <Grain opacity={0.045} />
       <CinematicBars height={68} />
+      {template === 'immersive' && hasPhoto && <LightLeak delay={22} intensity={0.11} />}
 
       <LogoMark logoUrl={logoUrl} businessName={businessName} placement={config.logo} color={brandColor} delay={10} />
 

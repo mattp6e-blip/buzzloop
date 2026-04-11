@@ -53,7 +53,7 @@ export function ReelCompositionV2({
 
       if (type === 'insight') {
         presentation = slide({ direction: 'from-right' })
-        timing = springTiming({ config: { damping: 200 } })
+        timing = springTiming({ config: { stiffness: 100, damping: 16 }, durationInFrames: 20 })
       } else if (type === 'cta') {
         presentation = fade()
         timing = linearTiming({ durationInFrames: 18 })
