@@ -139,16 +139,24 @@ function getVarietyReelPrompt(
     bold: `TONE — Bold (${durationSeconds}s): Fast, punchy education. Cut to the most surprising insight.${hasQuote ? ' One closing quote.' : ''} Move fast.`,
   }
 
-  const insightCount = tone === 'bold' ? 1 : 2
+  const insightCount = tone === 'bold' ? 1 : theme.contentType === 'behind_scenes' ? 4 : 3
   const ctaDuration = tone === 'bold' ? 5 : 6
   const totalDuration = 4 + (insightCount * 4) + (hasQuote ? 4 : 0) + ctaDuration
 
+  const insightLines = tone === 'bold'
+    ? `- insight: 4s — the single most surprising or counterintuitive fact about the topic`
+    : insightCount === 4
+    ? `- insight: 4s — first key point (most surprising or counterintuitive)
+- insight: 4s — second key point (deepens understanding)
+- insight: 4s — third key point (the mechanism or process)
+- insight: 4s — fourth key point (the outcome or implication)`
+    : `- insight: 4s — first key point (most surprising or counterintuitive)
+- insight: 4s — second key point (deepens understanding or changes perception)
+- insight: 4s — third key point (the outcome or implication)`
+
   const slideStructure = `SLIDE STRUCTURE:
 - hook: 4s — already written above
-${tone === 'bold'
-  ? `- insight: 4s — the single most surprising or counterintuitive fact about the topic`
-  : `- insight: 4s — first key point (most surprising or counterintuitive)
-- insight: 4s — second key point (deepens understanding or changes perception)`}${hasQuote ? `
+${insightLines}${hasQuote ? `
 - quote: 4s — closing validation (verbatim from the review below)` : ''}
 - cta: ${ctaDuration}s — call to action`
 
@@ -208,10 +216,16 @@ Return ONLY valid JSON:
   "ctaText": "Friction reduction",
   "slides": [
     { "type": "hook", "duration": 4, "content": { "headline": "${hookHeadline}", "subline": ${hookSubline ? `"${hookSubline}"` : 'null'} } },
-    ${insightCount === 2
+    ${insightCount === 1
+      ? `{ "type": "insight", "duration": 4, "content": { "headline": "The sharpest insight (max 10 words)", "highlightWords": ["word1"] } },`
+      : insightCount === 4
       ? `{ "type": "insight", "duration": 4, "content": { "headline": "First insight (max 10 words)", "highlightWords": ["word1"] } },
-    { "type": "insight", "duration": 4, "content": { "headline": "Second insight (max 10 words)", "highlightWords": ["word1"] } },`
-      : `{ "type": "insight", "duration": 4, "content": { "headline": "The sharpest insight (max 10 words)", "highlightWords": ["word1"] } },`}${quoteSlideJson}
+    { "type": "insight", "duration": 4, "content": { "headline": "Second insight (max 10 words)", "highlightWords": ["word1"] } },
+    { "type": "insight", "duration": 4, "content": { "headline": "Third insight (max 10 words)", "highlightWords": ["word1"] } },
+    { "type": "insight", "duration": 4, "content": { "headline": "Fourth insight (max 10 words)", "highlightWords": ["word1"] } },`
+      : `{ "type": "insight", "duration": 4, "content": { "headline": "First insight (max 10 words)", "highlightWords": ["word1"] } },
+    { "type": "insight", "duration": 4, "content": { "headline": "Second insight (max 10 words)", "highlightWords": ["word1"] } },
+    { "type": "insight", "duration": 4, "content": { "headline": "Third insight (max 10 words)", "highlightWords": ["word1"] } },`}${quoteSlideJson}
     { "type": "cta", "duration": ${ctaDuration}, "content": { "headline": "Topic callback", "cta": "Friction reduction" } }
   ]
 }`

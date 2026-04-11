@@ -254,7 +254,8 @@ export function ReelsClient({ reviews, businessId, businessName, industry, brand
     } catch {}
     const supabase = createClient()
     await supabase.from('businesses').update({ reel_themes: null, reel_themes_review_count: 0 }).eq('id', businessId)
-    setThemes(null)
+    // Don't wipe themes from state — keep existing cards visible while new ones load,
+    // so high-buzz themes are never lost. New results merge in on top.
     analyze(existingTitles)
   }
 

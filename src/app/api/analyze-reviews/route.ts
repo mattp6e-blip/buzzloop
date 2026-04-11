@@ -33,6 +33,7 @@ interface ClusterConfig {
   hookFrameworks: string
   avoidTypes: string
   counts: { socialProof: number; educational: number; mythBust: number; experience: number; behindScenes: number }
+  highValueTopics: string[] // Real questions/fears people Google before booking
 }
 
 const INDUSTRY_TO_CLUSTER: Record<string, ClusterName> = {
@@ -98,6 +99,19 @@ const CLUSTER_CONFIGS: Record<ClusterName, ClusterConfig> = {
 7. BEHAVIORAL PROOF: "[Specific unexpected behavior that implies quality]" — social proof`,
     avoidTypes: 'sensory/experience — nobody feels sensory joy about dental visits',
     counts: { socialProof: 2, educational: 2, mythBust: 2, experience: 0, behindScenes: 1 },
+    highValueTopics: [
+      'Does a root canal actually hurt? (reality: most patients feel nothing — modern anaesthetic means you feel pressure, not pain)',
+      'How long do dental implants actually last? (reality: lifetime with proper care — the titanium post fuses to bone permanently)',
+      'Is sedation dentistry safe? (reality: very safe, widely used — the sedative is carefully dosed and monitored throughout)',
+      'Can everything be fixed in one visit? (reality: many clinics now offer same-day crowns, implants, and full smile makeovers)',
+      'Dental implants vs dentures — what nobody tells you (implants preserve jaw bone, dentures accelerate bone loss over time)',
+      'What bone loss actually means for your options (it doesn\'t automatically rule out implants — bone grafting often makes them possible)',
+      'Why your dentist says come every 6 months (it\'s not a sales tactic — gum disease is silent and reverses faster than people think)',
+      'What Invisalign actually feels like vs metal braces (pressure but no sharp edges, removable for meals, most people forget they\'re wearing them)',
+      'Why teeth whitening works on natural teeth but not crowns (crowns are porcelain — the chemistry only works on enamel)',
+      'What actually happens during a scale and clean (ultrasonic scaler breaks up calculus, not painful — the squeaking is the machine, not your teeth)',
+      'The real reason a cracked tooth is urgent (cracks spread invisibly under chewing pressure — what\'s fixable today may need extraction in 3 months)',
+    ],
   },
 
   medical: {
@@ -111,6 +125,16 @@ const CLUSTER_CONFIGS: Record<ClusterName, ClusterConfig> = {
 6. MYTH BUST: "Most people think [health belief]. Specialists disagree." — myth_bust`,
     avoidTypes: 'sensory — not relevant for medical',
     counts: { socialProof: 2, educational: 2, mythBust: 1, experience: 0, behindScenes: 1 },
+    highValueTopics: [
+      'How often do you actually need an eye test? (reality: every 2 years minimum — most prescription changes are gradual and unnoticed)',
+      'What hearing loss in one ear means (unilateral loss is often ignored — it strains the brain, causes fatigue, and worsens without intervention)',
+      'Why foot pain isn\'t just aging (most chronic foot pain has a mechanical cause that responds well to orthotics or physio)',
+      'What a full blood panel actually tells you (not just cholesterol — markers for inflammation, thyroid, iron, and vitamin deficiency most people never check)',
+      'Signs your prescription has changed (headaches after screen time, squinting, and halos around lights are the most common early signs)',
+      'How long it takes to fit a hearing aid and adjust to it (most people are surprised it takes 2-4 weeks for the brain to adapt)',
+      'What an audiologist does that an online hearing test can\'t (they test the full frequency range, identify the type of loss, and rule out medical causes)',
+      'The difference between needing glasses and needing reading glasses (presbyopia starts around 40 — it\'s normal and fixable)',
+    ],
   },
 
   therapeutic: {
@@ -124,6 +148,16 @@ const CLUSTER_CONFIGS: Record<ClusterName, ClusterConfig> = {
 6. LOYALTY PROOF: "She's been coming every [frequency] for [time]. Her reason:" — social proof`,
     avoidTypes: 'sensory — not relevant',
     counts: { socialProof: 2, educational: 2, mythBust: 2, experience: 1, behindScenes: 0 },
+    highValueTopics: [
+      'Should you rest or keep moving with back pain? (reality: gentle movement usually helps — complete rest makes most back pain worse)',
+      'How many physio sessions does it actually take? (depends on the issue — most acute injuries improve in 4-6 sessions with the right exercises)',
+      'Is cracking your own back bad for you? (cracking releases gas from joints — not harmful but also doesn\'t fix underlying stiffness)',
+      'What a slipped disc actually means (the disc bulges, not slips — most resolve with conservative treatment, surgery is rarely needed)',
+      'Why your back pain keeps coming back (treating symptoms without addressing posture, movement patterns, or core strength — the root cause)',
+      'What happens in a chiropractic adjustment (controlled, precise force to a joint — the sound is gas releasing, not bones cracking)',
+      'How to know if your pain needs imaging (most back pain doesn\'t need an MRI — scans often show changes that aren\'t actually causing your pain)',
+      'What dry needling actually does (different from acupuncture — targets muscle trigger points to release tension and improve blood flow)',
+    ],
   },
 
   mental_health: {
@@ -137,6 +171,16 @@ const CLUSTER_CONFIGS: Record<ClusterName, ClusterConfig> = {
 6. LOYALTY PROOF: "[Patient behavior that shows ongoing trust]" — social proof`,
     avoidTypes: 'sensory, behind_scenes — inappropriate for this industry',
     counts: { socialProof: 2, educational: 2, mythBust: 2, experience: 1, behindScenes: 0 },
+    highValueTopics: [
+      'What the first therapy session actually looks like (mostly talking about your history and goals — no lying on a couch, no being analysed)',
+      'How do you know if you need therapy or just need to talk to a friend? (if the same thoughts loop without resolution, or it\'s affecting sleep/work — therapy)',
+      'Does CBT actually work? (one of the most researched therapies — effective for anxiety, depression, OCD — but not the only approach)',
+      'How long does therapy take to work? (most people notice a shift in 6-10 sessions — deeper patterns take longer)',
+      'Is online therapy as effective as in-person? (research shows similar outcomes for most conditions — the therapeutic relationship matters more than the format)',
+      'What antidepressants actually do (they don\'t change your personality — they reduce the chemical noise that makes it hard to think clearly)',
+      'The difference between anxiety and an anxiety disorder (everyone feels anxious — it becomes a disorder when it stops you living your life)',
+      'Why therapists don\'t give you advice (they help you find your own answers — that\'s what makes change stick)',
+    ],
   },
 
   cosmetic: {
@@ -150,6 +194,16 @@ const CLUSTER_CONFIGS: Record<ClusterName, ClusterConfig> = {
 6. NATURAL RESULT PROOF: "Nobody guessed she\'d had [treatment]. Her words:" — social proof`,
     avoidTypes: 'nothing specific',
     counts: { socialProof: 3, educational: 1, mythBust: 1, experience: 1, behindScenes: 1 },
+    highValueTopics: [
+      'How long do fillers actually last? (depends on the area — lips 6-9 months, cheeks 12-18 months — metabolism and lifestyle affect this)',
+      'Does botox hurt? (a series of small injections — most describe it as a quick pinch, numbing cream is available)',
+      'What happens when filler dissolves naturally (it breaks down gradually — you return to baseline, not a worse version)',
+      'How to tell if a clinic is safe (check the practitioner\'s medical qualification, not just the clinic\'s Instagram)',
+      'The difference between botox and filler (botox relaxes muscles to reduce lines; filler adds volume — completely different mechanisms)',
+      'Will botox make you look frozen? (only if overdone — the goal is natural movement with softer lines)',
+      'What a consultation actually involves (assessment of your face structure, skin quality, and realistic outcome — no pressure to proceed)',
+      'How soon can you see results from botox? (takes 3-5 days to kick in, full effect at 2 weeks)',
+    ],
   },
 
   hair: {
@@ -163,6 +217,14 @@ const CLUSTER_CONFIGS: Record<ClusterName, ClusterConfig> = {
 6. MYTH BUST: "[Hair myth most people believe]. Here\'s what actually damages your hair." — myth_bust`,
     avoidTypes: 'educational — nobody wants a hair science lecture',
     counts: { socialProof: 3, educational: 0, mythBust: 1, experience: 1, behindScenes: 1 },
+    highValueTopics: [
+      'Does bleaching actually damage your hair permanently? (it weakens the structure — but with proper treatment and toning, most people maintain healthy bleached hair)',
+      'What causes colour to fade fast? (hot water, sun exposure, and sulphate shampoos — the fix is simpler than most people think)',
+      'Is it bad to wash your hair every day? (depends on your hair type — fine oily hair benefits from daily washing; coarse dry hair doesn\'t)',
+      'What\'s the real difference between balayage and highlights? (highlights are foiled and start at the root; balayage is painted freehand for a softer grow-out)',
+      'How long does a balayage actually last? (the colour itself lasts 3-4 months; the grow-out is intentionally gradual so it never looks harsh)',
+      'Why a consultation matters before a big colour change (going from dark to light in one session can destroy the hair — a plan prevents this)',
+    ],
   },
 
   nails: {
@@ -176,6 +238,14 @@ const CLUSTER_CONFIGS: Record<ClusterName, ClusterConfig> = {
 6. BEHAVIORAL PROOF: "[Specific behavior that implies quality — drove distance, rebooks immediately]" — social proof`,
     avoidTypes: 'educational',
     counts: { socialProof: 3, educational: 0, mythBust: 1, experience: 1, behindScenes: 1 },
+    highValueTopics: [
+      'Does gel damage your nails? (the gel doesn\'t — improper removal does. Soaking and peeling instead of proper dissolution is the cause)',
+      'How often should you take breaks from gel nails? (most nail technicians say you don\'t need to if they\'re applied and removed correctly)',
+      'What causes nails to peel after gel? (usually moisture trapped during application or filing through the top coat — a technique issue, not the product)',
+      'Is infilling better than soak-off? (infilling preserves the nail structure and reduces filing damage — better for long-term nail health)',
+      'How to spot a hygienic nail salon (sterilised metal tools, disposable files, UV steriliser visible — not just clean-looking)',
+      'What\'s the difference between lash lift and lash extensions? (lift curls your natural lashes — no glue, no maintenance; extensions add length and volume but need fills)',
+    ],
   },
 
   wellness: {
@@ -189,6 +259,14 @@ const CLUSTER_CONFIGS: Record<ClusterName, ClusterConfig> = {
 6. FIRST VISIT: "What your first [class/session] actually feels like. Nobody tells you this." — experience`,
     avoidTypes: 'nothing specific',
     counts: { socialProof: 2, educational: 1, mythBust: 1, experience: 2, behindScenes: 1 },
+    highValueTopics: [
+      'What actually happens to your nervous system during a massage (cortisol drops, serotonin rises — not just relaxation, a measurable biological response)',
+      'How often should you get a massage for it to actually help? (once a month maintains; once a week resolves chronic tension)',
+      'What float therapy actually does to your brain (sensory deprivation triggers theta brainwaves — the state between sleep and waking)',
+      'Is yoga actually effective for stress? (the breathing activates the parasympathetic nervous system — the science behind why it works)',
+      'The difference between Swedish and deep tissue massage (Swedish is circulatory and relaxing; deep tissue targets fascia and chronic muscle knots)',
+      'What to expect from your first sound bath (pure vibration at specific frequencies — most people feel it in their chest before they hear it)',
+    ],
   },
 
   fitness: {
@@ -202,6 +280,14 @@ const CLUSTER_CONFIGS: Record<ClusterName, ClusterConfig> = {
 6. RESULTS PROOF: "[Specific achievement] in [time]. Her words:" — social proof`,
     avoidTypes: 'sensory, behind_scenes',
     counts: { socialProof: 3, educational: 1, mythBust: 1, experience: 1, behindScenes: 0 },
+    highValueTopics: [
+      'How long before you actually see results from training? (strength improves in 2-3 weeks; visible muscle change takes 6-8 weeks — most people quit before this)',
+      'Why you\'re not losing weight despite exercising (cardio creates appetite; muscle takes weeks to show — the scale lies for the first month)',
+      'How many rest days do you actually need? (muscles grow during rest, not during training — 2 rest days minimum per week)',
+      'Is creatine safe? (one of the most researched supplements in sports science — safe, effective, and not just for bodybuilders)',
+      'What overtraining actually does to your body (cortisol spikes, sleep worsens, strength drops — more training can literally make you weaker)',
+      'What the first session at a new gym actually looks like (induction, a look around, maybe a light workout — nothing intimidating)',
+    ],
   },
 
   tattoo: {
@@ -215,6 +301,14 @@ const CLUSTER_CONFIGS: Record<ClusterName, ClusterConfig> = {
 6. RESULT REVEAL: "What [style] looks like when it\'s done right." — experience`,
     avoidTypes: 'educational',
     counts: { socialProof: 2, educational: 0, mythBust: 1, experience: 1, behindScenes: 2 },
+    highValueTopics: [
+      'How much does a tattoo actually hurt? (depends on placement — ribs and spine are intense; outer arm and thigh are mild)',
+      'What affects how well a tattoo heals? (sun exposure, picking, and tight clothing over fresh ink are the main culprits)',
+      'What makes a tattoo age well vs fade fast? (line weight, ink saturation, and placement — fine lines on hands fade fastest)',
+      'When do you actually need a touch-up? (most tattoos need one after 6-8 weeks — normal healing, not a quality issue)',
+      'How to care for a fresh tattoo (wrap, moisture, no sun — the first 2 weeks determine how it looks for life)',
+      'How to choose the right artist for your style (every artist has a specialty — matching style to artist matters more than price)',
+    ],
   },
 
   restaurant: {
@@ -228,6 +322,12 @@ const CLUSTER_CONFIGS: Record<ClusterName, ClusterConfig> = {
 6. RESERVATION PROOF: "The table they book [X weeks] in advance. Every [day]." — social proof`,
     avoidTypes: 'educational, myth_bust',
     counts: { socialProof: 3, educational: 0, mythBust: 0, experience: 2, behindScenes: 1 },
+    highValueTopics: [
+      'What the kitchen actually looks like during a Friday night service (the choreography, the heat, the speed — most diners never see this)',
+      'What goes into making a signature dish that takes hours before service even starts',
+      'Why the same dish tastes different depending on where you sit (temperature, acoustics, and lighting all affect taste perception)',
+      'What sourcing ingredients locally actually means for a kitchen (shorter supply chains, seasonal menus, relationships with producers)',
+    ],
   },
 
   cafe: {
@@ -241,6 +341,12 @@ const CLUSTER_CONFIGS: Record<ClusterName, ClusterConfig> = {
 6. PRODUCT REVEAL: "The [item] most people don\'t order. It\'s the best thing we make." — experience`,
     avoidTypes: 'educational, myth_bust',
     counts: { socialProof: 2, educational: 0, mythBust: 0, experience: 3, behindScenes: 1 },
+    highValueTopics: [
+      'What actually happens at 5am before the cafe opens (prep, proofing, first bake — what makes the morning rush possible)',
+      'Why espresso tastes different depending on the grind (extraction changes with humidity — good baristas adjust the grind every morning)',
+      'What makes specialty coffee different from chain coffee (single origin, roast date, and extraction ratio — not just marketing)',
+      'How sourdough starter actually works (a living culture — feeding schedule, fermentation time, and temperature all affect the final loaf)',
+    ],
   },
 
   bar: {
@@ -254,6 +360,12 @@ const CLUSTER_CONFIGS: Record<ClusterName, ClusterConfig> = {
 6. BEHAVIORAL PROOF: "[Customer behavior that implies this is the best in the area]" — social proof`,
     avoidTypes: 'educational, myth_bust',
     counts: { socialProof: 2, educational: 0, mythBust: 0, experience: 3, behindScenes: 1 },
+    highValueTopics: [
+      'What goes into making a properly balanced cocktail (acid, sweetness, and dilution — most bars skip the dilution step)',
+      'Why ice matters more than people think (large clear ice melts slower, diluting less — the difference between a good and great cocktail)',
+      'What bartenders notice that most customers don\'t (the regulars, the returners, and what that says about a bar)',
+      'What prep actually looks like before a bar opens (squeezing juice, batching syrups, polishing glasses — hours before the first guest)',
+    ],
   },
 
   hospitality: {
@@ -267,6 +379,12 @@ const CLUSTER_CONFIGS: Record<ClusterName, ClusterConfig> = {
 6. BEHAVIORAL PROOF: "[Guest behavior that implies this is worth the price]" — social proof`,
     avoidTypes: 'educational, myth_bust',
     counts: { socialProof: 2, educational: 0, mythBust: 0, experience: 2, behindScenes: 1 },
+    highValueTopics: [
+      'What the housekeeping team does before you arrive that you never see',
+      'What early check-in actually involves vs what most hotels say',
+      'The hidden amenities most guests never ask for but always wish they had',
+      'What concierge actually knows that TripAdvisor doesn\'t',
+    ],
   },
 
   vet: {
@@ -280,6 +398,16 @@ const CLUSTER_CONFIGS: Record<ClusterName, ClusterConfig> = {
 6. CARE PROOF: "[Specific behavior from staff or outcome that proves genuine care]" — social proof`,
     avoidTypes: 'sensory',
     counts: { socialProof: 2, educational: 3, mythBust: 1, experience: 1, behindScenes: 0 },
+    highValueTopics: [
+      'Signs of pain in dogs that most owners miss (licking paws, yawning repeatedly, and avoiding stairs are often pain signals, not boredom)',
+      'How often do cats actually need vet checkups? (once a year minimum — cats hide illness extremely well)',
+      'What pet dental disease actually looks like and why it matters (bacteria from the mouth enters the bloodstream and affects the heart and kidneys)',
+      'Is pet insurance worth it? (one emergency surgery averages more than 3 years of insurance premiums)',
+      'What vaccinations your pet actually needs each year vs every 3 years (core vaccines are triennial; kennel cough and leptospirosis are annual)',
+      'What anaesthesia for pets actually involves (pre-op bloodwork, monitoring throughout, recovery care — not scary when you understand it)',
+      'What the signs of anxiety in cats look like (hiding, over-grooming, not using the litter box — often mistaken for bad behavior)',
+      'Why older dogs slow down — and when it\'s more than just age (arthritis is common but treatable; many owners assume it\'s just aging)',
+    ],
   },
 
   professional: {
@@ -293,6 +421,14 @@ const CLUSTER_CONFIGS: Record<ClusterName, ClusterConfig> = {
 6. BEHAVIORAL PROOF: "[Client behavior that implies trust — returned, referred, stayed for years]" — social proof`,
     avoidTypes: 'sensory, experience',
     counts: { socialProof: 2, educational: 2, mythBust: 2, experience: 0, behindScenes: 0 },
+    highValueTopics: [
+      'What a first consultation with a lawyer actually involves (not a commitment — it\'s an assessment of your situation and options)',
+      'How much a will actually costs vs what people assume (most basic wills are completed in one appointment)',
+      'When you actually need a lawyer vs when you can handle it yourself (anything involving property, divorce, or employment disputes — get advice)',
+      'What an accountant can save you vs doing your own tax return (most self-employed people overpay by more than an accountant costs)',
+      'Why waiting to deal with legal issues makes them more expensive (limitation periods, evidence decay, and escalating costs)',
+      'What financial planning actually is vs what most people think (it\'s not just for wealthy people — it\'s a roadmap for your current income)',
+    ],
   },
 
   automotive: {
@@ -306,6 +442,15 @@ const CLUSTER_CONFIGS: Record<ClusterName, ClusterConfig> = {
 6. MYTH BUST: "[Common car care belief] that\'s costing you money." — myth_bust`,
     avoidTypes: 'sensory, experience',
     counts: { socialProof: 2, educational: 1, mythBust: 3, experience: 0, behindScenes: 1 },
+    highValueTopics: [
+      'What that orange engine warning light actually means (it\'s not always serious — but ignoring it for 3 months usually makes it serious)',
+      'How often do you actually need an oil change? (modern synthetic oil lasts 10,000-15,000 miles — the 3,000-mile rule is outdated)',
+      'When to replace brake pads vs when you have more time (thickness, not squeaking, is the real indicator)',
+      'What a full service actually includes vs what many garages charge for (oil, filters, fluid levels, brake check — know what\'s in the quote)',
+      'The tyre tread depth most drivers don\'t know they\'re below (legal limit is 1.6mm — handling degrades significantly before that point)',
+      'What happens to your car during a diagnostic scan (the computer reads fault codes — it tells you what system failed, not what part to replace)',
+      'Why dealer servicing doesn\'t void your warranty at an independent garage (EU block exemption rules — most drivers don\'t know this)',
+    ],
   },
 
   education: {
@@ -319,6 +464,14 @@ const CLUSTER_CONFIGS: Record<ClusterName, ClusterConfig> = {
 6. PROCESS: "What the first [lesson/session] actually looks like. No pressure, no judgement." — educational`,
     avoidTypes: 'sensory',
     counts: { socialProof: 2, educational: 2, mythBust: 2, experience: 1, behindScenes: 0 },
+    highValueTopics: [
+      'How long does it actually take to become conversational in a new language? (with consistent practice, most people reach conversational level in 6-9 months)',
+      'Is it too late to learn an instrument as an adult? (adults learn faster than children in the early stages — the fear of looking stupid is the real barrier)',
+      'What makes tutoring actually effective vs just more time studying (targeted work on specific gaps, not more of the same — quality over quantity)',
+      'How many lessons before you see real progress? (most people see a clear breakthrough around lesson 8-10)',
+      'What a typical first driving lesson actually involves (introduction to controls, slow-speed manoeuvres — nothing on a main road)',
+      'The difference between learning a skill and being coached (a coach identifies what\'s actually holding you back — a teacher delivers the same material to everyone)',
+    ],
   },
 
   event: {
@@ -332,6 +485,13 @@ const CLUSTER_CONFIGS: Record<ClusterName, ClusterConfig> = {
 6. MYTH BUST: "Most people think [planning myth]. Here\'s what actually matters." — myth_bust`,
     avoidTypes: 'educational',
     counts: { socialProof: 2, educational: 0, mythBust: 1, experience: 2, behindScenes: 2 },
+    highValueTopics: [
+      'How far in advance do you actually need to book a wedding photographer? (top photographers book 12-18 months out — most people find this out too late)',
+      'What makes a good wedding photo vs a great one (light, moment, and composition — and why you can\'t plan the best ones)',
+      'What a florist does in the 48 hours before your wedding that clients never see',
+      'How a wedding planner saves money vs costs money (vendor relationships and avoiding expensive last-minute decisions)',
+      'What happens if your photographer cancels (backup plans, contracts, and what to ask before signing)',
+    ],
   },
 
   default: {
@@ -344,6 +504,12 @@ const CLUSTER_CONFIGS: Record<ClusterName, ClusterConfig> = {
 5. TRANSFORMATION: "[Before state]. [After state]. Their words." — needs review evidence`,
     avoidTypes: 'nothing specific',
     counts: { socialProof: 2, educational: 1, mythBust: 1, experience: 1, behindScenes: 1 },
+    highValueTopics: [
+      'What actually happens behind the scenes that customers never see',
+      'The most common misconception people have before their first visit',
+      'What the difference is between a good and great result in this field',
+      'What to look for when choosing a business like this',
+    ],
   },
 }
 
@@ -452,6 +618,10 @@ export function getVarietyPrompt(
   const { educational, mythBust, experience, behindScenes } = cluster.counts
   const totalVariety = educational + mythBust + experience + behindScenes
 
+  const topicsBlock = cluster.highValueTopics.length > 0
+    ? `\nHIGH-VALUE TOPICS FOR THIS INDUSTRY — real questions and fears people Google before booking:\n${cluster.highValueTopics.map(t => `- ${t}`).join('\n')}\n\nFor educational and myth_bust ideas: choose topics from this list that are most relevant to what this specific business offers. Use the business context and reviews to judge which topics apply. Do not invent topics outside this list.\n`
+    : ''
+
   const countInstructions = [
     educational > 0 ? `- ${educational} educational` : '',
     mythBust > 0 ? `- ${mythBust} myth_bust` : '',
@@ -468,7 +638,7 @@ CONTENT FOCUS FOR THIS INDUSTRY:
 ${cluster.contentFocus}
 
 AVOID: ${cluster.avoidTypes}
-
+${topicsBlock}
 ---
 
 ${cluster.hookFrameworks}
