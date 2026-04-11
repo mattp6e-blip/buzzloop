@@ -468,38 +468,34 @@ ${cluster.hookFrameworks}
 
 ---
 
-CONTENT TYPE DEFINITIONS — follow these exactly:
+CONTENT TYPE DEFINITIONS:
 
-educational: Teaches something procedural or informational that potential customers are actively googling. Think: "how does X actually work", "what happens during X", "how long does X take". Must be about the procedure/service itself — NOT a customer story. Source: your knowledge of this industry, not the reviews.
-GOOD educational hook: "What actually happens when an implant is placed." / "How sedation dentistry actually works." / "What most people don't know about [procedure]."
-BAD educational hook: "He flies from Norway for treatment." (that's social proof, not educational)
+educational: A specific fact, process, or insight that potential customers are Googling at 2am. Not a customer story — this is industry knowledge. The hook reveals something surprising or little-known that changes how the viewer thinks.
 
-myth_bust: Corrects a widespread misconception that is stopping people from booking. Must name the myth explicitly. Source: industry knowledge.
-GOOD myth_bust hook: "You think [X]. Specialists disagree." / "Most people wait because of [myth]. Here's the truth."
+myth_bust: Names a specific fear or misconception that is stopping people from booking — and pivots to the truth. The fear must be real and widely held. The hook should make someone think "wait, is that actually true?"
 
-experience: Puts the viewer inside a sensory or atmospheric moment — what it feels like to be there. Source: reviews for emotional language, industry knowledge for atmosphere.
+experience: Puts the viewer inside a specific sensory or atmospheric moment. Makes someone feel they're missing out. Source: emotional language from reviews + atmosphere of this type of business.
 
-behind_scenes: Shows what happens that customers never normally see. Process, craft, preparation. Source: industry knowledge.
+behind_scenes: Reveals something that happens that customers never see. Specific process, craft, or preparation detail. Must be genuinely surprising to a non-expert.
 
 ---
 
 YOUR PROCESS:
 
-For educational and myth_bust ideas: Think about what people in this industry are actually Googling. What questions do they have at 2am before booking? What fears are holding them back? What would genuinely change their decision to book? Build hooks around those questions. Do NOT use review material for these — use your knowledge of the industry.
+For educational and myth_bust: Think like a patient/customer who is scared, confused, or avoidant. What specific thing are they wrong about? What would genuinely change their decision if they knew it? The hook must reveal something specific — not a generic question, not a template. Source: industry knowledge only, not the reviews.
 
-For experience and behind_scenes ideas: Use the reviews to find emotional language and atmosphere clues. Scan the reviews for sensory words, atmosphere descriptions, or process details.
+For experience and behind_scenes: Scan the reviews for specific sensory words, emotional moments, or process details. Build the hook around the most specific, vivid detail you find.
+
+HOOK QUALITY TEST — before writing any hook, ask: would a stranger scrolling at 150 posts per second stop for this? If the hook sounds like a template ("You think X. Here's the truth.") — rewrite it. If it could apply to any dental/gym/salon in the world — it's too generic, make it specific. If it answers a question nobody was asking — scrap it.
 
 CONTENT MIX REQUIRED — generate exactly ${totalVariety} ideas with this exact breakdown:
 ${countInstructions}
 
 HOOK RULES:
-- Works on a complete stranger with zero context about this business
+- Max 8 words. Every word earns its place.
 - Never names the business. Never sounds like an ad.
-- Max 8 words. No filler.
-- contentType must exactly match the type definition above — do not label social proof stories as educational
-
-GOOD educational hooks: "What actually happens during an implant procedure." / "How sedation actually works. Most don't know." / "The thing most dentists don't explain upfront."
-BAD educational hooks: "He flies from Norway for treatment." / "Three patients. Same surprising result." (those are social proof)
+- Must be specific enough that a stranger immediately knows what they're about to learn or see
+- No templates. No fill-in-the-blank structures. Write the actual hook.
 
 ---
 
@@ -508,24 +504,22 @@ ${reviewList}
 
 ---
 
-Return ONLY valid JSON with exactly ${totalVariety} themes:
+Return ONLY valid JSON with exactly ${totalVariety} themes. Each theme must have the contentType that matches its definition above:
 {
   "themes": [
     {
       "id": "unique-slug",
       "title": "Reel idea as a scroll-stopping fact (under 10 words)",
-      "hook": "The hook — max 8 words, no business name, no ad language",
+      "hook": "The actual hook — max 8 words, specific, not a template",
       "reelType": "pattern",
-      "contentType": "educational",
-      "keyPhrase": "the core topic in 4-6 words",
+      "contentType": "educational | myth_bust | experience | behind_scenes",
+      "keyPhrase": "the specific topic in 4-6 words",
       "emoji": "ONE relevant emoji",
       "reviewIds": [],
-      "buzzReason": "One sentence: why would a stranger stop scrolling for this?"
+      "buzzReason": "One sentence: the specific reason a stranger would stop for this — not generic praise"
     }
   ]
-}
-
-Note: educational and myth_bust themes do not need reviewIds — leave the array empty.`
+}`
 }
 
 export async function POST(req: NextRequest) {
