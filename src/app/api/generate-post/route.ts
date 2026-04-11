@@ -65,6 +65,7 @@ RULES:
 - Do not use "we" more than once
 - Never use distancing language: "this one", "for someone", "this place", "this business" — these make it sound like an ad written by someone else, not the owner
 - Never narrate the reel ("In this video..." or "Watch as...") — the caption speaks directly, not about the video
+- Never mention a count or number of customers/people/reviews (e.g. "five people", "3 patients", "two clients") — the reel may not show all of them and it reads as made-up
 
 Return ONLY the caption text and hashtags. Nothing else.`
 
