@@ -192,6 +192,11 @@ export function MockupClient({ themes, brandColor, brandSecondaryColor, logoUrl,
               controls
               loop
               autoPlay
+              errorFallback={({ error }: { error: Error }) => (
+                <div style={{ padding: 16, color: '#f87171', fontSize: 12, background: '#1a0a0a', height: '100%', overflow: 'auto', wordBreak: 'break-word' }}>
+                  <strong>V2 Error:</strong><br />{error.message}<br /><br /><span style={{ opacity: 0.6 }}>{error.stack?.slice(0, 400)}</span>
+                </div>
+              )}
             />
           </div>
         </div>
