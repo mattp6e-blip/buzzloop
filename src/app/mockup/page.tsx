@@ -21,7 +21,7 @@ export default async function MockupPage() {
     (t) => t.cachedScript != null && t.cachedVariations != null && t.cachedVariations.length > 0
   )
 
-  const firstTwo = cachedThemes.slice(0, 2)
+  const firstTwo = cachedThemes.slice(0, 6)
 
   const brandColor: string = business?.brand_color ?? '#6366f1'
   const brandSecondaryColor: string = business?.brand_secondary_color ?? brandColor
