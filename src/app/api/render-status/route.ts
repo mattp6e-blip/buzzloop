@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getRenderProgress } from '@remotion/lambda'
 
-const FUNCTION_NAME = process.env.REMOTION_LAMBDA_FUNCTION_NAME!
-const REGION        = (process.env.AWS_REGION ?? 'us-east-1') as 'us-east-1'
+const RENDER_SERVICE_URL = process.env.RENDER_SERVICE_URL || 'https://buzzloop-nwpv.onrender.com'
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
@@ -14,20 +12,11 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const progress = await getRenderProgress({
-      renderId,
-      bucketName,
-      functionName: FUNCTION_NAME,
-      region: REGION,
-    })
-
-    return NextResponse.json({
-      done: progress.done,
-      progress: progress.overallProgress,
-      outputFile: progress.outputFile,
-      fatalErrorEncountered: progress.fatalErrorEncountered,
-      errors: progress.errors,
-    })
+    const res = await fetch(
+      `${RENDER_SERVICE_URL}/api/render-status?renderId=${renderId}&bucketName=${bucketName}`
+    )
+    const data = await res.json()
+    return NextResponse.json(data, { status: res.status })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })
   }

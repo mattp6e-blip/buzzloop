@@ -7,8 +7,7 @@
     "start": "node server.mjs"
   },
   "dependencies": {
-    "@remotion/bundler": "4.0.446",
-    "@remotion/renderer": "4.0.446",
-    "remotion": "4.0.441"
+    "@remotion/lambda": "4.0.448",
+    "remotion": "4.0.448"
   }
 }

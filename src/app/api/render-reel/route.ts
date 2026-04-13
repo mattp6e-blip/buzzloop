@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { renderMediaOnLambda } from '@remotion/lambda'
 
-const FUNCTION_NAME = process.env.REMOTION_LAMBDA_FUNCTION_NAME!
-const SERVE_URL     = process.env.REMOTION_SERVE_URL!
-const REGION        = (process.env.AWS_REGION ?? 'us-east-1') as 'us-east-1'
+const RENDER_SERVICE_URL = process.env.RENDER_SERVICE_URL || 'https://buzzloop-nwpv.onrender.com'
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -17,34 +14,18 @@ export async function OPTIONS() {
 
 export async function POST(req: NextRequest) {
   try {
-    const { script, variation, brandColor, brandSecondaryColor, logoUrl, businessName, industry, websiteUrl, gbpPhotos } = await req.json()
+    const body = await req.json()
 
-    const totalFrames = Math.round(script.totalDuration * 30)
-
-    const { renderId, bucketName } = await renderMediaOnLambda({
-      region: REGION,
-      functionName: FUNCTION_NAME,
-      serveUrl: SERVE_URL,
-      composition: 'Reel',
-      inputProps: {
-        script, variation, brandColor,
-        brandSecondaryColor: brandSecondaryColor || brandColor,
-        logoUrl: logoUrl || null,
-        businessName, industry,
-        websiteUrl: websiteUrl || null,
-        gbpPhotos: gbpPhotos || [],
-      },
-      codec: 'h264',
-      framesPerLambda: 20,
-      outName: `reel-${Date.now()}.mp4`,
-      timeoutInMilliseconds: 240000,
-      forceDurationInFrames: totalFrames,
-      downloadBehavior: { type: 'download', fileName: 'reel.mp4' },
+    const res = await fetch(`${RENDER_SERVICE_URL}/api/render-reel`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
     })
 
-    return NextResponse.json({ renderId, bucketName }, { headers: CORS_HEADERS })
+    const data = await res.json()
+    return NextResponse.json(data, { status: res.status, headers: CORS_HEADERS })
   } catch (err) {
-    console.error('Render start error:', err)
+    console.error('Render proxy error:', err)
     return NextResponse.json({ error: String(err) }, { status: 500, headers: CORS_HEADERS })
   }
 }

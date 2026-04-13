@@ -1,105 +1,122 @@
 import http from 'http'
-import path from 'path'
-import os from 'os'
-import fs from 'fs'
 import { fileURLToPath } from 'url'
-import { bundle } from '@remotion/bundler'
-import { renderMedia, selectComposition } from '@remotion/renderer'
+import path from 'path'
+import { renderMediaOnLambda, getRenderProgress } from '@remotion/lambda'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const PORT = process.env.PORT || 3001
 
+const FUNCTION_NAME = process.env.REMOTION_LAMBDA_FUNCTION_NAME
+const SERVE_URL     = process.env.REMOTION_SERVE_URL
+const REGION        = process.env.AWS_REGION || 'us-east-1'
+
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type',
 }
 
-let bundleCache = null
+function readBody(req) {
+  return new Promise((resolve, reject) => {
+    let body = ''
+    req.on('data', chunk => { body += chunk })
+    req.on('end', () => { try { resolve(JSON.parse(body)) } catch (e) { reject(e) } })
+    req.on('error', reject)
+  })
+}
 
-async function getBundle() {
-  if (bundleCache) return bundleCache
-  console.log('Bundling Remotion composition...')
-  const entryPoint = path.join(__dirname, '..', 'src', 'remotion', 'index.tsx')
-  bundleCache = await bundle({ entryPoint, webpackOverride: (c) => c })
-  console.log('Bundle ready:', bundleCache)
-  return bundleCache
+function send(res, status, data, extraHeaders = {}) {
+  const body = JSON.stringify(data)
+  res.writeHead(status, { ...CORS_HEADERS, ...extraHeaders, 'Content-Type': 'application/json' })
+  res.end(body)
 }
 
 const server = http.createServer(async (req, res) => {
-  // CORS preflight
   if (req.method === 'OPTIONS') {
     res.writeHead(204, CORS_HEADERS)
     res.end()
     return
   }
 
-  if (req.method !== 'POST' || req.url !== '/api/render-reel') {
-    res.writeHead(404, CORS_HEADERS)
-    res.end(JSON.stringify({ error: 'Not found' }))
+  // Health check
+  if (req.url === '/health') {
+    send(res, 200, { ok: true })
     return
   }
 
-  let body = ''
-  req.on('data', chunk => { body += chunk })
-  req.on('end', async () => {
+  // Start render
+  if (req.method === 'POST' && req.url === '/api/render-reel') {
     try {
-      const { script, variation, brandColor, brandSecondaryColor, logoUrl, businessName, industry, websiteUrl, gbpPhotos } = JSON.parse(body)
+      const { script, variation, brandColor, brandSecondaryColor, logoUrl, businessName, industry, websiteUrl, gbpPhotos } = await readBody(req)
 
-      const serveUrl = await getBundle()
       const totalFrames = Math.round(script.totalDuration * 30)
 
-      const inputProps = {
-        script,
-        variation,
-        brandColor,
-        brandSecondaryColor: brandSecondaryColor || brandColor,
-        logoUrl: logoUrl || null,
-        businessName,
-        industry,
-        websiteUrl: websiteUrl || null,
-        gbpPhotos: gbpPhotos || [],
+      const { renderId, bucketName } = await renderMediaOnLambda({
+        region: REGION,
+        functionName: FUNCTION_NAME,
+        serveUrl: SERVE_URL,
+        composition: 'Reel',
+        inputProps: {
+          script, variation, brandColor,
+          brandSecondaryColor: brandSecondaryColor || brandColor,
+          logoUrl: logoUrl || null,
+          businessName, industry,
+          websiteUrl: websiteUrl || null,
+          gbpPhotos: gbpPhotos || [],
+        },
+        codec: 'h264',
+        framesPerLambda: 20,
+        outName: `reel-${Date.now()}.mp4`,
+        timeoutInMilliseconds: 240000,
+        forceDurationInFrames: totalFrames,
+        downloadBehavior: { type: 'download', fileName: 'reel.mp4' },
+      })
+
+      send(res, 200, { renderId, bucketName })
+    } catch (err) {
+      console.error('Render start error:', err)
+      send(res, 500, { error: String(err) })
+    }
+    return
+  }
+
+  // Check render status
+  if (req.method === 'GET' && req.url?.startsWith('/api/render-status')) {
+    try {
+      const url = new URL(req.url, `http://localhost`)
+      const renderId   = url.searchParams.get('renderId')
+      const bucketName = url.searchParams.get('bucketName')
+
+      if (!renderId || !bucketName) {
+        send(res, 400, { error: 'Missing renderId or bucketName' })
+        return
       }
 
-      const composition = await selectComposition({
-        serveUrl,
-        id: 'Reel',
-        inputProps,
+      const progress = await getRenderProgress({
+        renderId,
+        bucketName,
+        functionName: FUNCTION_NAME,
+        region: REGION,
       })
 
-      const finalComposition = { ...composition, durationInFrames: totalFrames }
-      const outputPath = path.join(os.tmpdir(), `reel-${Date.now()}.mp4`)
-
-      await renderMedia({
-        composition: finalComposition,
-        serveUrl,
-        codec: 'h264',
-        outputLocation: outputPath,
-        inputProps,
-        chromiumOptions: { disableWebSecurity: true },
-        timeoutInMilliseconds: 240000,
+      send(res, 200, {
+        done: progress.done,
+        progress: progress.overallProgress,
+        outputFile: progress.outputFile,
+        fatalErrorEncountered: progress.fatalErrorEncountered,
+        errors: progress.errors,
       })
-
-      const buffer = fs.readFileSync(outputPath)
-      fs.unlinkSync(outputPath)
-
-      res.writeHead(200, {
-        ...CORS_HEADERS,
-        'Content-Type': 'video/mp4',
-        'Content-Disposition': `attachment; filename="reel-${Date.now()}.mp4"`,
-        'Content-Length': String(buffer.length),
-      })
-      res.end(buffer)
     } catch (err) {
-      console.error('Render error:', err)
-      res.writeHead(500, { ...CORS_HEADERS, 'Content-Type': 'application/json' })
-      res.end(JSON.stringify({ error: String(err) }))
+      send(res, 500, { error: String(err) })
     }
-  })
+    return
+  }
+
+  send(res, 404, { error: 'Not found' })
 })
 
 server.listen(PORT, () => {
   console.log(`Render server running on port ${PORT}`)
-  // Pre-warm the bundle on startup
-  getBundle().catch(console.error)
+  console.log(`Lambda function: ${FUNCTION_NAME}`)
+  console.log(`Serve URL: ${SERVE_URL}`)
 })
