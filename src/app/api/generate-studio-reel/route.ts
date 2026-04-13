@@ -101,31 +101,34 @@ function selectStudioMotif(industry: string, tone: Tone, hookHeadline: string): 
 
 // ── Hook frameworks (shared with generate-reel) ───────────────────────────────
 
-const HOOK_FRAMEWORKS = `SIX PROVEN HOOK FRAMEWORKS — pick the best one for the prompt:
+const HOOK_FRAMEWORKS = `STUDIO HOOK FRAMEWORKS — no invented people, no made-up stories. Every hook must be a statement of fact, contrast, urgency, or bold claim based only on what is in the brief and the qualifying answers.
 
-1. CONTRAST: Two things that shouldn't coexist, do.
-   Structure: "[Surprising context]. [They chose this anyway]."
-   Example: "Norway has free dentistry. She still flies here."
+NEVER write: "I hid my smile for 12 years" / "She finally did it" / "He drove 2 hours" — these require a real person's story. Studio has no real person.
 
-2. EXPECTATION VIOLATION: Outcome directly contradicts a universal assumption.
-   Structure: "[What everyone believes]. [What actually happened]."
-   Example: "I fell asleep in the dentist's chair."
+1. OFFER CONTRAST: Make the value feel unmissable by contrasting normal vs now.
+   Structure: "[Normal price/situation]. [What it costs this moment]."
+   Example: "Invisalign usually takes 18 months to save for. Black Friday changes that."
+   Example: "Full price tomorrow. 20% off today."
 
-3. RESISTANCE OVERCOME: Viewer recognises their own hesitation.
-   Structure: "[How long/how many times they held back]. [What tipped them over]."
-   Example: "She cancelled 4 times before coming."
+2. BOLD CLAIM: State the most specific, confident version of what makes this great.
+   Structure: "[Specific claim that most businesses wouldn't dare say]."
+   Example: "Most gyms lose 60% of members by March. We don't."
+   Example: "Austin has 47 dentists. One offers same-day Invisalign."
 
-4. LOYALTY PROOF: Repetition as proof of quality.
-   Structure: "[Frequency or duration]. [The choice that proves it]."
-   Example: "He drives 2 hours. Every time."
+3. REFRAME: Change how the viewer thinks about a familiar thing.
+   Structure: "[What they think it is]. [What it actually is]."
+   Example: "Invisalign isn't cosmetic. It's correcting how your jaw works."
+   Example: "You're not joining a gym. You're buying back your energy."
 
-5. EXPERT COMPARATIVE: Someone with options chose this.
-   Structure: "[Implies wide experience]. [Chose this]."
-   Example: "I've stayed in 47 countries. This is my favourite."
+4. URGENCY ANCHOR: Deadline or scarcity stated as plain fact.
+   Structure: "[Specific offer]. [Hard limit]."
+   Example: "20% off Invisalign. 4 days only."
+   Example: "6 Black Friday slots. Half are already gone."
 
-6. SPECIFIC NUMBER ANCHOR: Precision that makes behavior undeniable.
-   Structure: "[Number] [unit]. [What it means]."
-   Example: "37 years. Finally found the right one."`
+5. INSIGHT HOOK: Lead with a surprising or counterintuitive fact directly from the brief.
+   Structure: "[Surprising truth about the product, offer, or situation]."
+   Example: "Most people who want Invisalign never book. The price stops them."
+   Example: "Straight teeth aren't about vanity. They prevent jaw problems for life."`
 
 // ── Studio reel prompt ────────────────────────────────────────────────────────
 
@@ -185,7 +188,7 @@ ${toneInstructions[tone]}
 
 ${HOOK_FRAMEWORKS}
 
-The hook frameworks above provide the ANGLE and STRUCTURE — but the hook must still reference the actual offer, product, or event from the brief. Use the framework to make the offer feel surprising or compelling, not to replace it.
+Use one of the hook frameworks above. The hook must reference real details from the brief. Never invent a person, a customer story, or a quote. If no real story exists, use contrast, urgency, or a bold claim instead.
 ${reviewBlock}
 ---
 
