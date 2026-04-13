@@ -373,7 +373,8 @@ export async function POST(req: NextRequest) {
       }
 
       return { variation, parsed }
-    } catch {
+    } catch (err) {
+      console.error(`Studio variation ${i} failed:`, err)
       return null
     }
   })
