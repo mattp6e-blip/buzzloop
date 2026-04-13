@@ -31,6 +31,22 @@ function currentWeekOf(): string {
   return `${d.getFullYear()}-W${String(weekNo).padStart(2, '0')}`
 }
 
+// Convert "2026-W15" → "13 Apr - 19 Apr"
+function weekOfToDateRange(w: string): string {
+  const [yearStr, weekPart] = w.split('-W')
+  const year = parseInt(yearStr, 10)
+  const weekNum = parseInt(weekPart, 10)
+  // Jan 4 is always in ISO week 1
+  const jan4 = new Date(year, 0, 4)
+  const dayOfWeek = jan4.getDay() === 0 ? 7 : jan4.getDay()
+  const monday = new Date(jan4)
+  monday.setDate(jan4.getDate() - (dayOfWeek - 1) + (weekNum - 1) * 7)
+  const sunday = new Date(monday)
+  sunday.setDate(monday.getDate() + 6)
+  const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+  return `${fmt(monday)} - ${fmt(sunday)}`
+}
+
 interface Props {
   reviews: Review[]
   businessId: string
@@ -389,12 +405,22 @@ function ReelFeed({ themes, brandColor, savedThemeTitles, seenThemes, savedPosts
   onSelect: (t: ReelTheme) => void
   onReanalyze: () => void
 }) {
-  const [weekOf, setWeekOf] = useState('')
-  useEffect(() => { setWeekOf(currentWeekOf()) }, [])
+  const [currentWeek, setCurrentWeek] = useState('')
+  const [selectedWeek, setSelectedWeek] = useState<string | null>(null)
+  const [weekDropdownOpen, setWeekDropdownOpen] = useState(false)
+  useEffect(() => { setCurrentWeek(currentWeekOf()) }, [])
 
-  // "New this week": only meaningful when themes span multiple weeks
-  const distinctWeeks = new Set(themes.map(t => t.weekOf).filter(Boolean))
-  const newThisWeek = distinctWeeks.size > 1 ? themes.filter(t => t.weekOf === weekOf) : []
+  // All distinct weeks sorted newest-first
+  const allWeeks = [...new Set(themes.map(t => t.weekOf).filter(Boolean) as string[])].sort().reverse()
+  const hasMultipleWeeks = allWeeks.length > 1
+
+  // Themes to display: filter by selected week, or show all (current week view)
+  const displayedThemes = selectedWeek ? themes.filter(t => t.weekOf === selectedWeek) : themes
+
+  // "New this week" only shown on the current (unfiltered) view
+  const newThisWeek = !selectedWeek && hasMultipleWeeks
+    ? themes.filter(t => t.weekOf === currentWeek)
+    : []
 
   const cardProps = (theme: ReelTheme) => ({
     theme,
@@ -404,8 +430,8 @@ function ReelFeed({ themes, brandColor, savedThemeTitles, seenThemes, savedPosts
     onClick: () => onSelect(theme),
   })
 
-  const proofThemes   = themes.filter(t => (t.contentType ?? 'social_proof') === 'social_proof')
-  const varietyThemes = themes.filter(t => t.contentType && t.contentType !== 'social_proof')
+  const proofThemes   = displayedThemes.filter(t => (t.contentType ?? 'social_proof') === 'social_proof')
+  const varietyThemes = displayedThemes.filter(t => t.contentType && t.contentType !== 'social_proof')
 
   // Group variety by type; only give own row if ≥ threshold
   const varietyByType = new Map<string, ReelTheme[]>()
@@ -421,43 +447,111 @@ function ReelFeed({ themes, brandColor, savedThemeTitles, seenThemes, savedPosts
     return !bucket || bucket.length < VARIETY_ROW_THRESHOLD
   })
 
-  // This week's date range (Mon–Sun) and next Monday
-  const { weekRange, nextMonday } = (() => {
+  // Date range for the active view
+  const activeWeekRange = selectedWeek
+    ? weekOfToDateRange(selectedWeek)
+    : currentWeek ? weekOfToDateRange(currentWeek) : ''
+
+  // Next Monday (for "New batch arrives" hint)
+  const nextMonday = (() => {
     const today = new Date()
     const day = today.getDay()
     const monday = new Date(today)
     monday.setDate(today.getDate() - (day === 0 ? 6 : day - 1))
-    const sunday = new Date(monday)
-    sunday.setDate(monday.getDate() + 6)
-    const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
     const nextMon = new Date(monday)
     nextMon.setDate(monday.getDate() + 7)
-    return {
-      weekRange: `${fmt(monday)} - ${fmt(sunday)}`,
-      nextMonday: fmt(nextMon),
-    }
+    return nextMon.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
   })()
+
+  const isPreviousWeek = selectedWeek !== null && selectedWeek !== currentWeek
 
   return (
     <div>
       {/* Weekly batch header */}
       <div style={{ marginBottom: 28 }}>
         <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--ink)', margin: '0 0 4px', letterSpacing: '-0.02em' }}>
-          Your Social Clips for this week
+          {isPreviousWeek ? 'Your Social Clips from' : 'Your Social Clips for this week'}
         </h1>
-        <p style={{ fontSize: 13, color: 'var(--ink3)', margin: 0 }}>
-          <span style={{
-            display: 'inline-block',
-            fontWeight: 600,
-            color: 'var(--accent)',
-            background: 'var(--accent-bg)',
-            borderRadius: 6,
-            padding: '1px 8px',
-            marginRight: 6,
-            fontSize: 12,
-          }}>{weekRange}</span>
-          New batch arrives {nextMonday}
-        </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          {/* Week chip — clickable dropdown if multiple weeks exist */}
+          <div style={{ position: 'relative' }}>
+            <button
+              onClick={() => hasMultipleWeeks && setWeekDropdownOpen(o => !o)}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 4,
+                fontWeight: 600, color: isPreviousWeek ? 'var(--ink2)' : 'var(--accent)',
+                background: isPreviousWeek ? 'var(--bg2)' : 'var(--accent-bg)',
+                borderRadius: 6, padding: '2px 8px', fontSize: 12,
+                border: 'none', cursor: hasMultipleWeeks ? 'pointer' : 'default',
+              }}
+            >
+              {activeWeekRange}
+              {hasMultipleWeeks && (
+                <span style={{ fontSize: 10, opacity: 0.6, marginLeft: 1 }}>
+                  {weekDropdownOpen ? '▲' : '▼'}
+                </span>
+              )}
+            </button>
+
+            {weekDropdownOpen && (
+              <>
+                {/* Backdrop */}
+                <div
+                  onClick={() => setWeekDropdownOpen(false)}
+                  style={{ position: 'fixed', inset: 0, zIndex: 10 }}
+                />
+                {/* Dropdown */}
+                <div style={{
+                  position: 'absolute', top: '100%', left: 0, marginTop: 6,
+                  background: 'var(--surface)', border: '1px solid var(--border)',
+                  borderRadius: 12, boxShadow: '0 8px 24px rgba(0,0,0,0.10)',
+                  zIndex: 20, minWidth: 160, overflow: 'hidden',
+                }}>
+                  <div
+                    onClick={() => { setSelectedWeek(null); setWeekDropdownOpen(false) }}
+                    style={{
+                      padding: '10px 14px', fontSize: 13, cursor: 'pointer',
+                      fontWeight: !selectedWeek ? 700 : 400,
+                      color: !selectedWeek ? 'var(--accent)' : 'var(--ink2)',
+                      background: !selectedWeek ? 'var(--accent-bg)' : 'transparent',
+                    }}
+                  >
+                    This week
+                  </div>
+                  {allWeeks.filter(w => w !== currentWeek).map(w => (
+                    <div
+                      key={w}
+                      onClick={() => { setSelectedWeek(w); setWeekDropdownOpen(false) }}
+                      style={{
+                        padding: '10px 14px', fontSize: 13, cursor: 'pointer',
+                        fontWeight: selectedWeek === w ? 700 : 400,
+                        color: selectedWeek === w ? 'var(--accent)' : 'var(--ink2)',
+                        background: selectedWeek === w ? 'var(--accent-bg)' : 'transparent',
+                        borderTop: '1px solid var(--border)',
+                      }}
+                    >
+                      {weekOfToDateRange(w)}
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+
+          {!isPreviousWeek && (
+            <span style={{ fontSize: 13, color: 'var(--ink3)' }}>
+              New batch arrives {nextMonday}
+            </span>
+          )}
+          {isPreviousWeek && (
+            <button
+              onClick={() => setSelectedWeek(null)}
+              style={{ fontSize: 12, color: 'var(--accent)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}
+            >
+              Back to this week →
+            </button>
+          )}
+        </div>
       </div>
 
       {newThisWeek.length > 0 && (
