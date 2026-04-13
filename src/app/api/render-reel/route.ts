@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { renderMediaOnLambda } from '@remotion/lambda/client'
+import { renderMediaOnLambda } from '@remotion/lambda'
 
 const FUNCTION_NAME = process.env.REMOTION_LAMBDA_FUNCTION_NAME!
 const SERVE_URL     = process.env.REMOTION_SERVE_URL!

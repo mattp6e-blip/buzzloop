@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getRenderProgress } from '@remotion/lambda/client'
+import { getRenderProgress } from '@remotion/lambda'
 
 const FUNCTION_NAME = process.env.REMOTION_LAMBDA_FUNCTION_NAME!
 const REGION        = (process.env.AWS_REGION ?? 'us-east-1') as 'us-east-1'
