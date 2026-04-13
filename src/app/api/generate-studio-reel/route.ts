@@ -170,46 +170,49 @@ ${reviewContext}\n`
     `Variation 3 — Bold: Lead with a pattern-interrupt. The hook is the bluntest, most surprising version of the truth. Short and punchy throughout.`,
   ][variationIndex]
 
-  return `You are a creative director building an Instagram Reel for a local business. You write scripts that stop people mid-scroll and drive them to act.
+  return `You are a creative director building an Instagram social clip for a local business. You write scripts that stop people mid-scroll and drive them to act.
 
 Business: ${businessName} (${industry})
 Brief from the business owner: "${prompt}"
+
+CRITICAL RULE — THE BRIEF IS SACRED:
+Every specific detail in the brief MUST appear in the script. If the brief mentions a discount (e.g. "20% off"), that exact discount must be in the script. If it mentions a product or service (e.g. "Invisalign"), that exact word must appear. If it mentions an event or deadline (e.g. "Black Friday"), that must be prominent. Never abstract away the real offer into vague language.
 
 ${variationGuidance}
 
 ${toneInstructions[tone]}
 
 ${HOOK_FRAMEWORKS}
+
+The hook frameworks above provide the ANGLE and STRUCTURE — but the hook must still reference the actual offer, product, or event from the brief. Use the framework to make the offer feel surprising or compelling, not to replace it.
 ${reviewBlock}
 ---
 
 SLIDE STRUCTURE (${totalDuration}s total):
-- hook: 4s — sharp, specific, pattern-interrupting. Apply a hook framework. Max 10 words. Never name the business or sound like an ad.
+- hook: 4s — sharp, specific. Use a hook framework to frame the brief's core offer in a way that stops the scroll. Max 10 words. Must reference the actual product/offer/event.
 ${insightCount === 1
-  ? `- insight: 4s — the single most surprising or compelling fact about the brief`
-  : Array.from({ length: insightCount }, (_, i) => `- insight: 4s — ${['first key point (most surprising or counterintuitive)', 'second key point (deepens understanding or changes perception)', 'third key point (the outcome, benefit, or specific result)'][i]}`).join('\n')}
-- cta: ${ctaDuration}s — drives a specific action relevant to the brief
+  ? `- insight: 4s — the single most compelling reason to take the offer right now`
+  : Array.from({ length: insightCount }, (_, i) => `- insight: 4s — ${['the core benefit or what makes this offer special', 'why now / urgency or scarcity', 'what the viewer gets or feels after taking action'][i]}`).join('\n')}
+- cta: ${ctaDuration}s — drives a specific action. Must name the exact offer from the brief.
 
 INSIGHT RULES:
-- Each insight is a SHORT, punchy statement (max 10 words)
-- Surprising, specific, or counterintuitive — something that reframes the viewer's thinking
-- highlightWords: the 1-2 words that carry the most weight
-- Never generic ("it's important to...") — always specific ("most people feel nothing after 20 minutes")
+- Each insight is SHORT and punchy (max 10 words)
+- Must be directly relevant to the brief — no generic filler
+- highlightWords: the 1-2 words that carry the most weight (often the product name, % off, or event name)
 
 QUOTE SLIDE (optional):
-- Only include a quote slide if a review in the context genuinely and naturally validates the reel's exact theme
-- If you include it, add it between the last insight and the CTA
-- Verbatim excerpt, max 18 words
+- Only include if a review genuinely validates the exact offer or product in the brief
+- Verbatim excerpt, max 18 words. Add between last insight and CTA.
 
 CTA — two lines, both required:
-Line 1 (ctaHeadline): Callback to the specific promise or hook. Reference something from the reel. Bridge from the insight to action.
-  Good: "The treatment worth 2 weeks of waiting. Yours is ready."
-  Good: "Now you know what's possible. Come find out for yourself."
-  NEVER: "Book your appointment today" / "Visit us now" / anything generic
+Line 1 (ctaHeadline): Name the specific offer from the brief. Make it feel like the natural next step.
+  Good: "20% off Invisalign. This Black Friday only."
+  Good: "Your straight smile starts here. At 20% less."
+  NEVER: "Book your appointment today" / "Visit us now" / anything that ignores the brief
 
-Line 2 (ctaText): Friction reduction. Make the next step feel smaller than expected.
-  Good: "One free consultation. No commitment."
-  Good: "Message us your question. We reply same day."
+Line 2 (ctaText): Friction reduction. Make acting feel easy.
+  Good: "DM us 'FRIDAY' to claim your spot."
+  Good: "Limited appointments. Message us now."
   NEVER: "Book now" / "Call us today"
 
 TITLE: Generate a short, punchy title for this reel theme (3-5 words, no business name)
