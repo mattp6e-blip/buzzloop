@@ -9,7 +9,7 @@ export default async function StudioPage() {
 
   const { data: business } = await supabase
     .from('businesses')
-    .select('id, name, industry, brand_color, brand_secondary_color, logo_url, website_url, plan')
+    .select('id, name, industry, brand_color, brand_secondary_color, logo_url, website_url, plan, studio_generations_this_month, studio_generations_reset_at')
     .eq('user_id', user.id)
     .single()
 

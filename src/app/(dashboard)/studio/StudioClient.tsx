@@ -13,6 +13,8 @@ interface Business {
   logo_url: string | null
   website_url: string | null
   plan: string | null
+  studio_generations_this_month: number | null
+  studio_generations_reset_at: string | null
 }
 
 const LOADING_STEPS = [
@@ -23,6 +25,12 @@ const LOADING_STEPS = [
 
 export function StudioClient({ business }: { business: Business }) {
   const isPro = business.plan === 'pro'
+  const now = new Date()
+  const resetAt = business.studio_generations_reset_at ? new Date(business.studio_generations_reset_at) : null
+  const needsReset = !resetAt || now.getMonth() !== resetAt.getMonth() || now.getFullYear() !== resetAt.getFullYear()
+  const generationsUsed = needsReset ? 0 : (business.studio_generations_this_month ?? 0)
+  const freeGenerationsLeft = Math.max(0, 1 - generationsUsed)
+  const limitReached = !isPro && freeGenerationsLeft === 0
   const router = useRouter()
   const [prompt, setPrompt] = useState('')
   const [generating, setGenerating] = useState(false)
@@ -70,17 +78,17 @@ export function StudioClient({ business }: { business: Business }) {
     }
   }
 
-  // Pro gate
-  if (!isPro) {
+  // Limit reached gate
+  if (limitReached) {
     return (
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="max-w-md text-center">
           <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-6" style={{ background: 'linear-gradient(135deg, #f59e0b22, #ef444422)', border: '1.5px solid #f59e0b44' }}>
             ✳
           </div>
-          <h1 className="text-2xl font-bold mb-3" style={{ color: 'var(--ink)' }}>Studio is a Pro feature</h1>
+          <h1 className="text-2xl font-bold mb-3" style={{ color: 'var(--ink)' }}>You've used your free clip this month</h1>
           <p className="text-sm leading-relaxed mb-8" style={{ color: 'var(--ink3)' }}>
-            Describe any reel you want — a campaign, a seasonal offer, a brand story — and the AI builds it for you from scratch. No reviews needed.
+            Upgrade to Pro for unlimited Studio clips, plus review replies, SMS outreach, and more.
           </p>
           <Link
             href="/pricing"
@@ -89,7 +97,7 @@ export function StudioClient({ business }: { business: Business }) {
           >
             Upgrade to Pro — $49/month
           </Link>
-          <p className="text-xs mt-4" style={{ color: 'var(--ink4)' }}>Cancel anytime</p>
+          <p className="text-xs mt-4" style={{ color: 'var(--ink4)' }}>Cancel anytime. Resets on the 1st of each month.</p>
         </div>
       </div>
     )
@@ -104,8 +112,14 @@ export function StudioClient({ business }: { business: Business }) {
           <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'linear-gradient(135deg, #f59e0b, #ef4444)', color: 'white' }}>PRO</span>
         </div>
         <p className="text-sm" style={{ color: 'var(--ink3)' }}>
-          Describe the reel you want. The AI will write the script and build it for you.
+          Describe the social clip you want. The AI will write the script and build it for you.
         </p>
+        {!isPro && (
+          <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium" style={{ background: 'var(--bg2)', color: 'var(--ink3)', border: '1px solid var(--border)' }}>
+            <span style={{ color: freeGenerationsLeft > 0 ? '#22c55e' : '#ef4444' }}>●</span>
+            {freeGenerationsLeft > 0 ? '1 free clip remaining this month' : 'No free clips remaining'}
+          </div>
+        )}
       </div>
 
       <div className="rounded-2xl p-6" style={{ background: 'var(--surface)', border: '1.5px solid var(--border)' }}>
@@ -115,7 +129,7 @@ export function StudioClient({ business }: { business: Business }) {
         <textarea
           value={prompt}
           onChange={e => setPrompt(e.target.value)}
-          placeholder={`e.g. "A reel for our Valentine's Day special — 20% off all treatments this weekend only" or "Show why ${business.name} is the best ${business.industry} in the area"`}
+          placeholder={`e.g. "A clip for our Valentine's Day special — 20% off all treatments this weekend only" or "Show why ${business.name} is the best ${business.industry} in the area"`}
           rows={4}
           className="w-full rounded-xl px-4 py-3 text-sm resize-none outline-none transition-all"
           style={{
@@ -144,7 +158,7 @@ export function StudioClient({ business }: { business: Business }) {
                 {LOADING_STEPS[loadingStep]}
               </>
             ) : (
-              <>✦ Generate Reel</>
+              <>✦ Generate Clip</>
             )}
           </button>
         </div>

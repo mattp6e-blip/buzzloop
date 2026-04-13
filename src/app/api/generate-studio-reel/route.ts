@@ -258,12 +258,33 @@ export async function POST(req: NextRequest) {
   // Fetch business info
   const { data: business, error: bizError } = await supabase
     .from('businesses')
-    .select('name, industry, brand_color, website_url, reel_themes')
+    .select('name, industry, brand_color, website_url, reel_themes, plan, studio_generations_this_month, studio_generations_reset_at')
     .eq('id', businessId)
     .single()
 
   if (bizError || !business) {
     return NextResponse.json({ error: 'Business not found' }, { status: 404 })
+  }
+
+  // Check + reset monthly counter
+  const now = new Date()
+  const resetAt = business.studio_generations_reset_at ? new Date(business.studio_generations_reset_at) : null
+  const needsReset = !resetAt || now.getMonth() !== resetAt.getMonth() || now.getFullYear() !== resetAt.getFullYear()
+
+  let generationsThisMonth = needsReset ? 0 : (business.studio_generations_this_month ?? 0)
+
+  if (needsReset) {
+    await supabase.from('businesses').update({
+      studio_generations_this_month: 0,
+      studio_generations_reset_at: now.toISOString(),
+    }).eq('id', businessId)
+  }
+
+  // Enforce free tier limit
+  const isPro = business.plan === 'pro'
+  const FREE_LIMIT = 1
+  if (!isPro && generationsThisMonth >= FREE_LIMIT) {
+    return NextResponse.json({ error: 'limit_reached' }, { status: 403 })
   }
 
   // Fetch up to 20 best reviews for optional context
@@ -385,7 +406,11 @@ export async function POST(req: NextRequest) {
 
   await supabase
     .from('businesses')
-    .update({ reel_themes: updatedThemes })
+    .update({
+      reel_themes: updatedThemes,
+      studio_generations_this_month: generationsThisMonth + 1,
+      studio_generations_reset_at: needsReset ? now.toISOString() : business.studio_generations_reset_at,
+    })
     .eq('id', businessId)
 
   return NextResponse.json({ themeId })
