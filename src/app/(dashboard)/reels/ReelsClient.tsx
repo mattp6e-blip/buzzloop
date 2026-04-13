@@ -95,17 +95,27 @@ export function ReelsClient({ reviews, businessId, businessName, industry, brand
 
   const searchParams = useSearchParams()
 
-  // Auto-open studio-generated reel when navigated from Studio with ?open={themeId}
+  // Auto-open studio-generated clip when navigated from Studio with ?open={themeId}
   useEffect(() => {
     const openId = searchParams.get('open')
     if (!openId) return
-    setThemes(prev => {
-      if (!prev) return prev
-      const target = prev.find(t => t.id === openId)
-      if (target) setSelectedTheme(target)
-      return prev
-    })
-  }, [searchParams, themes])
+
+    // Check current themes state first
+    if (themes) {
+      const target = themes.find(t => t.id === openId)
+      if (target) { setSelectedTheme(target); return }
+    }
+
+    // Fall back to server-fetched cachedThemes (includes newly generated studio themes
+    // that may not be in the stale localStorage cache)
+    if (cachedThemes) {
+      const target = cachedThemes.find(t => t.id === openId)
+      if (target) {
+        setThemes(prev => prev ?? cachedThemes)
+        setSelectedTheme(target)
+      }
+    }
+  }, [searchParams, themes, cachedThemes])
 
   useEffect(() => {
     const key = `seen_themes_${businessId}`
