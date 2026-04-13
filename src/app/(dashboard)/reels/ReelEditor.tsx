@@ -201,6 +201,8 @@ export function ReelEditor({
   const [cityInput, setCityInput]             = useState('')
   const cityInputRef                          = useRef<HTMLInputElement>(null)
   const [downloading, setDownloading]         = useState(false)
+  const [downloadStatus, setDownloadStatus]   = useState<string>('')
+  const [renderProgress, setRenderProgress]   = useState<number>(0)
   const [downloadError, setDownloadError]     = useState<string | null>(null)
 
   // Sync photos from parent when they arrive after initial mount (async Supabase fetch)
@@ -217,6 +219,8 @@ export function ReelEditor({
   async function handleDownload() {
     setDownloading(true)
     setDownloadError(null)
+    setRenderProgress(0)
+    setDownloadStatus('Starting up...')
     try {
       const RENDER_URL = process.env.NEXT_PUBLIC_RENDER_SERVICE_URL || 'https://buzzloop-nwpv.onrender.com'
 
@@ -241,18 +245,22 @@ export function ReelEditor({
         throw new Error(err.error ?? 'Failed to start render')
       }
       const { renderId, bucketName } = await startRes.json()
+      setDownloadStatus('Rendering...')
 
       // Poll until done
       // eslint-disable-next-line no-constant-condition
       while (true) {
-        await new Promise(r => setTimeout(r, 4000))
+        await new Promise(r => setTimeout(r, 3000))
         const statusRes = await fetch(`${RENDER_URL}/api/render-status?renderId=${renderId}&bucketName=${bucketName}`)
         const status = await statusRes.json()
         if (status.fatalErrorEncountered) {
           throw new Error(status.errors?.[0]?.message ?? 'Render failed')
         }
+        if (typeof status.progress === 'number') {
+          setRenderProgress(Math.round(status.progress * 100))
+        }
         if (status.done && status.outputFile) {
-          // Trigger download
+          setDownloadStatus('Done!')
           const a = document.createElement('a')
           a.href = status.outputFile
           const slug = (editedScript.themeTitle ?? businessName).replace(/\s+/g, '-').toLowerCase()
@@ -266,6 +274,8 @@ export function ReelEditor({
       setDownloadError(String(err))
     }
     setDownloading(false)
+    setDownloadStatus('')
+    setRenderProgress(0)
   }
 
   function switchVariation(idx: number) {
@@ -694,20 +704,31 @@ export function ReelEditor({
           <button
             onClick={handleDownload}
             disabled={downloading}
-            className="w-full py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2"
+            className="w-full rounded-xl text-sm font-bold transition-all overflow-hidden"
             style={{
               background: 'var(--bg2)',
-              color: downloading ? 'var(--ink4)' : 'var(--ink2)',
               border: '1.5px solid var(--border)',
               cursor: downloading ? 'not-allowed' : 'pointer',
+              position: 'relative',
             }}
           >
-            {downloading ? (
-              <>
-                <div className="w-3.5 h-3.5 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: 'var(--ink3)', borderTopColor: 'transparent' }} />
-                Rendering video... this takes ~40s
-              </>
-            ) : '↓ Download MP4'}
+            {downloading && renderProgress > 0 && (
+              <div style={{
+                position: 'absolute', inset: 0, left: 0, top: 0,
+                width: `${renderProgress}%`,
+                background: 'var(--brand)',
+                opacity: 0.15,
+                transition: 'width 0.5s ease',
+              }} />
+            )}
+            <div className="flex items-center justify-center gap-2 py-3" style={{ color: downloading ? 'var(--ink4)' : 'var(--ink2)', position: 'relative' }}>
+              {downloading ? (
+                <>
+                  <div className="w-3.5 h-3.5 border-2 rounded-full animate-spin" style={{ borderColor: 'var(--ink3)', borderTopColor: 'transparent' }} />
+                  {renderProgress > 0 ? `${downloadStatus} ${renderProgress}%` : downloadStatus}
+                </>
+              ) : '↓ Download MP4'}
+            </div>
           </button>
           {downloadError && (
             <p className="text-xs px-3 py-2 rounded-lg" style={{ background: '#fee2e2', color: '#dc2626' }}>
