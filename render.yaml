@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: buzzloop-render
+    runtime: node
+    rootDir: render-server
+    buildCommand: npm install
+    startCommand: node server.mjs
+    plan: free
+    envVars:
+      - key: PORT
+        value: 10000
