@@ -65,7 +65,7 @@ const server = http.createServer(async (req, res) => {
           gbpPhotos: gbpPhotos || [],
         },
         codec: 'h264',
-        framesPerLambda: 20,
+        framesPerLambda: 10000,
         outName: `reel-${Date.now()}.mp4`,
         timeoutInMilliseconds: 240000,
         forceDurationInFrames: totalFrames,
