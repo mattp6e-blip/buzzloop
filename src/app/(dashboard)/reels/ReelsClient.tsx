@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { ReelCreator } from './ReelCreator'
 import { createClient } from '@/lib/supabase/client'
 import type { Review, ReelTheme, ReelScript, ReelContentType } from '@/types'
@@ -91,6 +92,20 @@ export function ReelsClient({ reviews, businessId, businessName, industry, brand
     businessContext?: string | null
   } | null>(null)
   const [extracting, setExtracting] = useState(false)
+
+  const searchParams = useSearchParams()
+
+  // Auto-open studio-generated reel when navigated from Studio with ?open={themeId}
+  useEffect(() => {
+    const openId = searchParams.get('open')
+    if (!openId) return
+    setThemes(prev => {
+      if (!prev) return prev
+      const target = prev.find(t => t.id === openId)
+      if (target) setSelectedTheme(target)
+      return prev
+    })
+  }, [searchParams, themes])
 
   useEffect(() => {
     const key = `seen_themes_${businessId}`

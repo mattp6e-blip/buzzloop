@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 interface Business {
   id: string
@@ -14,10 +15,60 @@ interface Business {
   plan: string | null
 }
 
+const LOADING_STEPS = [
+  'Reading your brief...',
+  'Writing scripts...',
+  'Applying visuals...',
+]
+
 export function StudioClient({ business }: { business: Business }) {
   const isPro = business.plan === 'pro'
+  const router = useRouter()
   const [prompt, setPrompt] = useState('')
   const [generating, setGenerating] = useState(false)
+  const [loadingStep, setLoadingStep] = useState(0)
+  const [error, setError] = useState<string | null>(null)
+  const stepIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  useEffect(() => {
+    if (generating) {
+      setLoadingStep(0)
+      stepIntervalRef.current = setInterval(() => {
+        setLoadingStep(prev => Math.min(prev + 1, LOADING_STEPS.length - 1))
+      }, 3000)
+    } else {
+      if (stepIntervalRef.current) {
+        clearInterval(stepIntervalRef.current)
+        stepIntervalRef.current = null
+      }
+    }
+    return () => {
+      if (stepIntervalRef.current) clearInterval(stepIntervalRef.current)
+    }
+  }, [generating])
+
+  async function handleGenerate() {
+    if (!prompt.trim() || generating) return
+    setGenerating(true)
+    setError(null)
+    try {
+      const res = await fetch('/api/generate-studio-reel', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: prompt.trim(), businessId: business.id }),
+      })
+      const data = await res.json()
+      if (!res.ok || !data.themeId) {
+        setError(data.error ?? 'Something went wrong. Please try again.')
+        setGenerating(false)
+        return
+      }
+      router.push(`/reels?open=${data.themeId}`)
+    } catch {
+      setError('Something went wrong. Please try again.')
+      setGenerating(false)
+    }
+  }
 
   // Pro gate
   if (!isPro) {
@@ -74,10 +125,15 @@ export function StudioClient({ business }: { business: Business }) {
             lineHeight: 1.6,
           }}
         />
+
+        {error && (
+          <p className="mt-3 text-xs font-medium" style={{ color: '#ef4444' }}>{error}</p>
+        )}
+
         <div className="flex items-center justify-between mt-4">
           <p className="text-xs" style={{ color: 'var(--ink4)' }}>Be specific — mention offers, dates, emotions, or goals</p>
           <button
-            onClick={() => setGenerating(true)}
+            onClick={handleGenerate}
             disabled={!prompt.trim() || generating}
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
             style={{ background: 'var(--accent)' }}
@@ -85,7 +141,7 @@ export function StudioClient({ business }: { business: Business }) {
             {generating ? (
               <>
                 <div className="w-3.5 h-3.5 border-2 rounded-full animate-spin" style={{ borderColor: 'white', borderTopColor: 'transparent' }} />
-                Building...
+                {LOADING_STEPS[loadingStep]}
               </>
             ) : (
               <>✦ Generate Reel</>

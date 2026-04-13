@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { ReelsClient } from './ReelsClient'
@@ -35,30 +36,32 @@ export default async function ReelsPage() {
 
   return (
     <div className="p-8" style={{ maxWidth: 1100 }}>
-      <ReelsClient
-        reviews={currentReviews}
-        businessId={business.id}
-        businessName={business.name}
-        industry={business.industry}
-        brandColor={business.brand_color}
-        brandFont={business.brand_font ?? 'Inter'}
-        brandLogoUrl={business.brand_logo_url ?? null}
-        brandPersonality={business.brand_personality ? JSON.parse(business.brand_personality) : []}
-        brandSecondaryColor={business.brand_secondary_color ?? business.brand_color}
-        websiteUrl={business.website_url ?? null}
-        brandExtracted={business.brand_extracted ?? false}
-        cachedThemes={cachedThemes}
-        savedPostsCount={savedPostsCount}
-        savedThemeTitles={[...savedThemeTitles] as string[]}
-        city={business.city ?? null}
-        googleConnected={business.google_connected ?? false}
-        gbpPhotos={[
-          ...((business.gbp_photos as string[] | null) ?? []),
-          ...((business.uploaded_photos as string[] | null) ?? []),
-        ]}
-        uploadedPhotos={(business.uploaded_photos as string[] | null) ?? []}
-        businessContext={business.business_context ?? null}
-      />
+      <Suspense>
+        <ReelsClient
+          reviews={currentReviews}
+          businessId={business.id}
+          businessName={business.name}
+          industry={business.industry}
+          brandColor={business.brand_color}
+          brandFont={business.brand_font ?? 'Inter'}
+          brandLogoUrl={business.brand_logo_url ?? null}
+          brandPersonality={business.brand_personality ? JSON.parse(business.brand_personality) : []}
+          brandSecondaryColor={business.brand_secondary_color ?? business.brand_color}
+          websiteUrl={business.website_url ?? null}
+          brandExtracted={business.brand_extracted ?? false}
+          cachedThemes={cachedThemes}
+          savedPostsCount={savedPostsCount}
+          savedThemeTitles={[...savedThemeTitles] as string[]}
+          city={business.city ?? null}
+          googleConnected={business.google_connected ?? false}
+          gbpPhotos={[
+            ...((business.gbp_photos as string[] | null) ?? []),
+            ...((business.uploaded_photos as string[] | null) ?? []),
+          ]}
+          uploadedPhotos={(business.uploaded_photos as string[] | null) ?? []}
+          businessContext={business.business_context ?? null}
+        />
+      </Suspense>
     </div>
   )
 }

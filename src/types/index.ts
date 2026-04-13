@@ -114,7 +114,7 @@ export interface ReelTheme {
   id: string
   title: string
   hook: string
-  reelType: 'story' | 'pattern'    // story = single anchor review; pattern = shared signal across 3+
+  reelType: 'story' | 'pattern' | 'studio'    // story = single anchor review; pattern = shared signal across 3+; studio = prompt-based
   contentType?: ReelContentType     // defaults to 'social_proof' if absent
   keyPhrase: string
   emoji: string
