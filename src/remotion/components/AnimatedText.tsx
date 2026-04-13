@@ -87,8 +87,11 @@ export function AnimatedText({ text, style, anim, delay = 0, highlightWords = []
   if (anim === 'char-spring') {
     // Each word springs in independently with staggered delay — true kinetic typography.
     const words = text.split(' ')
+    const justifyContent = style?.textAlign === 'center' ? 'center'
+      : style?.textAlign === 'right' ? 'flex-end'
+      : 'flex-start'
     return (
-      <div style={{ ...baseStyle, display: 'flex', flexWrap: 'wrap', columnGap: '0.25em', rowGap: '0.05em' }}>
+      <div style={{ ...baseStyle, display: 'flex', flexWrap: 'wrap', columnGap: '0.25em', rowGap: '0.05em', justifyContent }}>
         {words.map((word, i) => {
           const wordF = Math.max(0, f - i * 4)
           const s = spring({ frame: wordF, fps, config: { stiffness: 360, damping: 15 } })

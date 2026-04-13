@@ -445,6 +445,53 @@ function validateQuotes(script: ReelScript, sourceReviews: Review[]): ReelScript
   }
 }
 
+// ── Per-slide template assignment ─────────────────────────────────────────────
+// Each slide type gets a template chosen for visual impact at that moment in the reel.
+
+import type { ReelSlide } from '@/types'
+
+function assignSlideTemplates(
+  slides: ReelSlide[],
+  tone: Tone,
+  hasPhotos: boolean,
+): ReelSlide[] {
+  return slides.map(slide => ({
+    ...slide,
+    content: {
+      ...slide.content,
+      template: getSlideTemplate(slide.type, tone, hasPhotos),
+    },
+  }))
+}
+
+function getSlideTemplate(
+  type: ReelSlide['type'],
+  tone: Tone,
+  hasPhotos: boolean,
+): VisualTemplate {
+  switch (type) {
+    case 'hook':
+      if (tone === 'bold')  return 'bold'
+      if (tone === 'proof') return 'split'
+      return hasPhotos ? 'cinematic' : 'gradient'
+
+    case 'quote':
+      return hasPhotos ? 'overlay' : 'cards'
+
+    case 'proof':
+      return 'minimal'
+
+    case 'insight':
+      return tone === 'bold' ? 'neon' : 'gradient'
+
+    case 'cta':
+      return 'brand'
+
+    default:
+      return 'immersive'
+  }
+}
+
 // ── Motif selection ───────────────────────────────────────────────────────────
 
 const INDUSTRY_ICON: Record<string, ReelMotif> = {
@@ -504,6 +551,7 @@ async function generateVariation(
   reviews: Review[],
   language: string,
   closingReview?: Review,
+  allPhotos?: string[],
 ): Promise<ReelVariation | null> {
   try {
     const langSystem = `You must respond in ${language} only. Every word of your JSON output must be in ${language}. This is non-negotiable regardless of the business name or location.`
@@ -588,7 +636,14 @@ async function generateVariation(
     const quoteSourceReviews = isVariety
       ? (closingReview ? [closingReview] : [])
       : reviews
-    const script = validateQuotes(rawScript, quoteSourceReviews)
+    const validated = validateQuotes(rawScript, quoteSourceReviews)
+
+    // Assign a distinct visual template to each slide
+    const hasPhotos = (allPhotos ?? []).filter(Boolean).length > 0
+    const script: ReelScript = {
+      ...validated,
+      slides: assignSlideTemplates(validated.slides, tone, hasPhotos),
+    }
 
     return {
       id: (['story', 'proof', 'bold'] as Tone[]).indexOf(tone) + 1,
@@ -664,7 +719,7 @@ export async function POST(req: NextRequest) {
   }
 
   const chosenTone = selectTone()
-  const singleVariation = await generateVariation(chosenTone, theme, anchorSentence, reviewTexts, businessName, industry, gbpReviews, lang, isVariety ? closingReview : undefined)
+  const singleVariation = await generateVariation(chosenTone, theme, anchorSentence, reviewTexts, businessName, industry, gbpReviews, lang, isVariety ? closingReview : undefined, allPhotos)
   const variations = singleVariation ? [singleVariation] : []
 
   // Assign motif based on theme + hook content

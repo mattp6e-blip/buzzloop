@@ -26,9 +26,9 @@ export function ReelComposition({
   const template = variation.template ?? 'immersive'
   const photos = gbpPhotos ?? []
 
-  // Explicitly assigned photos for hook/cta
-  const hookPhoto = variation.hookPhoto ?? null
-  const ctaPhoto = variation.ctaPhoto ?? null
+  // Explicitly assigned photos for hook/cta — fall back to pool if not set
+  const hookPhoto = variation.hookPhoto ?? photos[0] ?? null
+  const ctaPhoto  = variation.ctaPhoto  ?? photos[1] ?? photos[0] ?? null
 
   // Pre-assign photos to quote slides — cycle through the pool
   const quotePhotos: Record<number, string | null> = {}
@@ -55,13 +55,13 @@ export function ReelComposition({
     return Math.min(fadeIn, fadeOut)
   }
 
-  const commonProps = { template, brandColor, logoUrl, businessName, industry }
-
   return (
     <AbsoluteFill style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, sans-serif' }}>
       {scenes.map(({ from, dur, type, index }) => {
         const slide = script.slides[index]
         const opacity = getSceneOpacity(from, dur)
+        // Per-slide template — falls back to variation template then 'immersive'
+        const slideTemplate = slide.content.template ?? template
 
         return (
           <Sequence key={index} from={from} durationInFrames={dur}>
@@ -73,7 +73,11 @@ export function ReelComposition({
                   photo={hookPhoto}
                   motif={variation.motif}
                   motifValue={variation.motifValue}
-                  {...commonProps}
+                  template={slideTemplate}
+                  brandColor={brandColor}
+                  logoUrl={logoUrl}
+                  businessName={businessName}
+                  industry={industry}
                 />
               )}
               {type === 'quote' && (
@@ -82,7 +86,13 @@ export function ReelComposition({
                   author={slide.content.author}
                   highlightWords={slide.content.highlightWords ?? []}
                   photo={quotePhotos[index] ?? null}
-                  {...commonProps}
+                  motif={variation.motif}
+                  motifValue={variation.motifValue}
+                  template={slideTemplate}
+                  brandColor={brandColor}
+                  logoUrl={logoUrl}
+                  businessName={businessName}
+                  industry={industry}
                 />
               )}
               {type === 'insight' && (
@@ -100,7 +110,11 @@ export function ReelComposition({
                 <ProofScene
                   stat={slide.content.stat}
                   headline={slide.content.subline}
-                  {...commonProps}
+                  template={slideTemplate}
+                  brandColor={brandColor}
+                  logoUrl={logoUrl}
+                  businessName={businessName}
+                  industry={industry}
                 />
               )}
               {type === 'cta' && (
@@ -110,7 +124,7 @@ export function ReelComposition({
                   websiteUrl={websiteUrl}
                   businessName={businessName}
                   logoUrl={logoUrl}
-                  template={template}
+                  template={slideTemplate}
                   brandColor={brandColor}
                   industry={industry}
                   photo={ctaPhoto}

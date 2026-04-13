@@ -9,17 +9,39 @@ const Player = dynamic(() => import('@remotion/player').then((m) => ({ default: 
 
 // Dynamically import all showcase compositions
 const CompositionOriginal   = dynamic(() => import('./ShowcaseCompositions').then(m => ({ default: m.CompositionOriginal })),   { ssr: false })
-const CompositionDuotone    = dynamic(() => import('./ShowcaseCompositions').then(m => ({ default: m.CompositionDuotone })),    { ssr: false })
-const CompositionWarm       = dynamic(() => import('./ShowcaseCompositions').then(m => ({ default: m.CompositionWarm })),       { ssr: false })
-const CompositionCool       = dynamic(() => import('./ShowcaseCompositions').then(m => ({ default: m.CompositionCool })),       { ssr: false })
-const CompositionRose       = dynamic(() => import('./ShowcaseCompositions').then(m => ({ default: m.CompositionRose })),       { ssr: false })
-const CompositionTealOrange = dynamic(() => import('./ShowcaseCompositions').then(m => ({ default: m.CompositionTealOrange })), { ssr: false })
-const CompositionNoir       = dynamic(() => import('./ShowcaseCompositions').then(m => ({ default: m.CompositionNoir })),       { ssr: false })
+const CompositionSplit      = dynamic(() => import('./ShowcaseCompositions').then(m => ({ default: m.CompositionSplit })),      { ssr: false })
+const CompositionMinimal    = dynamic(() => import('./ShowcaseCompositions').then(m => ({ default: m.CompositionMinimal })),    { ssr: false })
+const CompositionGradient   = dynamic(() => import('./ShowcaseCompositions').then(m => ({ default: m.CompositionGradient })),   { ssr: false })
+const CompositionCinematic  = dynamic(() => import('./ShowcaseCompositions').then(m => ({ default: m.CompositionCinematic })),  { ssr: false })
+const CompositionNeon       = dynamic(() => import('./ShowcaseCompositions').then(m => ({ default: m.CompositionNeon })),       { ssr: false })
+const CompositionBold       = dynamic(() => import('./ShowcaseCompositions').then(m => ({ default: m.CompositionBold })),       { ssr: false })
+const CompositionCards      = dynamic(() => import('./ShowcaseCompositions').then(m => ({ default: m.CompositionCards })),      { ssr: false })
+const CompositionHeadline   = dynamic(() => import('./ShowcaseCompositions').then(m => ({ default: m.CompositionHeadline })),   { ssr: false })
+const CompositionOverlay    = dynamic(() => import('./ShowcaseCompositions').then(m => ({ default: m.CompositionOverlay })),    { ssr: false })
+const CompositionBrand      = dynamic(() => import('./ShowcaseCompositions').then(m => ({ default: m.CompositionBrand })),      { ssr: false })
 const CompositionEditorial  = dynamic(() => import('./ShowcaseCompositions').then(m => ({ default: m.CompositionEditorial })),  { ssr: false })
-const CompositionPurple     = dynamic(() => import('./ShowcaseCompositions').then(m => ({ default: m.CompositionPurple })),     { ssr: false })
-const CompositionCoral      = dynamic(() => import('./ShowcaseCompositions').then(m => ({ default: m.CompositionCoral })),      { ssr: false })
-const CompositionEmerald    = dynamic(() => import('./ShowcaseCompositions').then(m => ({ default: m.CompositionEmerald })),    { ssr: false })
-const CompositionRoseBrand  = dynamic(() => import('./ShowcaseCompositions').then(m => ({ default: m.CompositionRoseBrand })),  { ssr: false })
+const CompositionMotifParticles   = dynamic(() => import('./ShowcaseCompositions').then(m => ({ default: m.CompositionMotifParticles })),   { ssr: false })
+const CompositionMotifAurora      = dynamic(() => import('./ShowcaseCompositions').then(m => ({ default: m.CompositionMotifAurora })),      { ssr: false })
+const CompositionMotifLightRays   = dynamic(() => import('./ShowcaseCompositions').then(m => ({ default: m.CompositionMotifLightRays })),   { ssr: false })
+const CompositionMotifRadialBurst = dynamic(() => import('./ShowcaseCompositions').then(m => ({ default: m.CompositionMotifRadialBurst })), { ssr: false })
+const CompositionMotifConfetti    = dynamic(() => import('./ShowcaseCompositions').then(m => ({ default: m.CompositionMotifConfetti })),    { ssr: false })
+const CompositionMotifStarsFill   = dynamic(() => import('./ShowcaseCompositions').then(m => ({ default: m.CompositionMotifStarsFill })),   { ssr: false })
+const CompositionMotifProgressRing= dynamic(() => import('./ShowcaseCompositions').then(m => ({ default: m.CompositionMotifProgressRing })),{ ssr: false })
+const CompositionMotifRocketLaunch= dynamic(() => import('./ShowcaseCompositions').then(m => ({ default: m.CompositionMotifRocketLaunch })),{ ssr: false })
+const CompositionMotifBarChart    = dynamic(() => import('./ShowcaseCompositions').then(m => ({ default: m.CompositionMotifBarChart })),    { ssr: false })
+const CompositionMotifGoogleG     = dynamic(() => import('./ShowcaseCompositions').then(m => ({ default: m.CompositionMotifGoogleG })),     { ssr: false })
+const CompositionMotifChatBubbles = dynamic(() => import('./ShowcaseCompositions').then(m => ({ default: m.CompositionMotifChatBubbles })), { ssr: false })
+const CompositionMotifRippleWaves        = dynamic(() => import('./ShowcaseCompositions').then(m => ({ default: m.CompositionMotifRippleWaves })),        { ssr: false })
+const CompositionPaletteDarkCinematic    = dynamic(() => import('./ShowcaseCompositions').then(m => ({ default: m.CompositionPaletteDarkCinematic })),    { ssr: false })
+const CompositionPaletteBoldEnergy       = dynamic(() => import('./ShowcaseCompositions').then(m => ({ default: m.CompositionPaletteBoldEnergy })),       { ssr: false })
+const CompositionPaletteMagazineLight    = dynamic(() => import('./ShowcaseCompositions').then(m => ({ default: m.CompositionPaletteMagazineLight })),    { ssr: false })
+const CompositionPaletteBrandForward     = dynamic(() => import('./ShowcaseCompositions').then(m => ({ default: m.CompositionPaletteBrandForward })),     { ssr: false })
+const CompositionPaletteNeonPulse        = dynamic(() => import('./ShowcaseCompositions').then(m => ({ default: m.CompositionPaletteNeonPulse })),        { ssr: false })
+const CompositionPalettePureType         = dynamic(() => import('./ShowcaseCompositions').then(m => ({ default: m.CompositionPalettePureType })),         { ssr: false })
+const CompositionPaletteCardsAllDay      = dynamic(() => import('./ShowcaseCompositions').then(m => ({ default: m.CompositionPaletteCardsAllDay })),      { ssr: false })
+const CompositionPaletteEditorialMix     = dynamic(() => import('./ShowcaseCompositions').then(m => ({ default: m.CompositionPaletteEditorialMix })),     { ssr: false })
+const CompositionPaletteCinematicCards   = dynamic(() => import('./ShowcaseCompositions').then(m => ({ default: m.CompositionPaletteCinematicCards })),   { ssr: false })
+const CompositionPaletteImmersiveOverlay = dynamic(() => import('./ShowcaseCompositions').then(m => ({ default: m.CompositionPaletteImmersiveOverlay })), { ssr: false })
 
 interface Props {
   themes: ReelTheme[]
@@ -39,9 +61,16 @@ function buildProps(
   logoUrl: string | null,
   gbpPhotos: string[]
 ): ReelCompositionProps {
+  const baseVariation = theme.cachedVariations![0]
+  // Patch hook/cta photos from the pool if the cached variation doesn't have them
+  const variation = {
+    ...baseVariation,
+    hookPhoto: baseVariation.hookPhoto ?? gbpPhotos[0] ?? null,
+    ctaPhoto:  baseVariation.ctaPhoto  ?? gbpPhotos[1] ?? gbpPhotos[0] ?? null,
+  }
   return {
     script: theme.cachedScript!,
-    variation: theme.cachedVariations![0],
+    variation,
     brandColor,
     brandSecondaryColor: brandSecondaryColor ?? brandColor,
     logoUrl,
@@ -60,20 +89,49 @@ interface TreatmentConfig {
   component: any
 }
 
-const TREATMENTS: TreatmentConfig[] = [
-  { key: 'original',    label: 'Original',      desc: 'Current production',     component: CompositionOriginal   },
-  { key: 'duotone',     label: 'Brand Duotone',  desc: 'Brand colour tint',      component: CompositionDuotone    },
-  { key: 'warm',        label: 'Warm Grade',     desc: 'Golden cinema',          component: CompositionWarm       },
-  { key: 'cool',        label: 'Cool Grade',     desc: 'Blue cinematic',         component: CompositionCool       },
-  { key: 'rose',        label: 'Rose Grade',     desc: 'Soft romantic',          component: CompositionRose       },
-  { key: 'teal_orange', label: 'Teal & Orange',  desc: 'Complementary split',    component: CompositionTealOrange },
-  { key: 'noir',        label: 'Noir',           desc: 'High contrast dark',     component: CompositionNoir       },
-  { key: 'editorial',   label: 'Editorial',      desc: 'Text-dominant',          component: CompositionEditorial  },
-  { key: 'purple',      label: 'Purple Brand',   desc: 'Alternative identity',   component: CompositionPurple     },
-  { key: 'coral',       label: 'Coral Brand',    desc: 'Warm orange identity',   component: CompositionCoral      },
-  { key: 'emerald',     label: 'Emerald Brand',  desc: 'Fresh green identity',   component: CompositionEmerald    },
-  { key: 'rosebrand',   label: 'Rose Brand',     desc: 'Bold pink identity',     component: CompositionRoseBrand  },
+const TEMPLATES: TreatmentConfig[] = [
+  { key: 'original',  label: 'Original',    desc: 'Immersive dark',      component: CompositionOriginal  },
+  { key: 'split',     label: 'Split',       desc: 'Brand panel + dark',  component: CompositionSplit     },
+  { key: 'minimal',   label: 'Minimal',     desc: 'Pure typography',     component: CompositionMinimal   },
+  { key: 'gradient',  label: 'Gradient',    desc: 'Brand colour wash',   component: CompositionGradient  },
+  { key: 'cinematic', label: 'Cinematic',   desc: 'Photo film look',     component: CompositionCinematic },
+  { key: 'neon',      label: 'Neon',        desc: 'Glow & dark',         component: CompositionNeon      },
+  { key: 'bold',      label: 'Bold',        desc: 'Max impact type',     component: CompositionBold      },
+  { key: 'cards',     label: 'Cards',       desc: 'Frosted glass UI',    component: CompositionCards     },
+  { key: 'headline',  label: 'Headline',    desc: 'Editorial light',     component: CompositionHeadline  },
+  { key: 'overlay',   label: 'Overlay',     desc: 'Glass on photo',      component: CompositionOverlay   },
+  { key: 'brand',     label: 'Brand',       desc: 'Full brand colour',   component: CompositionBrand     },
+  { key: 'editorial', label: 'Editorial',   desc: 'Text-dominant dark',  component: CompositionEditorial },
 ]
+
+const PALETTES: TreatmentConfig[] = [
+  { key: 'p_dark_cinematic',    label: 'Dark Cinematic',    desc: 'Cinematic · Overlay · Brand',      component: CompositionPaletteDarkCinematic    },
+  { key: 'p_bold_energy',       label: 'Bold Energy',       desc: 'Bold · Neon · Brand',              component: CompositionPaletteBoldEnergy       },
+  { key: 'p_magazine_light',    label: 'Magazine Light',    desc: 'Headline · Headline · Bold',       component: CompositionPaletteMagazineLight    },
+  { key: 'p_brand_forward',     label: 'Brand Forward',     desc: 'Gradient · Cards · Brand',         component: CompositionPaletteBrandForward     },
+  { key: 'p_neon_pulse',        label: 'Neon Pulse',        desc: 'Neon · Neon · Gradient',           component: CompositionPaletteNeonPulse        },
+  { key: 'p_pure_type',         label: 'Pure Type',         desc: 'Minimal · Minimal · Brand',        component: CompositionPalettePureType         },
+  { key: 'p_cards_all_day',     label: 'Cards All Day',     desc: 'Cards · Cards · Brand',            component: CompositionPaletteCardsAllDay      },
+  { key: 'p_editorial_mix',     label: 'Editorial Mix',     desc: 'Editorial · Headline · Gradient',  component: CompositionPaletteEditorialMix     },
+  { key: 'p_cinematic_cards',   label: 'Cinematic Cards',   desc: 'Cinematic · Cards · Brand',        component: CompositionPaletteCinematicCards   },
+  { key: 'p_immersive_overlay', label: 'Immersive Overlay', desc: 'Immersive · Overlay · Brand',      component: CompositionPaletteImmersiveOverlay },
+]
+
+const MOTIFS: TreatmentConfig[] = [
+  { key: 'motif_particles',    label: 'Particles',     desc: 'Ambient drift',          component: CompositionMotifParticles    },
+  { key: 'motif_aurora',       label: 'Aurora',        desc: 'Dreamy atmosphere',      component: CompositionMotifAurora       },
+  { key: 'motif_light_rays',   label: 'Light Rays',    desc: 'Cinematic warmth',       component: CompositionMotifLightRays    },
+  { key: 'motif_radial_burst', label: 'Radial Burst',  desc: 'High energy',            component: CompositionMotifRadialBurst  },
+  { key: 'motif_confetti',     label: 'Confetti',      desc: 'Celebratory reviews',    component: CompositionMotifConfetti     },
+  { key: 'motif_stars_fill',   label: 'Stars Fill',    desc: 'Rating proof',           component: CompositionMotifStarsFill    },
+  { key: 'motif_progress',     label: 'Progress Ring', desc: 'Data-driven',            component: CompositionMotifProgressRing },
+  { key: 'motif_rocket',       label: 'Rocket Launch', desc: 'Growth narrative',       component: CompositionMotifRocketLaunch },
+  { key: 'motif_bar_chart',    label: 'Bar Chart',     desc: 'Rising proof',           component: CompositionMotifBarChart     },
+  { key: 'motif_google_g',     label: 'Google Badge',  desc: 'Trust anchor',           component: CompositionMotifGoogleG      },
+  { key: 'motif_chat_bubbles', label: 'Chat Bubbles',  desc: 'Social proof flow',      component: CompositionMotifChatBubbles  },
+  { key: 'motif_ripple',       label: 'Ripple Waves',  desc: 'Calm & premium',         component: CompositionMotifRippleWaves  },
+]
+
 
 function ReelCard({
   treatment,
@@ -155,13 +213,13 @@ export function MockupClient({ themes, brandColor, brandSecondaryColor, logoUrl,
               </h2>
             </div>
 
-            {/* Treatment grid */}
+            {/* Palettes */}
             <div style={{
               display: 'grid',
               gridTemplateColumns: `repeat(auto-fill, ${PLAYER_W}px)`,
               gap: '32px 28px',
             }}>
-              {TREATMENTS.map(treatment => (
+              {PALETTES.map(treatment => (
                 <ReelCard
                   key={treatment.key}
                   treatment={treatment}

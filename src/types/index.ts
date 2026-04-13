@@ -139,6 +139,7 @@ export interface ReelSlide {
     stat?: string
     cta?: string
     photoUrl?: string
+    template?: import('@/remotion/types').VisualTemplate
   }
 }
 
@@ -146,7 +147,7 @@ export interface ReelScript {
   themeTitle: string
   totalDuration: number
   slides: ReelSlide[]
-  template?: 'immersive' | 'editorial'
+  template?: import('@/remotion/types').VisualTemplate
 }
 
 export interface SocialPost {

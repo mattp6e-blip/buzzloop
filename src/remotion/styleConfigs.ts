@@ -20,11 +20,21 @@ export function getDarkColors(industry: string): { top: string; bottom: string }
 
 // Template metadata
 export const TEMPLATE_CONFIGS: Record<VisualTemplate, {
-  textAnim: 'fade-up' | 'scale-in' | 'slam'
+  textAnim: 'fade-up' | 'scale-in' | 'slide-left' | 'typewriter' | 'word-reveal' | 'slam' | 'char-spring'
   logo: 'corner' | 'center' | 'none'
 }> = {
-  immersive: { textAnim: 'slam', logo: 'corner' },
-  editorial: { textAnim: 'scale-in', logo: 'none' },
+  immersive: { textAnim: 'slam',        logo: 'corner'  },
+  editorial: { textAnim: 'scale-in',    logo: 'none'    },
+  split:     { textAnim: 'slide-left',  logo: 'corner'  },
+  minimal:   { textAnim: 'slam',        logo: 'none'    },
+  gradient:  { textAnim: 'char-spring', logo: 'center'  },
+  cinematic: { textAnim: 'fade-up',     logo: 'none'    },
+  neon:      { textAnim: 'slam',        logo: 'corner'  },
+  bold:      { textAnim: 'slam',        logo: 'none'    },
+  cards:     { textAnim: 'word-reveal', logo: 'corner'  },
+  headline:  { textAnim: 'word-reveal', logo: 'corner'  },
+  overlay:   { textAnim: 'fade-up',     logo: 'corner'  },
+  brand:     { textAnim: 'char-spring', logo: 'center'  },
 }
 
 function shiftColor(hex: string, amount: number): string {

@@ -3,11 +3,62 @@
 import { useState, useRef, useEffect } from 'react'
 import dynamic from 'next/dynamic'
 import type { ReelScript } from '@/types'
-import type { ReelVariation, ReelCompositionProps } from '@/remotion/types'
+import type { ReelVariation, ReelCompositionProps, VisualTemplate } from '@/remotion/types'
 import { REEL_FPS, REEL_WIDTH, REEL_HEIGHT } from '@/remotion/ReelComposition'
 
 const Player = dynamic(() => import('@remotion/player').then(m => m.Player), { ssr: false })
 const ReelCompositionModule = dynamic(() => import('@/remotion/ReelComposition').then(m => ({ default: m.ReelComposition })), { ssr: false })
+
+// ── Palette registry ────────────────────────────────────────────
+
+type PaletteKey =
+  | 'dark_cinematic' | 'bold_energy' | 'magazine_light' | 'brand_forward'
+  | 'neon_pulse' | 'pure_type' | 'cards_all_day' | 'editorial_mix'
+  | 'cinematic_cards' | 'immersive_overlay'
+
+interface PaletteSlots {
+  hook: VisualTemplate; quote: VisualTemplate; proof: VisualTemplate
+  insight: VisualTemplate; cta: VisualTemplate
+}
+
+interface PaletteEntry { key: PaletteKey; label: string; slots: PaletteSlots }
+
+const PALETTE_REGISTRY: Record<PaletteKey, PaletteEntry> = {
+  dark_cinematic:    { key: 'dark_cinematic',    label: 'Dark Cinematic',    slots: { hook: 'cinematic', quote: 'overlay',  proof: 'minimal', insight: 'gradient',  cta: 'brand'    }},
+  bold_energy:       { key: 'bold_energy',        label: 'Bold Energy',       slots: { hook: 'bold',      quote: 'neon',     proof: 'gradient',insight: 'neon',      cta: 'brand'    }},
+  magazine_light:    { key: 'magazine_light',     label: 'Magazine Light',    slots: { hook: 'headline',  quote: 'headline', proof: 'split',   insight: 'editorial', cta: 'bold'     }},
+  brand_forward:     { key: 'brand_forward',      label: 'Brand Forward',     slots: { hook: 'gradient',  quote: 'cards',    proof: 'minimal', insight: 'gradient',  cta: 'brand'    }},
+  neon_pulse:        { key: 'neon_pulse',         label: 'Neon Pulse',        slots: { hook: 'neon',      quote: 'neon',     proof: 'minimal', insight: 'neon',      cta: 'gradient' }},
+  pure_type:         { key: 'pure_type',          label: 'Pure Type',         slots: { hook: 'minimal',   quote: 'minimal',  proof: 'minimal', insight: 'minimal',   cta: 'brand'    }},
+  cards_all_day:     { key: 'cards_all_day',      label: 'Cards All Day',     slots: { hook: 'cards',     quote: 'cards',    proof: 'minimal', insight: 'cards',     cta: 'brand'    }},
+  editorial_mix:     { key: 'editorial_mix',      label: 'Editorial Mix',     slots: { hook: 'editorial', quote: 'headline', proof: 'minimal', insight: 'editorial', cta: 'gradient' }},
+  cinematic_cards:   { key: 'cinematic_cards',    label: 'Cinematic Cards',   slots: { hook: 'cinematic', quote: 'cards',    proof: 'minimal', insight: 'gradient',  cta: 'brand'    }},
+  immersive_overlay: { key: 'immersive_overlay',  label: 'Immersive Overlay', slots: { hook: 'immersive', quote: 'overlay',  proof: 'minimal', insight: 'cinematic', cta: 'brand'    }},
+}
+
+function suggestPalettes(tone: string, hasPhotos: boolean): [PaletteKey, PaletteKey, PaletteKey] {
+  if (hasPhotos) {
+    if (tone === 'story') return ['dark_cinematic', 'immersive_overlay', 'cinematic_cards']
+    if (tone === 'bold')  return ['bold_energy', 'cinematic_cards', 'cards_all_day']
+    return ['brand_forward', 'cards_all_day', 'dark_cinematic']
+  }
+  if (tone === 'story') return ['editorial_mix', 'magazine_light', 'brand_forward']
+  if (tone === 'bold')  return ['bold_energy', 'neon_pulse', 'pure_type']
+  return ['pure_type', 'brand_forward', 'magazine_light']
+}
+
+function applyPaletteToScript(s: ReelScript, palette: PaletteEntry): ReelScript {
+  return {
+    ...s,
+    slides: s.slides.map(slide => ({
+      ...slide,
+      content: {
+        ...slide.content,
+        template: palette.slots[slide.type as keyof PaletteSlots] ?? 'immersive',
+      },
+    })),
+  }
+}
 
 interface Props {
   variations: ReelVariation[]
@@ -134,10 +185,17 @@ export function ReelEditor({
   industry, websiteUrl, businessId, gbpPhotos, uploadedPhotos = [], caption, onCaptionChange, generatingCaption,
   onRegenerateCaption, cityMissing, savingCity, onCitySave, onSave, onBack, saving, saved, saveError,
 }: Props) {
+  const hasPhotos = uploadedPhotos.length > 0 || gbpPhotos.length > 0
+
   const [activeVariationIdx, setActiveVariationIdx] = useState(() =>
     Math.max(0, variations.findIndex(v => v.id === variation.id))
   )
-  const [editedScript, setEditedScript]       = useState<ReelScript>(() => JSON.parse(JSON.stringify(script)))
+
+  const initPalette = PALETTE_REGISTRY[suggestPalettes(variation.tone ?? 'story', hasPhotos)[0]]
+
+  const [editedScript, setEditedScript] = useState<ReelScript>(() =>
+    applyPaletteToScript(JSON.parse(JSON.stringify(script)), initPalette)
+  )
   const [editedVariation, setEditedVariation] = useState<ReelVariation>(() => ({ ...variation }))
   const [activeSlide, setActiveSlide]         = useState(0)
   const [cityInput, setCityInput]             = useState('')
@@ -200,7 +258,8 @@ export function ReelEditor({
     const v = variations[idx]
     if (!v) return
     setActiveVariationIdx(idx)
-    setEditedScript(JSON.parse(JSON.stringify(v.script)))
+    const palette = PALETTE_REGISTRY[suggestPalettes(v.tone ?? 'story', hasPhotos)[0]]
+    setEditedScript(applyPaletteToScript(JSON.parse(JSON.stringify(v.script)), palette))
     setEditedVariation({ ...v })
     setActiveSlide(0)
   }
@@ -238,6 +297,38 @@ export function ReelEditor({
   const activeSlideData = editedScript.slides[activeSlide]
 
   return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+
+      {/* ── Photo nudge banner ── */}
+      {!hasPhotos && (
+        <a
+          href="/media"
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            gap: 16, padding: '14px 20px',
+            background: `${brandColor}12`,
+            border: `1px solid ${brandColor}30`,
+            borderRadius: 16, marginBottom: 28,
+            textDecoration: 'none', cursor: 'pointer',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span style={{ fontSize: 22 }}>📸</span>
+            <div>
+              <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: 'var(--ink1)', lineHeight: 1.3 }}>
+                Reels with photos get 2× more views
+              </p>
+              <p style={{ margin: 0, fontSize: 12, color: 'var(--ink3)', marginTop: 2 }}>
+                Add photos of your space, team or work to make this reel stand out.
+              </p>
+            </div>
+          </div>
+          <span style={{ fontSize: 12, fontWeight: 700, color: brandColor, whiteSpace: 'nowrap' }}>
+            Add photos →
+          </span>
+        </a>
+      )}
+
     <div style={{ display: 'flex', gap: 40, alignItems: 'flex-start' }}>
 
       {/* ── Left: phone preview ── */}
@@ -612,6 +703,7 @@ export function ReelEditor({
         </div>
       </div>
 
+    </div>
     </div>
   )
 }
