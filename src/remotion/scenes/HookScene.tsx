@@ -131,14 +131,14 @@ export function HookScene({ headline, subline, template, brandColor, logoUrl, bu
             text={headline}
             anim="char-spring"
             delay={15}
-            style={{ fontSize: 88, fontWeight: 900, color: '#ffffff', letterSpacing: '-0.035em', lineHeight: 1.0 }}
+            style={{ fontSize: 88, fontWeight: 900, color: '#ffffff', letterSpacing: '-0.035em', lineHeight: 1.0, textAlign: 'center' }}
           />
           {subline && (
             <AnimatedText
               text={subline}
               anim="fade-up"
               delay={30}
-              style={{ fontSize: 44, fontWeight: 400, color: 'rgba(255,255,255,0.72)', marginTop: 24, letterSpacing: '-0.01em' }}
+              style={{ fontSize: 44, fontWeight: 400, color: 'rgba(255,255,255,0.72)', marginTop: 24, letterSpacing: '-0.01em', textAlign: 'center' }}
             />
           )}
         </AbsoluteFill>
@@ -419,14 +419,14 @@ export function HookScene({ headline, subline, template, brandColor, logoUrl, bu
             text={headline}
             anim="char-spring"
             delay={15}
-            style={{ fontSize: 88, fontWeight: 900, color: '#ffffff', letterSpacing: '-0.035em', lineHeight: 1.0 }}
+            style={{ fontSize: 88, fontWeight: 900, color: '#ffffff', letterSpacing: '-0.035em', lineHeight: 1.0, textAlign: 'center' }}
           />
           {subline && (
             <AnimatedText
               text={subline}
               anim="fade-up"
               delay={30}
-              style={{ fontSize: 44, fontWeight: 400, color: 'rgba(255,255,255,0.75)', marginTop: 24, letterSpacing: '-0.01em' }}
+              style={{ fontSize: 44, fontWeight: 400, color: 'rgba(255,255,255,0.75)', marginTop: 24, letterSpacing: '-0.01em', textAlign: 'center' }}
             />
           )}
         </AbsoluteFill>
@@ -482,6 +482,7 @@ export function HookScene({ headline, subline, template, brandColor, logoUrl, bu
             color: '#ffffff',
             letterSpacing: isEditorial ? '-0.04em' : '-0.03em',
             lineHeight: 1.0,
+            textAlign: isEditorial ? 'left' : 'center',
           }}
         />
 
@@ -497,6 +498,7 @@ export function HookScene({ headline, subline, template, brandColor, logoUrl, bu
               opacity: 0.65,
               marginTop: 24,
               letterSpacing: '-0.01em',
+              textAlign: isEditorial ? 'left' : 'center',
             }}
           />
         )}
