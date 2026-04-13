@@ -218,8 +218,8 @@ export function ReelEditor({
     setDownloading(true)
     setDownloadError(null)
     try {
-      const renderUrl = (process.env.NEXT_PUBLIC_RENDER_SERVICE_URL ?? '') + '/api/render-reel'
-      const res = await fetch(renderUrl, {
+      // Start the Lambda render
+      const startRes = await fetch('/api/render-reel', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -234,20 +234,32 @@ export function ReelEditor({
           gbpPhotos,
         }),
       })
-      if (!res.ok) {
-        const err = await res.json()
-        throw new Error(err.error ?? 'Render failed')
+      if (!startRes.ok) {
+        const err = await startRes.json()
+        throw new Error(err.error ?? 'Failed to start render')
       }
-      const blob = await res.blob()
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      const slug = (editedScript.themeTitle ?? businessName).replace(/\s+/g, '-').toLowerCase()
-      a.download = `${slug}-${Date.now()}.mp4`
-      a.click()
-      URL.revokeObjectURL(url)
-      // Auto-save to Saved Reels on download if not already saved
-      if (!saved && caption) onSave(editedScript, editedVariation)
+      const { renderId, bucketName } = await startRes.json()
+
+      // Poll until done
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
+        await new Promise(r => setTimeout(r, 4000))
+        const statusRes = await fetch(`/api/render-status?renderId=${renderId}&bucketName=${bucketName}`)
+        const status = await statusRes.json()
+        if (status.fatalErrorEncountered) {
+          throw new Error(status.errors?.[0]?.message ?? 'Render failed')
+        }
+        if (status.done && status.outputFile) {
+          // Trigger download
+          const a = document.createElement('a')
+          a.href = status.outputFile
+          const slug = (editedScript.themeTitle ?? businessName).replace(/\s+/g, '-').toLowerCase()
+          a.download = `${slug}.mp4`
+          a.click()
+          if (!saved && caption) onSave(editedScript, editedVariation)
+          break
+        }
+      }
     } catch (err) {
       setDownloadError(String(err))
     }
