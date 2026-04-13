@@ -36,15 +36,9 @@ export async function POST(req: NextRequest) {
       },
       codec: 'h264',
       framesPerLambda: 20,
-      forceBucketName: undefined,
       outName: `reel-${Date.now()}.mp4`,
-      // Override duration with actual reel length
-      overrideWebpackConfig: undefined,
       timeoutInMilliseconds: 240000,
-      durationInFrames: totalFrames,
-      fps: 30,
-      width: 1080,
-      height: 1920,
+      forceDurationInFrames: totalFrames,
       downloadBehavior: { type: 'download', fileName: 'reel.mp4' },
     })
 
