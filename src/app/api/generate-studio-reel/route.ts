@@ -135,6 +135,7 @@ function getStudioReelPrompt(
   industry: string,
   reviewContext: string | null,
   variationIndex: number,
+  answers?: { question: string; answer: string }[],
 ): string {
   const tonesByIndex: Tone[] = ['story', 'proof', 'bold']
   const tone = tonesByIndex[variationIndex]
@@ -174,7 +175,7 @@ ${reviewContext}\n`
 
 Business: ${businessName} (${industry})
 Brief from the business owner: "${prompt}"
-
+${answers && answers.length > 0 ? `\nADDITIONAL CONTEXT (from qualifying questions — treat these as facts, not suggestions):\n${answers.map(a => `- ${a.question} → ${a.answer}`).join('\n')}\n` : ''}
 CRITICAL RULE — THE BRIEF IS SACRED:
 Every specific detail in the brief MUST appear in the script. If the brief mentions a discount (e.g. "20% off"), that exact discount must be in the script. If it mentions a product or service (e.g. "Invisalign"), that exact word must appear. If it mentions an event or deadline (e.g. "Black Friday"), that must be prominent. Never abstract away the real offer into vague language.
 
@@ -250,7 +251,7 @@ Return ONLY valid JSON — no markdown, no explanation:
 // ── Route handler ─────────────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
-  const { prompt, businessId }: { prompt: string; businessId: string } = await req.json()
+  const { prompt, businessId, answers }: { prompt: string; businessId: string; answers?: { question: string; answer: string }[] } = await req.json()
 
   if (!prompt?.trim() || !businessId) {
     return NextResponse.json({ error: 'Missing prompt or businessId' }, { status: 400 })
@@ -314,7 +315,7 @@ export async function POST(req: NextRequest) {
         max_tokens: 2000,
         messages: [{
           role: 'user',
-          content: getStudioReelPrompt(prompt, business.name, business.industry, reviewContext, i),
+          content: getStudioReelPrompt(prompt, business.name, business.industry, reviewContext, i, answers),
         }],
       })
 
