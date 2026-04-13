@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getRenderProgress } from '@remotion/lambda/client'
 
 const FUNCTION_NAME = process.env.REMOTION_LAMBDA_FUNCTION_NAME!
 const REGION        = (process.env.AWS_REGION ?? 'us-east-1') as 'us-east-1'
@@ -13,8 +14,6 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const { getRenderProgress } = await import('@remotion/lambda/client')
-
     const progress = await getRenderProgress({
       renderId,
       bucketName,

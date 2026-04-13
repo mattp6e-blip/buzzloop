@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { renderMediaOnLambda } from '@remotion/lambda/client'
 
 const FUNCTION_NAME = process.env.REMOTION_LAMBDA_FUNCTION_NAME!
 const SERVE_URL     = process.env.REMOTION_SERVE_URL!
@@ -17,8 +18,6 @@ export async function OPTIONS() {
 export async function POST(req: NextRequest) {
   try {
     const { script, variation, brandColor, brandSecondaryColor, logoUrl, businessName, industry, websiteUrl, gbpPhotos } = await req.json()
-
-    const { renderMediaOnLambda } = await import('@remotion/lambda/client')
 
     const totalFrames = Math.round(script.totalDuration * 30)
 
