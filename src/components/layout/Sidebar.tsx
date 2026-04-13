@@ -11,6 +11,7 @@ const NAV = [
   { href: '/qr', label: 'Get Reviews', icon: '▦' },
   { href: '/reviews', label: 'Reviews', icon: '★' },
   { href: '/reels', label: 'Social Clips', icon: '✦' },
+  { href: '/studio', label: 'Studio', icon: '✳', pro: true },
   { href: '/content', label: 'Saved Clips', icon: '❐' },
   { href: '/media', label: 'My Photos', icon: '⊞' },
   { href: '/settings', label: 'Settings', icon: '⚙' },
@@ -92,6 +93,11 @@ export function Sidebar({ businessName }: { businessName: string }) {
             >
               <span className="text-base">{item.icon}</span>
               {item.label}
+              {item.pro && (
+                <span className="ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'linear-gradient(135deg, #f59e0b, #ef4444)', color: 'white', letterSpacing: '0.03em' }}>
+                  PRO
+                </span>
+              )}
               {item.href === '/reels' && unseenReels > 0 && (
                 <span className="ml-auto text-xs font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'var(--accent)', color: 'white', minWidth: 18, textAlign: 'center' }}>
                   {unseenReels}
