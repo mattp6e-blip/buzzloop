@@ -86,8 +86,6 @@ export function ReelComposition({
                   author={slide.content.author}
                   highlightWords={slide.content.highlightWords ?? []}
                   photo={quotePhotos[index] ?? null}
-                  motif={variation.motif}
-                  motifValue={variation.motifValue}
                   template={slideTemplate}
                   brandColor={brandColor}
                   logoUrl={logoUrl}
@@ -102,8 +100,6 @@ export function ReelComposition({
                   brandColor={brandColor}
                   industry={industry}
                   gbpPhotos={photos}
-                  motif={variation.motif}
-                  motifValue={variation.motifValue}
                 />
               )}
               {type === 'proof' && (
