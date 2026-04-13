@@ -218,8 +218,10 @@ export function ReelEditor({
     setDownloading(true)
     setDownloadError(null)
     try {
+      const RENDER_URL = process.env.NEXT_PUBLIC_RENDER_SERVICE_URL || 'https://buzzloop-nwpv.onrender.com'
+
       // Start the Lambda render
-      const startRes = await fetch('/api/render-reel', {
+      const startRes = await fetch(`${RENDER_URL}/api/render-reel`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -244,7 +246,7 @@ export function ReelEditor({
       // eslint-disable-next-line no-constant-condition
       while (true) {
         await new Promise(r => setTimeout(r, 4000))
-        const statusRes = await fetch(`/api/render-status?renderId=${renderId}&bucketName=${bucketName}`)
+        const statusRes = await fetch(`${RENDER_URL}/api/render-status?renderId=${renderId}&bucketName=${bucketName}`)
         const status = await statusRes.json()
         if (status.fatalErrorEncountered) {
           throw new Error(status.errors?.[0]?.message ?? 'Render failed')
