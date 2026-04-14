@@ -30,6 +30,7 @@ const TONE_ICONS: Record<string, string> = {
 export function VariationPicker({ variations, brandColor, brandSecondaryColor, logoUrl, businessName, industry, websiteUrl, onSelect, onConfirm }: VariationPickerProps) {
   const [selectedId, setSelectedId] = useState<number | null>(null)
   const [fullscreenVariation, setFullscreenVariation] = useState<ReelVariation | null>(null)
+  const [showOtherStyles, setShowOtherStyles] = useState(false)
 
   useEffect(() => {
     if (variations.length > 0 && selectedId === null) {
@@ -61,32 +62,56 @@ export function VariationPicker({ variations, brandColor, brandSecondaryColor, l
   return (
     <div style={{ maxWidth: 320 }}>
 
-      {/* Tab switcher */}
-      <div className="flex gap-2 mb-5 p-1 rounded-2xl" style={{ background: 'var(--bg2)' }}>
-        {variations.map(variation => {
-          const isActive = variation.id === selectedId
-          return (
-            <button
-              key={variation.id}
-              onClick={() => handleSelect(variation)}
-              className="flex-1 flex flex-col items-center gap-0.5 py-2.5 px-3 rounded-xl text-xs font-semibold transition-all duration-150"
-              style={{
-                background: isActive ? 'var(--surface)' : 'transparent',
-                color: isActive ? brandColor : 'var(--ink3)',
-                boxShadow: isActive ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
-              }}
-            >
-              <span className="text-base leading-none">{TONE_ICONS[variation.tone] ?? '·'}</span>
-              <span>{variation.label}</span>
-            </button>
-          )
-        })}
+      {/* Recommended label */}
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-semibold" style={{ color: 'var(--ink)' }}>
+            {TONE_ICONS[activeVariation.tone] ?? '·'} {activeVariation.label}
+          </span>
+          {activeVariation.id === variations[0].id && (
+            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: `${brandColor}22`, color: brandColor }}>
+              Recommended
+            </span>
+          )}
+        </div>
+        <p className="text-xs" style={{ color: 'var(--ink4)' }}>{activeVariation.description}</p>
       </div>
 
-      {/* Description */}
-      <p className="text-xs text-center mb-4" style={{ color: 'var(--ink4)' }}>
-        {activeVariation.description}
-      </p>
+      {/* Other styles toggle */}
+      {variations.length > 1 && (
+        <div className="mb-4">
+          {showOtherStyles ? (
+            <div className="flex gap-1.5 p-1 rounded-2xl" style={{ background: 'var(--bg2)' }}>
+              {variations.map(variation => {
+                const isActive = variation.id === selectedId
+                return (
+                  <button
+                    key={variation.id}
+                    onClick={() => handleSelect(variation)}
+                    className="flex-1 flex flex-col items-center gap-0.5 py-2 px-2 rounded-xl text-xs font-semibold transition-all duration-150"
+                    style={{
+                      background: isActive ? 'var(--surface)' : 'transparent',
+                      color: isActive ? brandColor : 'var(--ink3)',
+                      boxShadow: isActive ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
+                    }}
+                  >
+                    <span className="text-sm leading-none">{TONE_ICONS[variation.tone] ?? '·'}</span>
+                    <span>{variation.label}</span>
+                  </button>
+                )
+              })}
+            </div>
+          ) : (
+            <button
+              onClick={() => setShowOtherStyles(true)}
+              className="text-xs font-medium transition-opacity hover:opacity-100 opacity-60"
+              style={{ color: 'var(--ink3)' }}
+            >
+              Try another style →
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Single phone preview, key forces remount (restarts reel) on tab switch */}
       <div

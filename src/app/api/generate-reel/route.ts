@@ -193,7 +193,9 @@ ${closingReviewBlock}
 ---
 
 INSIGHT SLIDES — rules:
-- Each insight is a SHORT, punchy statement (max 10 words)
+- Each insight is a plain statement of fact or benefit — not a tagline, not a slogan, not poetic
+- Write in natural English word order. NEVER invert syntax to sound clever ("Confidence you keep" is wrong. "Confidence that lasts" is right.)
+- Short and direct (max 8 words). No filler words.
 - Surprising, specific, or counterintuitive — something the viewer didn't know
 - Never generic ("it's important to...") — always specific ("most people feel nothing after 20 minutes")
 - highlightWords: the 1-2 words that carry the most weight

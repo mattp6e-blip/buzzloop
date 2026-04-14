@@ -34,6 +34,7 @@ export function StudioClient({ business }: { business: Business }) {
   const [prompt, setPrompt] = useState('')
   const [questions, setQuestions] = useState<Question[] | null>(null)
   const [answers, setAnswers] = useState<Record<number, string>>({})
+  const [otherMode, setOtherMode] = useState<Record<number, boolean>>({})
   const [loadingQuestions, setLoadingQuestions] = useState(false)
   const [generating, setGenerating] = useState(false)
   const [loadingStep, setLoadingStep] = useState(0)
@@ -45,8 +46,9 @@ export function StudioClient({ business }: { business: Business }) {
   const resetAt = business.studio_generations_reset_at ? new Date(business.studio_generations_reset_at) : null
   const needsReset = !resetAt || now.getMonth() !== resetAt.getMonth() || now.getFullYear() !== resetAt.getFullYear()
   const generationsUsed = needsReset ? 0 : (business.studio_generations_this_month ?? 0)
-  const freeGenerationsLeft = Math.max(0, 1 - generationsUsed)
-  const limitReached = !isPro && freeGenerationsLeft === 0
+  const monthlyLimit = isPro ? 100 : 3
+  const generationsLeft = Math.max(0, monthlyLimit - generationsUsed)
+  const limitReached = generationsLeft === 0
 
   useEffect(() => {
     if (generating) {
@@ -73,6 +75,7 @@ export function StudioClient({ business }: { business: Business }) {
     setError(null)
     setQuestions(null)
     setAnswers({})
+    setOtherMode({})
     try {
       const res = await fetch('/api/studio-questions', {
         method: 'POST',
@@ -107,7 +110,7 @@ export function StudioClient({ business }: { business: Business }) {
       const data = await res.json()
       if (!res.ok || !data.themeId) {
         if (data.error === 'limit_reached') {
-          setError("You've used your free clip this month. Upgrade to Pro for unlimited.")
+          setError("You've used all your Studio credits this month. Upgrade to Pro for 100 credits/month.")
         } else {
           setError(data.error ?? 'Something went wrong. Please try again.')
         }
@@ -121,7 +124,7 @@ export function StudioClient({ business }: { business: Business }) {
     }
   }
 
-  const allAnswered = questions ? questions.every((_, i) => answers[i]) : false
+  const allAnswered = questions ? questions.every((_, i) => answers[i]?.trim()) : false
 
   // Limit reached gate
   if (limitReached) {
@@ -131,9 +134,9 @@ export function StudioClient({ business }: { business: Business }) {
           <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-6" style={{ background: 'linear-gradient(135deg, #f59e0b22, #ef444422)', border: '1.5px solid #f59e0b44' }}>
             ✳
           </div>
-          <h1 className="text-2xl font-bold mb-3" style={{ color: 'var(--ink)' }}>You've used your free clip this month</h1>
+          <h1 className="text-2xl font-bold mb-3" style={{ color: 'var(--ink)' }}>You've used all {monthlyLimit} Studio credits this month</h1>
           <p className="text-sm leading-relaxed mb-8" style={{ color: 'var(--ink3)' }}>
-            Upgrade to Pro for unlimited Studio clips, plus review replies, SMS outreach, and more.
+            {isPro ? 'Your 100 credits reset on the 1st of next month.' : 'Upgrade to Pro for 100 credits/month, plus review replies, SMS outreach, and more.'}
           </p>
           <Link
             href="/pricing"
@@ -164,8 +167,8 @@ export function StudioClient({ business }: { business: Business }) {
         </p>
         {!isPro && (
           <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium" style={{ background: 'var(--bg2)', color: 'var(--ink3)', border: '1px solid var(--border)' }}>
-            <span style={{ color: freeGenerationsLeft > 0 ? '#22c55e' : '#ef4444' }}>●</span>
-            {freeGenerationsLeft > 0 ? '1 free clip remaining this month' : 'No free clips remaining'}
+            <span style={{ color: generationsLeft > 0 ? '#22c55e' : '#ef4444' }}>●</span>
+            {generationsLeft > 0 ? `${generationsLeft} of ${monthlyLimit} credits remaining` : 'No credits remaining this month'}
           </div>
         )}
       </div>
@@ -177,7 +180,7 @@ export function StudioClient({ business }: { business: Business }) {
         </label>
         <textarea
           value={prompt}
-          onChange={e => { setPrompt(e.target.value); if (questions) { setQuestions(null); setAnswers({}) } }}
+          onChange={e => { setPrompt(e.target.value); if (questions) { setQuestions(null); setAnswers({}); setOtherMode({}) } }}
           placeholder={`e.g. "20% off Invisalign for Black Friday" or "Show why ${business.name} is the best ${business.industry} in the area"`}
           rows={4}
           className="w-full rounded-xl px-4 py-3 text-sm resize-none outline-none transition-all"
@@ -212,11 +215,11 @@ export function StudioClient({ business }: { business: Business }) {
               <p className="text-sm font-semibold mb-4" style={{ color: 'var(--ink)' }}>{q.question}</p>
               <div className="flex flex-col gap-2">
                 {q.options.map((opt, oi) => {
-                  const selected = answers[qi] === opt
+                  const selected = answers[qi] === opt && !otherMode[qi]
                   return (
                     <button
                       key={oi}
-                      onClick={() => setAnswers(prev => ({ ...prev, [qi]: opt }))}
+                      onClick={() => { setAnswers(prev => ({ ...prev, [qi]: opt })); setOtherMode(prev => ({ ...prev, [qi]: false })) }}
                       className="w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all"
                       style={{
                         background: selected ? 'var(--accent-bg)' : 'var(--bg2)',
@@ -228,6 +231,29 @@ export function StudioClient({ business }: { business: Business }) {
                     </button>
                   )
                 })}
+                {/* Other option */}
+                <button
+                  onClick={() => { setOtherMode(prev => ({ ...prev, [qi]: true })); setAnswers(prev => ({ ...prev, [qi]: '' })) }}
+                  className="w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all"
+                  style={{
+                    background: otherMode[qi] ? 'var(--accent-bg)' : 'var(--bg2)',
+                    color: otherMode[qi] ? 'var(--accent)' : 'var(--ink3)',
+                    border: `1.5px solid ${otherMode[qi] ? 'var(--accent)' : 'transparent'}`,
+                  }}
+                >
+                  Other
+                </button>
+                {otherMode[qi] && (
+                  <input
+                    autoFocus
+                    type="text"
+                    value={answers[qi] ?? ''}
+                    onChange={e => setAnswers(prev => ({ ...prev, [qi]: e.target.value }))}
+                    placeholder="Type your answer..."
+                    className="w-full px-4 py-3 rounded-xl text-sm outline-none transition-all"
+                    style={{ background: 'var(--bg2)', border: '1.5px solid var(--accent)', color: 'var(--ink)' }}
+                  />
+                )}
               </div>
             </div>
           ))}

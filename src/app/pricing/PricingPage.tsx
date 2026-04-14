@@ -207,40 +207,63 @@ function FAQ() {
 
 // ─── Feature row ──────────────────────────────────────────────────────────────
 
-const FEATURES: { label: string; sublabel: string; free: boolean | string; pro: boolean | string }[] = [
-  { label: 'Branded QR code', sublabel: 'Turns every customer into a potential reviewer', free: true, pro: true },
-  { label: 'Custom review landing page', sublabel: 'Branded to your colors and logo', free: true, pro: true },
-  { label: 'Competitor tracking', sublabel: 'See how you rank vs nearby businesses', free: true, pro: true },
-  { label: 'GBP health score', sublabel: 'Know exactly what to fix to rank higher', free: true, pro: true },
-  { label: 'Keyword rankings', sublabel: 'Track your position in local Google search', free: '3 keywords', pro: '10 keywords' },
-  { label: 'Social Clips', sublabel: 'Premium video content from your reviews', free: 'View only', pro: 'Download & share' },
-  { label: 'SMS review outreach', sublabel: 'Text customers directly to get reviews', free: false, pro: true },
-  { label: 'Review replies', sublabel: 'Auto-draft replies in your tone, in any language', free: false, pro: true },
-  { label: 'Post replies to Google', sublabel: 'One click to respond publicly', free: false, pro: true },
-  { label: 'GBP description optimizer', sublabel: 'Buzzloop rewrites your profile to rank for more searches', free: false, pro: true },
+type FeatureItem = { label: string; sublabel: string; free: boolean | string; pro: boolean | string }
+type FeatureCategory = { heading: string; features: FeatureItem[] }
+
+const FEATURE_CATEGORIES: FeatureCategory[] = [
+  {
+    heading: 'Get more reviews',
+    features: [
+      { label: 'Branded QR code', sublabel: 'Turns every customer into a potential reviewer', free: true, pro: true },
+      { label: 'Custom review landing page', sublabel: 'Branded to your colors and logo, customers post in under 10 seconds', free: true, pro: true },
+      { label: 'SMS review outreach', sublabel: 'Text customers directly to get reviews automatically', free: false, pro: true },
+    ],
+  },
+  {
+    heading: 'Rank higher on Google',
+    features: [
+      { label: 'Review replies', sublabel: 'Auto-draft replies in your tone, in any language', free: false, pro: true },
+      { label: 'Post replies to Google', sublabel: 'One click to respond publicly', free: false, pro: true },
+      { label: 'Keyword rankings', sublabel: 'Track your position in local Google search', free: '3 keywords', pro: '10 keywords' },
+      { label: 'Competitor tracking', sublabel: 'See how you rank vs nearby businesses', free: true, pro: true },
+      { label: 'GBP health score', sublabel: 'Know exactly what to fix to rank higher', free: true, pro: true },
+      { label: 'GBP description optimizer', sublabel: 'Rewrites your profile to rank for more searches', free: false, pro: true },
+    ],
+  },
+  {
+    heading: 'Grow on social',
+    features: [
+      { label: 'Social Clips', sublabel: 'Premium video content built from your real reviews', free: 'View only', pro: 'Download & share' },
+      { label: 'Studio', sublabel: 'AI clip maker — create content from any brief', free: '3/month', pro: '100/month' },
+    ],
+  },
 ]
 
-function FeatureRow({ label, sublabel, free, pro }: typeof FEATURES[0]) {
+function FeatureCell({ value }: { value: boolean | string }) {
+  if (typeof value === 'string') return (
+    <span style={{ fontSize: 12, fontWeight: 600, color: INK3, background: BG, padding: '3px 8px', borderRadius: 6 }}>{value}</span>
+  )
+  return value
+    ? <span style={{ color: '#16a34a', fontSize: 17 }}>✓</span>
+    : <span style={{ color: '#d1d5db', fontSize: 14 }}>×</span>
+}
+
+function FeatureRow({ label, sublabel, free, pro, isLast }: FeatureItem & { isLast: boolean }) {
   return (
     <div style={{
       display: 'grid', gridTemplateColumns: '1fr 110px 110px',
-      alignItems: 'center', padding: '14px 0', borderBottom: `1px solid ${BG}`,
+      alignItems: 'center', padding: '13px 0',
+      borderBottom: isLast ? 'none' : `1px solid ${BG}`,
     }}>
       <div>
         <p style={{ fontSize: 14, fontWeight: 600, color: INK, margin: '0 0 2px' }}>{label}</p>
         <p style={{ fontSize: 12, color: INK4, margin: 0 }}>{sublabel}</p>
       </div>
-      <div style={{ textAlign: 'center' }}>
-        {typeof free === 'string'
-          ? <span style={{ fontSize: 12, fontWeight: 600, color: INK3, background: BG, padding: '3px 8px', borderRadius: 6 }}>{free}</span>
-          : free ? <span style={{ color: '#16a34a', fontSize: 17 }}>✓</span>
-          : <span style={{ color: '#d1d5db', fontSize: 14 }}>×</span>}
-      </div>
+      <div style={{ textAlign: 'center' }}><FeatureCell value={free} /></div>
       <div style={{ textAlign: 'center' }}>
         {typeof pro === 'string'
           ? <span style={{ fontSize: 12, fontWeight: 700, color: ORANGE, background: '#fff2ed', padding: '3px 8px', borderRadius: 6 }}>{pro}</span>
-          : pro ? <span style={{ color: '#16a34a', fontSize: 17 }}>✓</span>
-          : <span style={{ color: '#d1d5db', fontSize: 14 }}>×</span>}
+          : <FeatureCell value={pro} />}
       </div>
     </div>
   )
@@ -393,13 +416,24 @@ export function PricingPage() {
         <h2 style={{ fontSize: 22, fontWeight: 800, color: INK, textAlign: 'center', marginBottom: 24, letterSpacing: '-0.02em' }}>
           Compare plans
         </h2>
-        <div style={{ background: 'white', borderRadius: 16, border: `1px solid ${BORDER}`, padding: '8px 22px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 110px 110px', padding: '12px 0', borderBottom: `2px solid ${BG}` }}>
+        <div style={{ background: 'white', borderRadius: 16, border: `1px solid ${BORDER}`, padding: '0 22px' }}>
+          {/* Header */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 110px 110px', padding: '14px 0', borderBottom: `2px solid ${BG}` }}>
             <span style={{ fontSize: 11, fontWeight: 700, color: INK4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Feature</span>
             <span style={{ fontSize: 11, fontWeight: 700, color: INK4, textTransform: 'uppercase', letterSpacing: '0.06em', textAlign: 'center' }}>Free</span>
             <span style={{ fontSize: 11, fontWeight: 700, color: ORANGE, textTransform: 'uppercase', letterSpacing: '0.06em', textAlign: 'center' }}>Pro</span>
           </div>
-          {FEATURES.map(f => <FeatureRow key={f.label} {...f} />)}
+          {/* Categories */}
+          {FEATURE_CATEGORIES.map((cat, ci) => (
+            <div key={cat.heading} style={{ borderBottom: ci < FEATURE_CATEGORIES.length - 1 ? `2px solid ${BG}` : 'none' }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: ORANGE, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '16px 0 4px' }}>
+                {cat.heading}
+              </p>
+              {cat.features.map((f, fi) => (
+                <FeatureRow key={f.label} {...f} isLast={fi === cat.features.length - 1} />
+              ))}
+            </div>
+          ))}
         </div>
       </div>
 

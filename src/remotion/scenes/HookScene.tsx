@@ -249,7 +249,7 @@ export function HookScene({ headline, subline, template, brandColor, logoUrl, bu
             text={headline}
             anim="slam"
             delay={10}
-            style={{ fontSize: 148, fontWeight: 900, color: '#ffffff', letterSpacing: '-0.05em', lineHeight: 0.9, textTransform: 'uppercase' as const }}
+            style={{ fontSize: 108, fontWeight: 900, color: '#ffffff', letterSpacing: '-0.04em', lineHeight: 0.95, textTransform: 'uppercase' as const }}
           />
           {subline && (
             <div style={{
