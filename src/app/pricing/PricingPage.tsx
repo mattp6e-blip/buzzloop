@@ -3,6 +3,37 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 
+function ProButton() {
+  const [loading, setLoading] = useState(false)
+
+  async function handleClick() {
+    setLoading(true)
+    try {
+      const res = await fetch('/api/stripe/checkout', { method: 'POST' })
+      if (res.status === 401) { window.location.href = '/login'; return }
+      const data = await res.json()
+      if (data.url) window.location.href = data.url
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <button
+      onClick={handleClick}
+      disabled={loading}
+      style={{
+        display: 'block', width: '100%', textAlign: 'center', padding: '12px',
+        borderRadius: 11, background: ORANGE, cursor: 'pointer',
+        fontSize: 13, fontWeight: 700, color: 'white',
+        border: 'none', marginBottom: 24, opacity: loading ? 0.7 : 1,
+      }}
+    >
+      {loading ? 'Redirecting...' : 'Get started →'}
+    </button>
+  )
+}
+
 const ORANGE = '#e8470a'
 const ORANGE2 = '#ff6b35'
 const INK = '#1a1814'
@@ -377,14 +408,7 @@ export function PricingPage() {
             <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)' }}>/month</span>
           </div>
           <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 24 }}>Cancel anytime.</p>
-          <Link href="/login" style={{
-            display: 'block', textAlign: 'center', padding: '12px',
-            borderRadius: 11, background: ORANGE,
-            fontSize: 13, fontWeight: 700, color: 'white',
-            textDecoration: 'none', marginBottom: 24,
-          }}>
-            Start free trial →
-          </Link>
+          <ProButton />
           <p style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.06em', textTransform: 'uppercase', margin: '0 0 12px' }}>
             Everything in Free, plus:
           </p>

@@ -28,6 +28,32 @@ const LOADING_STEPS = [
   'Applying visuals...',
 ]
 
+function UpgradeButton() {
+  const [loading, setLoading] = useState(false)
+
+  async function handleUpgrade() {
+    setLoading(true)
+    try {
+      const res = await fetch('/api/stripe/checkout', { method: 'POST' })
+      const data = await res.json()
+      if (data.url) window.location.href = data.url
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <button
+      onClick={handleUpgrade}
+      disabled={loading}
+      className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90 disabled:opacity-60"
+      style={{ background: 'linear-gradient(135deg, #f59e0b, #ef4444)' }}
+    >
+      {loading ? 'Redirecting...' : 'Upgrade to Pro — $49/month'}
+    </button>
+  )
+}
+
 export function StudioClient({ business }: { business: Business }) {
   const isPro = business.plan === 'pro'
   const router = useRouter()
@@ -138,13 +164,7 @@ export function StudioClient({ business }: { business: Business }) {
           <p className="text-sm leading-relaxed mb-8" style={{ color: 'var(--ink3)' }}>
             {isPro ? 'Your 100 credits reset on the 1st of next month.' : 'Upgrade to Pro for 100 credits/month, plus review replies, SMS outreach, and more.'}
           </p>
-          <Link
-            href="/pricing"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90"
-            style={{ background: 'linear-gradient(135deg, #f59e0b, #ef4444)' }}
-          >
-            Upgrade to Pro — $49/month
-          </Link>
+          {!isPro && <UpgradeButton />}
           <p className="text-xs mt-4" style={{ color: 'var(--ink4)' }}>Cancel anytime. Resets on the 1st of each month.</p>
         </div>
       </div>
