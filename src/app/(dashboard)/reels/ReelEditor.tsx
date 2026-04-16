@@ -6,6 +6,8 @@ import type { ReelScript } from '@/types'
 import type { ReelVariation, ReelCompositionProps, VisualTemplate } from '@/remotion/types'
 import { REEL_FPS, REEL_WIDTH, REEL_HEIGHT } from '@/remotion/ReelComposition'
 
+import type { PlayerRef } from '@remotion/player'
+
 const Player = dynamic(() => import('@remotion/player').then(m => m.Player), { ssr: false })
 const ReelCompositionModule = dynamic(() => import('@/remotion/ReelCompositionV2').then(m => ({ default: m.ReelCompositionV2 })), { ssr: false })
 
@@ -218,6 +220,8 @@ export function ReelEditor({
   const [activeSlide, setActiveSlide]         = useState(0)
   const [cityInput, setCityInput]             = useState('')
   const cityInputRef                          = useRef<HTMLInputElement>(null)
+  const playerRef                             = useRef<PlayerRef>(null)
+  const [audioEnabled, setAudioEnabled]       = useState(false)
   const [downloading, setDownloading]         = useState(false)
   const [downloadStatus, setDownloadStatus]   = useState<string>('')
   const [renderProgress, setRenderProgress]   = useState<number>(0)
@@ -236,6 +240,11 @@ export function ReelEditor({
       }))
     }
   }, [variation.hookPhoto, variation.ctaPhoto])
+
+  // Reset audio unlock when track changes
+  useEffect(() => {
+    setAudioEnabled(false)
+  }, [editedVariation.musicUrl, activeVariationIdx])
 
   async function handleDownloadUpgrade() {
     setUpgrading(true)
@@ -432,24 +441,60 @@ export function ReelEditor({
         )}
 
         {/* Phone frame */}
-        <div
-          className="rounded-[28px] overflow-hidden"
-          style={{ width: PREVIEW_W, boxShadow: '0 32px 80px rgba(0,0,0,0.3), 0 0 0 1px rgba(0,0,0,0.08)' }}
-        >
-          <Player
-            key={`${activeVariationIdx}-${editedVariation.musicUrl ?? 'none'}`}
-            component={ReelCompositionModule as never}
-            inputProps={playerProps}
-            durationInFrames={totalFrames}
-            compositionWidth={REEL_WIDTH}
-            compositionHeight={REEL_HEIGHT}
-            fps={REEL_FPS}
-            style={{ width: PREVIEW_W, height: PREVIEW_H }}
-            numberOfSharedAudioTags={1}
-            controls
-            loop
-            autoPlay
-          />
+        <div style={{ position: 'relative', width: PREVIEW_W }}>
+          <div
+            className="rounded-[28px] overflow-hidden"
+            style={{ width: PREVIEW_W, boxShadow: '0 32px 80px rgba(0,0,0,0.3), 0 0 0 1px rgba(0,0,0,0.08)' }}
+          >
+            <Player
+              ref={playerRef}
+              key={`${activeVariationIdx}-${editedVariation.musicUrl ?? 'none'}`}
+              component={ReelCompositionModule as never}
+              inputProps={playerProps}
+              durationInFrames={totalFrames}
+              compositionWidth={REEL_WIDTH}
+              compositionHeight={REEL_HEIGHT}
+              fps={REEL_FPS}
+              style={{ width: PREVIEW_W, height: PREVIEW_H }}
+              numberOfSharedAudioTags={1}
+              controls
+              loop
+              autoPlay
+            />
+          </div>
+          {/* Unmute button — shown when a track is selected but audio not yet unlocked */}
+          {editedVariation.musicUrl && !audioEnabled && (
+            <button
+              onClick={() => {
+                setAudioEnabled(true)
+                playerRef.current?.unmute()
+                playerRef.current?.play()
+              }}
+              style={{
+                position: 'absolute',
+                bottom: 52,
+                left: '50%',
+                transform: 'translateX(-50%)',
+                background: 'rgba(0,0,0,0.72)',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255,255,255,0.18)',
+                borderRadius: 100,
+                padding: '9px 18px',
+                color: 'white',
+                fontSize: 12,
+                fontWeight: 600,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 7,
+                whiteSpace: 'nowrap',
+                zIndex: 10,
+              }}
+            >
+              🔊 Tap to hear music
+            </button>
+          )}
         </div>
 
         <p className="text-xs mt-2.5 text-center" style={{ color: 'var(--ink4)' }}>
