@@ -1,14 +1,18 @@
 import { AbsoluteFill, useVideoConfig } from 'remotion'
 import { TransitionSeries, linearTiming, springTiming } from '@remotion/transitions'
 import { fade } from '@remotion/transitions/fade'
+import { wipe } from '@remotion/transitions/wipe'
 import { slide } from '@remotion/transitions/slide'
 import { HookScene } from './scenes/HookScene'
 import { QuoteScene } from './scenes/QuoteScene'
 import { ProofScene } from './scenes/ProofScene'
 import { CTAScene } from './scenes/CTAScene'
 import { InsightScene } from './scenes/InsightScene'
-import { NoiseLayer } from './components/NoiseLayer'
+import { LightLeak } from './components/LightLeak'
 import type { ReelCompositionProps } from './types'
+
+// Ken Burns directions — rotate per photo slide for visual variety
+const KB_DIRECTIONS = ['zoom-in', 'pan-left', 'zoom-out', 'pan-right'] as const
 
 export function ReelCompositionV2({
   script,
@@ -27,13 +31,17 @@ export function ReelCompositionV2({
   const hookPhoto = variation.hookPhoto ?? null
   const ctaPhoto = variation.ctaPhoto ?? null
 
-  // Pre-assign photos to quote slides
+  // Pre-assign photos + Ken Burns directions to photo slides
   const quotePhotos: Record<number, string | null> = {}
-  let qIdx = 0
+  const kbDirections: Record<number, typeof KB_DIRECTIONS[number]> = {}
+  let photoSlideIdx = 0
+
   for (let i = 0; i < script.slides.length; i++) {
-    if (script.slides[i].type === 'quote') {
-      quotePhotos[i] = photos.length > 0 ? photos[qIdx % photos.length] : null
-      qIdx++
+    const type = script.slides[i].type
+    if (type === 'quote') {
+      quotePhotos[i] = photos.length > 0 ? photos[photoSlideIdx % photos.length] : null
+      kbDirections[i] = KB_DIRECTIONS[photoSlideIdx % KB_DIRECTIONS.length]
+      photoSlideIdx++
     }
   }
 
@@ -41,25 +49,41 @@ export function ReelCompositionV2({
 
   // Build flat elements array for TransitionSeries
   const elements: React.ReactNode[] = []
+  const totalSlides = script.slides.length
 
   script.slides.forEach((slideData, index) => {
     const dur = Math.round(slideData.duration * fps)
     const type = slideData.type
+    const isLast = index === totalSlides - 1
+    const isFirst = index === 0
 
     // Add transition before every slide except the first
-    if (index > 0) {
-      let presentation: ReturnType<typeof fade> | ReturnType<typeof slide>
+    if (!isFirst) {
+      const prevType = script.slides[index - 1].type
+
+      let presentation: ReturnType<typeof fade> | ReturnType<typeof wipe> | ReturnType<typeof slide>
       let timing: ReturnType<typeof linearTiming> | ReturnType<typeof springTiming>
 
-      if (type === 'insight') {
-        presentation = slide({ direction: 'from-right' })
-        timing = springTiming({ config: { stiffness: 100, damping: 16 }, durationInFrames: 20 })
-      } else if (type === 'cta') {
+      if (type === 'cta') {
+        // CTA entrance: long slow fade — feels like a finale
         presentation = fade()
-        timing = linearTiming({ durationInFrames: 18 })
+        timing = linearTiming({ durationInFrames: 28 })
+      } else if (prevType === 'hook' && type === 'quote') {
+        // Hook → first quote: directional wipe — most cinematic moment
+        presentation = wipe({ direction: 'from-right' })
+        timing = springTiming({ config: { stiffness: 90, damping: 18 }, durationInFrames: 26 })
+      } else if (type === 'insight') {
+        // Into insight: slide up from bottom — editorial feel
+        presentation = slide({ direction: 'from-bottom' })
+        timing = springTiming({ config: { stiffness: 80, damping: 16 }, durationInFrames: 22 })
+      } else if (type === 'proof') {
+        // Into proof: wipe from left
+        presentation = wipe({ direction: 'from-left' })
+        timing = springTiming({ config: { stiffness: 85, damping: 16 }, durationInFrames: 22 })
       } else {
+        // Default: smooth cross-dissolve
         presentation = fade()
-        timing = linearTiming({ durationInFrames: 15 })
+        timing = linearTiming({ durationInFrames: 22 })
       }
 
       elements.push(
@@ -71,10 +95,12 @@ export function ReelCompositionV2({
       )
     }
 
+    const hasPhoto = type === 'quote' && !!quotePhotos[index]
+    const kbDir = kbDirections[index] ?? 'zoom-in'
+
     elements.push(
       <TransitionSeries.Sequence key={`s${index}`} durationInFrames={dur}>
         <AbsoluteFill>
-          <NoiseLayer brandColor={brandColor} />
           {type === 'hook' && (
             <HookScene
               headline={variation.hookHeadline}
@@ -86,13 +112,18 @@ export function ReelCompositionV2({
             />
           )}
           {type === 'quote' && (
-            <QuoteScene
-              quote={slideData.content.quote ?? ''}
-              author={slideData.content.author}
-              highlightWords={slideData.content.highlightWords ?? []}
-              photo={quotePhotos[index] ?? null}
-              {...commonProps}
-            />
+            <>
+              <QuoteScene
+                quote={slideData.content.quote ?? ''}
+                author={slideData.content.author}
+                highlightWords={slideData.content.highlightWords ?? []}
+                photo={quotePhotos[index] ?? null}
+                kbDirection={kbDir}
+                {...commonProps}
+              />
+              {/* Light leak on every photo quote slide */}
+              {hasPhoto && <LightLeak delay={18} intensity={0.10} />}
+            </>
           )}
           {type === 'insight' && (
             <InsightScene
@@ -131,7 +162,7 @@ export function ReelCompositionV2({
   })
 
   return (
-    <AbsoluteFill style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, sans-serif' }}>
+    <AbsoluteFill style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, sans-serif', background: '#000' }}>
       <TransitionSeries>
         {elements}
       </TransitionSeries>

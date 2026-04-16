@@ -20,11 +20,12 @@ interface QuoteSceneProps {
   businessName: string
   industry: string
   photo?: string | null
+  kbDirection?: 'zoom-in' | 'zoom-out' | 'pan-left' | 'pan-right'
   motif?: ReelMotif
   motifValue?: number
 }
 
-export function QuoteScene({ quote, author, highlightWords = [], template, brandColor, logoUrl, businessName, industry, photo, motif, motifValue }: QuoteSceneProps) {
+export function QuoteScene({ quote, author, highlightWords = [], template, brandColor, logoUrl, businessName, industry, photo, kbDirection = 'zoom-out', motif, motifValue }: QuoteSceneProps) {
   const frame = useCurrentFrame()
   const { fps } = useVideoConfig()
   const config = TEMPLATE_CONFIGS[template]
@@ -152,7 +153,7 @@ export function QuoteScene({ quote, author, highlightWords = [], template, brand
     return (
       <AbsoluteFill>
         {hasPhoto ? (
-          <PhotoLayer url={photo!} direction="zoom-out" overlay="full" overlayStrength={0.74} />
+          <PhotoLayer url={photo!} direction={kbDirection} overlay="full" overlayStrength={0.74} />
         ) : (
           <Background brandColor={brandColor} industry={industry} />
         )}
@@ -344,7 +345,7 @@ export function QuoteScene({ quote, author, highlightWords = [], template, brand
     return (
       <AbsoluteFill>
         {hasPhoto ? (
-          <PhotoLayer url={photo!} direction="zoom-out" overlay="full" overlayStrength={0.5} />
+          <PhotoLayer url={photo!} direction={kbDirection} overlay="full" overlayStrength={0.5} />
         ) : (
           <Background brandColor={brandColor} industry={industry} />
         )}
