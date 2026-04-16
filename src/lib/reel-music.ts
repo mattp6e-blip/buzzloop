@@ -9,7 +9,7 @@
 
 type Tone = 'story' | 'proof' | 'bold'
 
-const AUDIO_BASE = 'https://rhggudgximifbtyygyyh.supabase.co/storage/v1/object/public/audio'
+const AUDIO_BASE = 'https://rhggudgximifbtyygyyh.supabase.co/storage/v1/object/public/Audio'
 
 // Calming/acoustic industries regardless of tone
 const ACOUSTIC_INDUSTRIES = new Set(['salon', 'spa', 'hotel'])

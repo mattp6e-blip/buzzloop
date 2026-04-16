@@ -92,7 +92,7 @@ interface Props {
 
 // ── Music options ──────────────────────────────────────────────
 
-const AUDIO_BASE = 'https://rhggudgximifbtyygyyh.supabase.co/storage/v1/object/public/audio'
+const AUDIO_BASE = 'https://rhggudgximifbtyygyyh.supabase.co/storage/v1/object/public/Audio'
 
 const MUSIC_OPTIONS: { label: string; url: string | null; emoji: string }[] = [
   { label: 'None',         url: null,                              emoji: '🔇' },
