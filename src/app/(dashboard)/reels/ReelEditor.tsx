@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic'
 import type { ReelScript } from '@/types'
 import type { ReelVariation, ReelCompositionProps, VisualTemplate } from '@/remotion/types'
 import { REEL_FPS, REEL_WIDTH, REEL_HEIGHT } from '@/remotion/ReelComposition'
+import { computeReelFrames } from '@/lib/reel-frames'
 
 const Player = dynamic(() => import('@remotion/player').then(m => m.Player), { ssr: false })
 const ReelCompositionModule = dynamic(() => import('@/remotion/ReelCompositionV2').then(m => ({ default: m.ReelCompositionV2 })), { ssr: false })
@@ -373,7 +374,7 @@ export function ReelEditor({
     gbpPhotos,
   }
 
-  const totalFrames = Math.round(editedScript.totalDuration * REEL_FPS)
+  const totalFrames = computeReelFrames(editedScript.slides, REEL_FPS)
 
   let quoteCount = 0
   const slideListItems = editedScript.slides.map((slide, i) => {

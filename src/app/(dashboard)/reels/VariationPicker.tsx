@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic'
 import { useState, useEffect } from 'react'
 import type { ReelVariation, ReelCompositionProps } from '@/remotion/types'
 import { REEL_FPS, REEL_WIDTH, REEL_HEIGHT } from '@/remotion/ReelComposition'
+import { computeReelFrames } from '@/lib/reel-frames'
 
 const Player = dynamic(() => import('@remotion/player').then(m => m.Player), { ssr: false })
 const ReelCompositionModule = dynamic(() => import('@/remotion/ReelComposition').then(m => ({ default: m.ReelComposition })), { ssr: false })
@@ -127,7 +128,7 @@ export function VariationPicker({ variations, brandColor, brandSecondaryColor, l
           key={selectedId}
           component={ReelCompositionModule as never}
           inputProps={makeProps(activeVariation)}
-          durationInFrames={Math.round(activeVariation.script.totalDuration * REEL_FPS)}
+          durationInFrames={computeReelFrames(activeVariation.script.slides, REEL_FPS)}
           compositionWidth={REEL_WIDTH}
           compositionHeight={REEL_HEIGHT}
           fps={REEL_FPS}
@@ -180,7 +181,7 @@ export function VariationPicker({ variations, brandColor, brandSecondaryColor, l
               <Player
                 component={ReelCompositionModule as never}
                 inputProps={makeProps(fullscreenVariation)}
-                durationInFrames={Math.round(fullscreenVariation.script.totalDuration * REEL_FPS)}
+                durationInFrames={computeReelFrames(fullscreenVariation.script.slides, REEL_FPS)}
                 compositionWidth={REEL_WIDTH}
                 compositionHeight={REEL_HEIGHT}
                 fps={REEL_FPS}

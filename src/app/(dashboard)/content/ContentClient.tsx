@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import type { ReelScript } from '@/types'
 import type { ReelVariation, ReelCompositionProps } from '@/remotion/types'
 import { REEL_FPS, REEL_WIDTH, REEL_HEIGHT } from '@/remotion/ReelComposition'
+import { computeReelFrames } from '@/lib/reel-frames'
 
 const Player = dynamic(() => import('@remotion/player').then(m => m.Player), { ssr: false })
 const ReelCompositionModule = dynamic(() => import('@/remotion/ReelComposition').then(m => ({ default: m.ReelComposition })), { ssr: false })
@@ -79,7 +80,7 @@ function ReelPreviewModal({ script, brandColor, brandSecondaryColor, brandLogoUr
 
   const PREVIEW_W = 340
   const PREVIEW_H = Math.round(PREVIEW_W * REEL_HEIGHT / REEL_WIDTH)
-  const totalFrames = Math.round(script.totalDuration * REEL_FPS)
+  const totalFrames = computeReelFrames(script.slides, REEL_FPS)
 
   return (
     <div
