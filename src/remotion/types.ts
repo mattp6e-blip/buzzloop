@@ -30,6 +30,7 @@ export interface ReelVariation {
   ctaPhoto?: string | null    // specific photo for CTA slide
   motif?: ReelMotif           // visual background animation
   motifValue?: number         // numeric context (e.g. count for counter_up)
+  musicUrl?: string | null    // background music track URL
 }
 
 export interface ReelCompositionProps {

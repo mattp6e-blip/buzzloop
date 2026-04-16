@@ -1,4 +1,5 @@
-import { AbsoluteFill, useVideoConfig } from 'remotion'
+import React, { useState, useEffect } from 'react'
+import { AbsoluteFill, useVideoConfig, delayRender, continueRender, Audio } from 'remotion'
 import { TransitionSeries, linearTiming, springTiming } from '@remotion/transitions'
 import { fade } from '@remotion/transitions/fade'
 import { wipe } from '@remotion/transitions/wipe'
@@ -14,6 +15,19 @@ import type { ReelCompositionProps } from './types'
 // Ken Burns directions — rotate per photo slide for visual variety
 const KB_DIRECTIONS = ['zoom-in', 'pan-left', 'zoom-out', 'pan-right'] as const
 
+// Load Inter from Google Fonts so the renderer uses a premium typeface
+function useFontLoader() {
+  const [handle] = useState(() => delayRender('Loading Inter font'))
+  useEffect(() => {
+    const link = document.createElement('link')
+    link.rel = 'stylesheet'
+    link.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;800;900&display=swap'
+    document.head.appendChild(link)
+    document.fonts.load('900 48px Inter').then(() => continueRender(handle)).catch(() => continueRender(handle))
+    return () => { document.head.removeChild(link) }
+  }, [handle])
+}
+
 export function ReelCompositionV2({
   script,
   variation,
@@ -26,6 +40,7 @@ export function ReelCompositionV2({
   gbpPhotos,
 }: ReelCompositionProps) {
   const { fps } = useVideoConfig()
+  useFontLoader()
   const template = variation.template ?? 'immersive'
   const photos = gbpPhotos ?? []
   const hookPhoto = variation.hookPhoto ?? null
@@ -89,7 +104,8 @@ export function ReelCompositionV2({
       elements.push(
         <TransitionSeries.Transition
           key={`t${index}`}
-          presentation={presentation}
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          presentation={presentation as any}
           timing={timing}
         />
       )
@@ -140,6 +156,7 @@ export function ReelCompositionV2({
             <ProofScene
               stat={slideData.content.stat}
               headline={slideData.content.subline}
+              gbpPhotos={photos}
               {...commonProps}
             />
           )}
@@ -161,8 +178,13 @@ export function ReelCompositionV2({
     )
   })
 
+  const musicUrl = variation.musicUrl ?? null
+
   return (
-    <AbsoluteFill style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, sans-serif', background: '#000' }}>
+    <AbsoluteFill style={{ fontFamily: '"Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif', background: '#000' }}>
+      {musicUrl && (
+        <Audio src={musicUrl} volume={0.28} />
+      )}
       <TransitionSeries>
         {elements}
       </TransitionSeries>

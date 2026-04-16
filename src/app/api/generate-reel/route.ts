@@ -3,6 +3,7 @@ import Anthropic from '@anthropic-ai/sdk'
 import type { Review, ReelTheme, ReelScript } from '@/types'
 import type { ReelVariation, VisualTemplate } from '@/remotion/types'
 import type { ReelMotif } from '@/remotion/motifs'
+import { pickMusicUrl } from '@/lib/reel-music'
 
 type Tone = 'story' | 'proof' | 'bold'
 
@@ -724,11 +725,12 @@ export async function POST(req: NextRequest) {
   const singleVariation = await generateVariation(chosenTone, theme, anchorSentence, reviewTexts, businessName, industry, gbpReviews, lang, isVariety ? closingReview : undefined, allPhotos)
   const variations = singleVariation ? [singleVariation] : []
 
-  // Assign motif based on theme + hook content
+  // Assign motif + music based on theme + hook content
   variations.forEach(v => {
     const { motif, motifValue } = selectMotif(theme, industry, v.hookHeadline)
     v.motif = motif
     if (motifValue !== undefined) v.motifValue = motifValue
+    v.musicUrl = pickMusicUrl(v.tone, industry)
   })
 
   // Auto-assign uploaded photos to hook/cta slides when available

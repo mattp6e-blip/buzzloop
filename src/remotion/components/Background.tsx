@@ -1,4 +1,4 @@
-import { AbsoluteFill } from 'remotion'
+import { AbsoluteFill, useCurrentFrame } from 'remotion'
 import { getDarkColors } from '../styleConfigs'
 
 interface BgProps {
@@ -7,9 +7,42 @@ interface BgProps {
 }
 
 export function Background({ brandColor, industry }: BgProps) {
+  const frame = useCurrentFrame()
   const { top, bottom } = getDarkColors(industry)
+
+  // Slow organic drift — one full cycle every 4 seconds at 30fps
+  const t = frame / 120
+  const orb1X = 22 + Math.sin(t * Math.PI * 2) * 9
+  const orb1Y = 20 + Math.cos(t * Math.PI * 2) * 7
+  const orb2X = 72 + Math.sin(t * Math.PI * 2 + 1.8) * 11
+  const orb2Y = 68 + Math.cos(t * Math.PI * 2 + 1.8) * 9
+
   return (
     <AbsoluteFill style={{ background: `linear-gradient(160deg, ${top} 0%, ${bottom} 100%)` }}>
+      {/* Drifting ambient orb 1 — warm brand glow */}
+      <div style={{
+        position: 'absolute',
+        left: `${orb1X}%`,
+        top: `${orb1Y}%`,
+        width: 700,
+        height: 700,
+        transform: 'translate(-50%, -50%)',
+        background: `radial-gradient(ellipse, ${brandColor}2e 0%, transparent 68%)`,
+        filter: 'blur(48px)',
+        pointerEvents: 'none',
+      }} />
+      {/* Drifting ambient orb 2 — cooler secondary glow */}
+      <div style={{
+        position: 'absolute',
+        left: `${orb2X}%`,
+        top: `${orb2Y}%`,
+        width: 560,
+        height: 560,
+        transform: 'translate(-50%, -50%)',
+        background: `radial-gradient(ellipse, ${brandColor}1a 0%, transparent 70%)`,
+        filter: 'blur(64px)',
+        pointerEvents: 'none',
+      }} />
       <IndustryMotif industry={industry} accent={brandColor} />
       <VignetteOverlay />
     </AbsoluteFill>

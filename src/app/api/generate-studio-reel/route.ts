@@ -4,6 +4,7 @@ import type { ReelTheme, ReelScript, ReelSlide } from '@/types'
 import type { ReelVariation, VisualTemplate } from '@/remotion/types'
 import type { ReelMotif } from '@/remotion/motifs'
 import { createClient } from '@/lib/supabase/server'
+import { pickMusicUrl } from '@/lib/reel-music'
 
 type Tone = 'story' | 'proof' | 'bold'
 type BriefType = 'offer' | 'brand' | 'launch' | 'education' | 'seasonal' | 'social_proof'
@@ -500,6 +501,7 @@ export async function POST(req: NextRequest) {
     script: scriptWithPalette,
     motif,
     ...(motifValue !== undefined && { motifValue }),
+    musicUrl: pickMusicUrl(tone, business.industry),
   }
 
   const variations = [variation]

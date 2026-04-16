@@ -7,7 +7,7 @@ import type { ReelVariation, ReelCompositionProps, VisualTemplate } from '@/remo
 import { REEL_FPS, REEL_WIDTH, REEL_HEIGHT } from '@/remotion/ReelComposition'
 
 const Player = dynamic(() => import('@remotion/player').then(m => m.Player), { ssr: false })
-const ReelCompositionModule = dynamic(() => import('@/remotion/ReelComposition').then(m => ({ default: m.ReelComposition })), { ssr: false })
+const ReelCompositionModule = dynamic(() => import('@/remotion/ReelCompositionV2').then(m => ({ default: m.ReelCompositionV2 })), { ssr: false })
 
 // ── Palette registry ────────────────────────────────────────────
 
@@ -88,6 +88,20 @@ interface Props {
   isPro: boolean
   downloadsUsed: number
 }
+
+// ── Music options ──────────────────────────────────────────────
+
+const AUDIO_BASE = 'https://rhggudgximifbtyygyyh.supabase.co/storage/v1/object/public/audio'
+
+const MUSIC_OPTIONS: { label: string; url: string | null; emoji: string }[] = [
+  { label: 'None',         url: null,                              emoji: '🔇' },
+  { label: 'Cinematic',    url: `${AUDIO_BASE}/cinematic.mp3`,    emoji: '🎬' },
+  { label: 'Upbeat',       url: `${AUDIO_BASE}/upbeat.mp3`,       emoji: '⚡' },
+  { label: 'Motivational', url: `${AUDIO_BASE}/motivational.mp3`, emoji: '🔥' },
+  { label: 'Acoustic',     url: `${AUDIO_BASE}/acoustic.mp3`,     emoji: '🎸' },
+  { label: 'Chill',        url: `${AUDIO_BASE}/chill.mp3`,        emoji: '✨' },
+  { label: 'Corporate',    url: `${AUDIO_BASE}/corporate.mp3`,    emoji: '💼' },
+]
 
 // ── Photo picker ───────────────────────────────────────────────
 
@@ -423,7 +437,7 @@ export function ReelEditor({
           style={{ width: PREVIEW_W, boxShadow: '0 32px 80px rgba(0,0,0,0.3), 0 0 0 1px rgba(0,0,0,0.08)' }}
         >
           <Player
-            key={`${activeVariationIdx}`}
+            key={`${activeVariationIdx}-${editedVariation.musicUrl ?? 'none'}`}
             component={ReelCompositionModule as never}
             inputProps={playerProps}
             durationInFrames={totalFrames}
@@ -703,12 +717,30 @@ export function ReelEditor({
             />
           )}
 
-          {!cityMissing && !generatingCaption && caption && (
-            <p className="text-xs px-3 py-2 rounded-lg flex items-center gap-2" style={{ background: 'var(--bg2)', color: 'var(--ink3)' }}>
-              <span>🎵</span>
-              <span><strong style={{ color: 'var(--ink2)' }}>Tip:</strong> Add a trending audio track in Instagram before posting, reels with audio get significantly more reach.</span>
-            </p>
-          )}
+          {/* Music picker */}
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: 'var(--ink4)' }}>Music</p>
+            <div className="flex flex-wrap gap-1.5">
+              {MUSIC_OPTIONS.map(opt => {
+                const isActive = (editedVariation.musicUrl ?? null) === opt.url
+                return (
+                  <button
+                    key={opt.label}
+                    onClick={() => setEditedVariation(v => ({ ...v, musicUrl: opt.url }))}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all"
+                    style={{
+                      background: isActive ? `${brandColor}15` : 'var(--bg2)',
+                      border: `1.5px solid ${isActive ? brandColor + '50' : 'transparent'}`,
+                      color: isActive ? brandColor : 'var(--ink3)',
+                    }}
+                  >
+                    <span>{opt.emoji}</span>
+                    <span>{opt.label}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
 
           <button
             onClick={() => onSave(editedScript, editedVariation)}

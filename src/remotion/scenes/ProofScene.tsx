@@ -15,9 +15,10 @@ interface ProofSceneProps {
   logoUrl: string | null
   businessName: string
   industry: string
+  gbpPhotos?: string[]
 }
 
-export function ProofScene({ stat, headline, template, brandColor, logoUrl, businessName, industry }: ProofSceneProps) {
+export function ProofScene({ stat, headline, template, brandColor, logoUrl, businessName, industry, gbpPhotos }: ProofSceneProps) {
   const frame = useCurrentFrame()
   const { fps } = useVideoConfig()
   const config = TEMPLATE_CONFIGS[template]
@@ -32,10 +33,35 @@ export function ProofScene({ stat, headline, template, brandColor, logoUrl, busi
   const lineWidth = interpolate(frame, [18, 42], [0, 120], { extrapolateRight: 'clamp' })
   const subOpacity = interpolate(frame, [22, 38], [0, 1], { extrapolateRight: 'clamp' })
 
+  const photos = gbpPhotos ?? []
+  const bgPhoto = photos.length > 0 ? photos[Math.min(2, photos.length - 1)] : null
+
+  // Subtle slow zoom on blurred bg
+  const bgScale = interpolate(frame, [0, 150], [1.0, 1.08], { extrapolateRight: 'clamp' })
+
   return (
     <AbsoluteFill>
-      <Background brandColor={brandColor} industry={industry} />
-      <Grain opacity={0.045} />
+      {bgPhoto ? (
+        <>
+          <div style={{
+            position: 'absolute', inset: -40,
+            backgroundImage: `url(${bgPhoto})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            filter: 'blur(32px) brightness(0.18) saturate(0.5)',
+            transform: `scale(${bgScale})`,
+            transformOrigin: 'center',
+          }} />
+          {/* Brand color veil */}
+          <div style={{
+            position: 'absolute', inset: 0,
+            background: `radial-gradient(ellipse at 70% 40%, ${brandColor}1e 0%, transparent 55%)`,
+          }} />
+        </>
+      ) : (
+        <Background brandColor={brandColor} industry={industry} />
+      )}
+      <Grain opacity={0.05} />
       <CinematicBars height={68} />
 
       <LogoMark logoUrl={logoUrl} businessName={businessName} placement={config.logo} color={brandColor} delay={5} />
