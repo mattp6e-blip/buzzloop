@@ -355,6 +355,7 @@ export function ReelEditor({
   const activeSlideData = editedScript.slides[activeSlide]
 
   return (
+    <>
     <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
 
       {/* ── Photo nudge banner ── */}
@@ -813,5 +814,6 @@ export function ReelEditor({
         </div>
       </div>
     )}
+    </>
   )
 }
