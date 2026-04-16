@@ -233,6 +233,7 @@ function getStudioReelPrompt(
   variationIndex: number,
   briefType: BriefType,
   answers?: { question: string; answer: string }[],
+  language = 'English',
 ): string {
   const tonesByIndex: Tone[] = ['story', 'proof', 'bold']
   const tone = tonesByIndex[variationIndex]
@@ -271,6 +272,8 @@ ${reviewContext}\n`
   ][variationIndex]
 
   return `You are a creative director building an Instagram social clip for a local business. You write scripts that stop people mid-scroll and drive them to act.
+
+LANGUAGE: Write ALL script content in ${language}. Every word of the output JSON must be in ${language}.
 
 Business: ${businessName} (${industry})
 Brief from the business owner: "${prompt}"
@@ -436,6 +439,20 @@ export async function POST(req: NextRequest) {
         .join('\n')
     : null
 
+  // Detect target language from brief + answers
+  // If the brief explicitly targets a different-language audience, use that language
+  const allText = [prompt, ...(answers?.map(a => a.answer) ?? [])].join(' ').toLowerCase()
+  function detectTargetLanguage(): string {
+    if (/\b(uk|british|england|english.speaking|from the uk|attract.*uk|uk.*patient|british.*patient)\b/.test(allText)) return 'English'
+    if (/\b(us|american|united states|from the us|us.*patient)\b/.test(allText)) return 'English'
+    if (/\b(french|france|français)\b/.test(allText)) return 'French'
+    if (/\b(german|germany|deutsch)\b/.test(allText)) return 'German'
+    if (/\b(italian|italy|italiano)\b/.test(allText)) return 'Italian'
+    if (/\b(dutch|netherlands|holland)\b/.test(allText)) return 'Dutch'
+    return 'English' // default to English for broad reach
+  }
+  const targetLanguage = detectTargetLanguage()
+
   // Pick the best tone for this brief type — single generation
   const briefType = classifyBrief(prompt)
   const BEST_TONE_FOR_BRIEF: Record<BriefType, Tone> = {
@@ -469,7 +486,7 @@ export async function POST(req: NextRequest) {
       max_tokens: 2000,
       messages: [{
         role: 'user',
-        content: getStudioReelPrompt(prompt, business.name, business.industry, reviewContext, toneIndex[tone], briefType, answers),
+        content: getStudioReelPrompt(prompt, business.name, business.industry, reviewContext, toneIndex[tone], briefType, answers, targetLanguage),
       }],
     })
     const text = (message.content[0] as { text: string }).text

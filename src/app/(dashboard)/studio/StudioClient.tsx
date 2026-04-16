@@ -106,7 +106,7 @@ export function StudioClient({ business }: { business: Business }) {
       const res = await fetch('/api/studio-questions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: prompt.trim(), businessName: business.name, industry: business.industry }),
+        body: JSON.stringify({ prompt: prompt.trim(), businessName: business.name, industry: business.industry, websiteUrl: business.website_url }),
       })
       const data = await res.json()
       if (!res.ok) { setError(data.error ?? 'Could not load questions. Try again.'); return }
