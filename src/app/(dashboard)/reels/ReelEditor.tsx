@@ -445,6 +445,7 @@ export function ReelEditor({
             compositionHeight={REEL_HEIGHT}
             fps={REEL_FPS}
             style={{ width: PREVIEW_W, height: PREVIEW_H }}
+            numberOfSharedAudioTags={1}
             controls
             loop
             autoPlay
