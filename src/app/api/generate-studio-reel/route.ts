@@ -254,7 +254,7 @@ Pacing: punch. pause. punch. No filler.`,
   const insightCount = slideCountByTone[tone]
   const slideDuration = tone === 'bold' ? 4 : 5
   const ctaDuration = tone === 'bold' ? 5 : 6
-  const quoteDuration = reviewContext ? 5 : 0
+  const quoteDuration = reviewContext ? 6 : 0
   const totalDuration = slideDuration + (insightCount * slideDuration) + quoteDuration + ctaDuration
 
   const templateOptions: VisualTemplate[] = ['immersive', 'editorial', 'split', 'minimal', 'gradient', 'cinematic', 'neon', 'bold', 'cards', 'headline', 'overlay', 'brand']
@@ -350,7 +350,7 @@ Return ONLY valid JSON — no markdown, no explanation:
       ${insightCount === 1
         ? `{ "type": "insight", "duration": ${slideDuration}, "content": { "headline": "Sharpest insight (max 8 words)", "highlightWords": ["word1"] } },`
         : Array.from({ length: insightCount }, (_, i) => `{ "type": "insight", "duration": ${slideDuration}, "content": { "headline": "${['First', 'Second', 'Third'][i]} insight (max 8 words)", "highlightWords": ["word1"] } },`).join('\n      ')}
-      ${reviewContext ? `{ "type": "quote", "duration": 5, "content": { "quote": "Verbatim excerpt from the most relevant review", "author": "Reviewer name or null", "highlightWords": ["word1"] } },` : ''}
+      ${reviewContext ? `{ "type": "quote", "duration": 6, "content": { "quote": "Verbatim excerpt from the most relevant review", "author": "Reviewer name or null", "highlightWords": ["word1"] } },` : ''}
       { "type": "cta", "duration": ${ctaDuration}, "content": { "headline": "Topic callback headline", "cta": "Friction reduction action" } }
     ]
   }

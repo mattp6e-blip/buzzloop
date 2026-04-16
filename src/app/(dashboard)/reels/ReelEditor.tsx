@@ -473,41 +473,6 @@ export function ReelEditor({
               autoPlay
             />
           </div>
-          {/* Unmute button — shown when a track is selected but audio not yet unlocked */}
-          {editedVariation.musicUrl && !audioEnabled && (
-            <button
-              onClick={() => {
-                setAudioEnabled(true)
-                if (audioRef.current) {
-                  audioRef.current.volume = 0.28
-                  audioRef.current.play()
-                }
-              }}
-              style={{
-                position: 'absolute',
-                bottom: 52,
-                left: '50%',
-                transform: 'translateX(-50%)',
-                background: 'rgba(0,0,0,0.72)',
-                backdropFilter: 'blur(10px)',
-                WebkitBackdropFilter: 'blur(10px)',
-                border: '1px solid rgba(255,255,255,0.18)',
-                borderRadius: 100,
-                padding: '9px 18px',
-                color: 'white',
-                fontSize: 12,
-                fontWeight: 600,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 7,
-                whiteSpace: 'nowrap',
-                zIndex: 10,
-              }}
-            >
-              🔊 Tap to hear music
-            </button>
-          )}
         </div>
 
         <p className="text-xs mt-2.5 text-center" style={{ color: 'var(--ink4)' }}>
@@ -778,7 +743,30 @@ export function ReelEditor({
 
           {/* Music picker */}
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: 'var(--ink4)' }}>Music</p>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--ink4)' }}>Music</p>
+              {editedVariation.musicUrl && (
+                <button
+                  onClick={() => {
+                    if (audioEnabled) {
+                      setAudioEnabled(false)
+                      if (audioRef.current) { audioRef.current.pause(); audioRef.current.currentTime = 0 }
+                    } else {
+                      setAudioEnabled(true)
+                      if (audioRef.current) { audioRef.current.volume = 0.28; audioRef.current.play() }
+                    }
+                  }}
+                  className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all"
+                  style={{
+                    background: audioEnabled ? `${brandColor}18` : 'var(--bg2)',
+                    border: `1.5px solid ${audioEnabled ? brandColor + '50' : 'var(--border)'}`,
+                    color: audioEnabled ? brandColor : 'var(--ink3)',
+                  }}
+                >
+                  {audioEnabled ? '■ Stop' : '▶ Preview'}
+                </button>
+              )}
+            </div>
             <div className="flex flex-wrap gap-1.5">
               {MUSIC_OPTIONS.map(opt => {
                 const isActive = (editedVariation.musicUrl ?? null) === opt.url

@@ -169,7 +169,7 @@ Use a verbatim excerpt (max 18 words) that emotionally validates what the insigh
     : ''
 
   const quoteSlideJson = hasQuote
-    ? `\n    { "type": "quote", "duration": 4, "content": { "quote": "Verbatim excerpt from the review above (max 18 words)", "highlightWords": ["word1"], "author": ${closingReview!.author ? `"${closingReview!.author}"` : 'null'} } },`
+    ? `\n    { "type": "quote", "duration": 6, "content": { "quote": "Verbatim excerpt from the review above (max 18 words)", "highlightWords": ["word1"], "author": ${closingReview!.author ? `"${closingReview!.author}"` : 'null'} } },`
     : ''
 
   return `You are completing an Instagram Reel about ${theme.contentType?.replace('_', ' ')} content. The hook has been written. Build the educational content around it.
@@ -400,9 +400,9 @@ Return ONLY valid JSON:
   "ctaText": "Friction reduction — makes next step feel small",
   "slides": [
     { "type": "hook", "duration": 4, "content": { "headline": "${hookHeadline}", "subline": ${hookSubline ? `"${hookSubline}"` : 'null'} } },
-    { "type": "quote", "duration": 4, "content": { "quote": "Verbatim sentence from review (max 18 words)", "highlightWords": ["word1", "word2"], "author": "First name or null" } },
-    { "type": "quote", "duration": 4, "content": { "quote": "Verbatim sentence from second review (max 18 words)", "highlightWords": ["word1"], "author": "First name or null" } },
-    { "type": "proof", "duration": 3, "content": { "stat": "Logical fact from this specific story (max 8 words)", "subline": "Short reinforcing line (max 5 words)" } },
+    { "type": "quote", "duration": 6, "content": { "quote": "Verbatim sentence from review (max 18 words)", "highlightWords": ["word1", "word2"], "author": "First name or null" } },
+    { "type": "quote", "duration": 6, "content": { "quote": "Verbatim sentence from second review (max 18 words)", "highlightWords": ["word1"], "author": "First name or null" } },
+    { "type": "proof", "duration": 5, "content": { "stat": "Logical fact from this specific story (max 8 words)", "subline": "Short reinforcing line (max 5 words)" } },
     { "type": "cta", "duration": 6, "content": { "headline": "Story callback headline", "cta": "Friction reduction action" } }
   ]
 }`
