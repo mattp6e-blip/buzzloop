@@ -743,28 +743,29 @@ export function ReelEditor({
           <div>
             <div className="flex items-center justify-between mb-2">
               <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--ink4)' }}>Music</p>
-              {editedVariation.musicUrl && (
-                <button
-                  onClick={() => {
-                    if (audioEnabled) {
-                      setAudioEnabled(false)
-                      if (audioRef.current) { audioRef.current.pause(); audioRef.current.currentTime = 0 }
-                    } else {
-                      if (audioRef.current) {
-                        audioRef.current.play().then(() => setAudioEnabled(true)).catch(() => {})
-                      }
+              <button
+                disabled={!editedVariation.musicUrl}
+                onClick={() => {
+                  if (audioEnabled) {
+                    setAudioEnabled(false)
+                    if (audioRef.current) { audioRef.current.pause(); audioRef.current.currentTime = 0 }
+                  } else {
+                    if (audioRef.current) {
+                      audioRef.current.play().then(() => setAudioEnabled(true)).catch(() => {})
                     }
-                  }}
-                  className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all"
-                  style={{
-                    background: audioEnabled ? `${brandColor}18` : 'var(--bg2)',
-                    border: `1.5px solid ${audioEnabled ? brandColor + '50' : 'var(--border)'}`,
-                    color: audioEnabled ? brandColor : 'var(--ink3)',
-                  }}
-                >
-                  {audioEnabled ? '■ Stop' : '▶ Preview'}
-                </button>
-              )}
+                  }
+                }}
+                className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all"
+                style={{
+                  background: audioEnabled ? `${brandColor}18` : 'var(--bg2)',
+                  border: `1.5px solid ${audioEnabled ? brandColor + '50' : 'var(--border)'}`,
+                  color: audioEnabled ? brandColor : 'var(--ink3)',
+                  opacity: editedVariation.musicUrl ? 1 : 0.4,
+                  cursor: editedVariation.musicUrl ? 'pointer' : 'not-allowed',
+                }}
+              >
+                {audioEnabled ? '■ Stop' : '▶ Preview'}
+              </button>
             </div>
             <div className="flex flex-wrap gap-1.5">
               {MUSIC_OPTIONS.map(opt => {
