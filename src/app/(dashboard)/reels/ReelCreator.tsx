@@ -37,10 +37,12 @@ interface Props {
   language?: string
   onBack: () => void
   onScriptCached: (themeId: string, script: ReelScript, variations: ReelVariation[]) => void
+  isPro: boolean
+  downloadsUsed: number
 }
 
 
-export function ReelCreator({ theme, reviews, businessName, industry, brandColor, brandFont, logoUrl, websiteUrl, brandPersonality, brandSecondaryColor, customerWord, serviceWord, bookingWord, businessId, city, gbpPhotos, uploadedPhotos, language = 'English', onBack, onScriptCached }: Props) {
+export function ReelCreator({ theme, reviews, businessName, industry, brandColor, brandFont, logoUrl, websiteUrl, brandPersonality, brandSecondaryColor, customerWord, serviceWord, bookingWord, businessId, city, gbpPhotos, uploadedPhotos, language = 'English', onBack, onScriptCached, isPro, downloadsUsed }: Props) {
   const [variations, setVariations]               = useState<ReelVariation[]>([])
   const [generating, setGenerating]               = useState(true)
   const [caption, setCaption]                     = useState('')
@@ -242,6 +244,8 @@ export function ReelCreator({ theme, reviews, businessName, industry, brandColor
           saving={saving}
           saved={saved}
           saveError={saveError}
+          isPro={isPro}
+          downloadsUsed={downloadsUsed}
         />
       )}
     </div>

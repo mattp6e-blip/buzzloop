@@ -186,7 +186,7 @@ const FAQS = [
   },
   {
     q: "What's included in the free plan?",
-    a: "The free plan includes your fully branded QR code, the customer review landing page, the ability to see your Social Clips (without downloading), and keyword ranking tracking for 3 local search terms.",
+    a: "The free plan includes your fully branded QR code, the customer review landing page, the ability to see your Social Clips (2 free downloads/month), and keyword ranking tracking for 3 local search terms.",
   },
   {
     q: "How does the review reply tool work?",
@@ -264,7 +264,7 @@ const FEATURE_CATEGORIES: FeatureCategory[] = [
   {
     heading: 'Grow on social',
     features: [
-      { label: 'Social Clips', sublabel: 'Premium video content built from your real reviews', free: 'View only', pro: 'Download & share' },
+      { label: 'Social Clips', sublabel: 'Premium video content built from your real reviews', free: '2 downloads/month', pro: 'Unlimited downloads' },
       { label: 'Studio', sublabel: 'AI clip maker — create content from any brief', free: '3/month', pro: '100/month' },
     ],
   },
@@ -371,7 +371,7 @@ export function PricingPage() {
             {[
               'Branded QR code that drives reviews on autopilot',
               'Custom review page, customers post in under 10 seconds',
-              'See your Social Clips (upgrade to download)',
+              '2 free downloads per month',
               'Track 3 local keywords and your Google Maps position',
               'Competitor ranking tracker',
             ].map((text) => (

@@ -22,6 +22,8 @@ export function Sidebar({ businessName }: { businessName: string }) {
   const router = useRouter()
   const [unseenReels, setUnseenReels] = useState(0)
   const [hasNoMedia, setHasNoMedia]   = useState(false)
+  const [isPro, setIsPro]             = useState<boolean | null>(null)
+  const [upgrading, setUpgrading]     = useState(false)
 
   useEffect(() => {
     try {
@@ -32,18 +34,30 @@ export function Sidebar({ businessName }: { businessName: string }) {
     const handler = (e: Event) => setUnseenReels((e as CustomEvent).detail)
     window.addEventListener('unseen-reels-update', handler)
 
-    // Check if user has uploaded photos
+    // Check plan + photos
     const supabase = createClient()
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) return
-      supabase.from('businesses').select('uploaded_photos').eq('user_id', user.id).single()
+      supabase.from('businesses').select('uploaded_photos, plan').eq('user_id', user.id).single()
         .then(({ data }) => {
           setHasNoMedia(!data?.uploaded_photos?.length)
+          setIsPro(data?.plan === 'pro')
         })
     })
 
     return () => window.removeEventListener('unseen-reels-update', handler)
   }, [])
+
+  async function handleUpgrade() {
+    setUpgrading(true)
+    try {
+      const res = await fetch('/api/stripe/checkout', { method: 'POST' })
+      const data = await res.json()
+      if (data.url) window.location.href = data.url
+    } finally {
+      setUpgrading(false)
+    }
+  }
 
   async function handleSignOut() {
     const supabase = createClient()
@@ -105,6 +119,20 @@ export function Sidebar({ businessName }: { businessName: string }) {
           )
         })}
       </nav>
+
+      {/* Upgrade pill for free users */}
+      {isPro === false && (
+        <div className="px-3 pb-3">
+          <button
+            onClick={handleUpgrade}
+            disabled={upgrading}
+            className="w-full rounded-xl px-3 py-2.5 text-xs font-bold text-white transition-all hover:opacity-90 disabled:opacity-60"
+            style={{ background: 'linear-gradient(135deg, #f59e0b, #ef4444)' }}
+          >
+            {upgrading ? 'Redirecting...' : '⚡ Upgrade to Pro'}
+          </button>
+        </div>
+      )}
 
       {/* Sign out */}
       <div className="px-3 py-4 border-t" style={{ borderColor: 'var(--border)' }}>

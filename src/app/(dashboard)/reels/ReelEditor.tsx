@@ -85,6 +85,8 @@ interface Props {
   saving: boolean
   saved: boolean
   saveError: string | null
+  isPro: boolean
+  downloadsUsed: number
 }
 
 // ── Photo picker ───────────────────────────────────────────────
@@ -184,7 +186,9 @@ export function ReelEditor({
   variations, script, variation, brandColor, brandSecondaryColor, logoUrl, businessName,
   industry, websiteUrl, businessId, gbpPhotos, uploadedPhotos = [], caption, onCaptionChange, generatingCaption,
   onRegenerateCaption, cityMissing, savingCity, onCitySave, onSave, onBack, saving, saved, saveError,
+  isPro, downloadsUsed,
 }: Props) {
+  const FREE_DOWNLOAD_LIMIT = 2
   const hasPhotos = uploadedPhotos.length > 0 || gbpPhotos.length > 0
 
   const [activeVariationIdx, setActiveVariationIdx] = useState(() =>
@@ -204,6 +208,9 @@ export function ReelEditor({
   const [downloadStatus, setDownloadStatus]   = useState<string>('')
   const [renderProgress, setRenderProgress]   = useState<number>(0)
   const [downloadError, setDownloadError]     = useState<string | null>(null)
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+  const [upgrading, setUpgrading]             = useState(false)
+  const [localDownloadsUsed, setLocalDownloadsUsed] = useState(downloadsUsed)
 
   // Sync photos from parent when they arrive after initial mount (async Supabase fetch)
   useEffect(() => {
@@ -216,7 +223,34 @@ export function ReelEditor({
     }
   }, [variation.hookPhoto, variation.ctaPhoto])
 
+  async function handleDownloadUpgrade() {
+    setUpgrading(true)
+    try {
+      const res = await fetch('/api/stripe/checkout', { method: 'POST' })
+      const data = await res.json()
+      if (data.url) window.location.href = data.url
+    } finally {
+      setUpgrading(false)
+    }
+  }
+
   async function handleDownload() {
+    // Check download limit for free users
+    if (!isPro) {
+      if (localDownloadsUsed >= FREE_DOWNLOAD_LIMIT) {
+        setShowUpgradeModal(true)
+        return
+      }
+      // Pre-check with server
+      const checkRes = await fetch('/api/reels/download', { method: 'POST' })
+      const checkData = await checkRes.json()
+      if (!checkData.allowed) {
+        setShowUpgradeModal(true)
+        return
+      }
+      setLocalDownloadsUsed(checkData.downloadsUsed)
+    }
+
     setDownloading(true)
     setDownloadError(null)
     setRenderProgress(0)
@@ -735,10 +769,49 @@ export function ReelEditor({
               {downloadError}
             </p>
           )}
+          {!isPro && (
+            <p className="text-xs text-center" style={{ color: 'var(--ink4)' }}>
+              {localDownloadsUsed >= FREE_DOWNLOAD_LIMIT
+                ? 'Download limit reached'
+                : `${FREE_DOWNLOAD_LIMIT - localDownloadsUsed} of ${FREE_DOWNLOAD_LIMIT} free downloads remaining`}
+            </p>
+          )}
         </div>
       </div>
 
     </div>
     </div>
+
+    {/* Upgrade modal */}
+    {showUpgradeModal && (
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        style={{ background: 'rgba(0,0,0,0.6)' }}
+        onClick={() => setShowUpgradeModal(false)}
+      >
+        <div
+          className="rounded-2xl p-8 max-w-sm w-full text-center"
+          style={{ background: 'var(--surface)', border: '1.5px solid var(--border)' }}
+          onClick={e => e.stopPropagation()}
+        >
+          <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-5" style={{ background: 'linear-gradient(135deg, #f59e0b22, #ef444422)', border: '1.5px solid #f59e0b44' }}>
+            ↓
+          </div>
+          <h2 className="text-xl font-bold mb-2" style={{ color: 'var(--ink)' }}>You've used your {FREE_DOWNLOAD_LIMIT} free downloads</h2>
+          <p className="text-sm mb-6" style={{ color: 'var(--ink3)' }}>Upgrade to Pro for unlimited downloads, 100 Studio credits/month, and more.</p>
+          <button
+            onClick={handleDownloadUpgrade}
+            disabled={upgrading}
+            className="w-full py-3 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90 disabled:opacity-60"
+            style={{ background: 'linear-gradient(135deg, #f59e0b, #ef4444)' }}
+          >
+            {upgrading ? 'Redirecting...' : 'Upgrade to Pro — $49/month'}
+          </button>
+          <button onClick={() => setShowUpgradeModal(false)} className="mt-3 text-xs w-full" style={{ color: 'var(--ink4)' }}>
+            Maybe later
+          </button>
+        </div>
+      </div>
+    )}
   )
 }

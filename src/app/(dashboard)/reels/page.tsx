@@ -11,7 +11,7 @@ export default async function ReelsPage() {
 
   const { data: business } = await supabase
     .from('businesses')
-    .select('id, name, industry, city, brand_color, brand_font, brand_logo_url, brand_secondary_color, brand_personality, brand_extracted, website_url, reel_themes, reel_themes_review_count, google_connected, gbp_photos, uploaded_photos, business_context')
+    .select('id, name, industry, city, brand_color, brand_font, brand_logo_url, brand_secondary_color, brand_personality, brand_extracted, website_url, reel_themes, reel_themes_review_count, google_connected, gbp_photos, uploaded_photos, business_context, plan, reel_downloads_this_month, reel_downloads_reset_at')
     .eq('user_id', user.id)
     .single()
 
@@ -33,6 +33,12 @@ export default async function ReelsPage() {
     business.reel_themes_review_count === currentReviews.length
       ? business.reel_themes
       : null
+
+  const isPro = business.plan === 'pro'
+  const now = new Date()
+  const resetAt = business.reel_downloads_reset_at ? new Date(business.reel_downloads_reset_at) : null
+  const needsReset = !resetAt || now.getMonth() !== resetAt.getMonth() || now.getFullYear() !== resetAt.getFullYear()
+  const downloadsUsed = needsReset ? 0 : (business.reel_downloads_this_month ?? 0)
 
   return (
     <div className="p-8" style={{ maxWidth: 1100 }}>
@@ -60,6 +66,8 @@ export default async function ReelsPage() {
           ]}
           uploadedPhotos={(business.uploaded_photos as string[] | null) ?? []}
           businessContext={business.business_context ?? null}
+          isPro={isPro}
+          downloadsUsed={downloadsUsed}
         />
       </Suspense>
     </div>

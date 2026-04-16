@@ -68,13 +68,15 @@ interface Props {
   gbpPhotos: string[]
   uploadedPhotos: string[]
   businessContext: string | null
+  isPro: boolean
+  downloadsUsed: number
 }
 
 function localCacheKey(businessId: string, reviewCount: number) {
   return `reel_themes_${businessId}_${reviewCount}`
 }
 
-export function ReelsClient({ reviews, businessId, businessName, industry, brandColor, brandFont, brandLogoUrl, brandPersonality, brandSecondaryColor, websiteUrl, brandExtracted, cachedThemes, savedPostsCount, savedThemeTitles, city, googleConnected, gbpPhotos, uploadedPhotos, businessContext }: Props) {
+export function ReelsClient({ reviews, businessId, businessName, industry, brandColor, brandFont, brandLogoUrl, brandPersonality, brandSecondaryColor, websiteUrl, brandExtracted, cachedThemes, savedPostsCount, savedThemeTitles, city, googleConnected, gbpPhotos, uploadedPhotos, businessContext, isPro, downloadsUsed }: Props) {
   const [themes, setThemes]               = useState<ReelTheme[] | null>(null)
   const [analyzing, setAnalyzing]         = useState(false)
   const [selectedTheme, setSelectedTheme] = useState<ReelTheme | null>(null)
@@ -329,6 +331,8 @@ export function ReelsClient({ reviews, businessId, businessName, industry, brand
         language={reelLanguage}
         onBack={() => setSelectedTheme(null)}
         onScriptCached={handleScriptCached}
+        isPro={isPro}
+        downloadsUsed={downloadsUsed}
       />
     )
   }
