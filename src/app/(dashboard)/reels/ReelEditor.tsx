@@ -6,8 +6,6 @@ import type { ReelScript } from '@/types'
 import type { ReelVariation, ReelCompositionProps, VisualTemplate } from '@/remotion/types'
 import { REEL_FPS, REEL_WIDTH, REEL_HEIGHT } from '@/remotion/ReelComposition'
 
-import type { PlayerRef } from '@remotion/player'
-
 const Player = dynamic(() => import('@remotion/player').then(m => m.Player), { ssr: false })
 const ReelCompositionModule = dynamic(() => import('@/remotion/ReelCompositionV2').then(m => ({ default: m.ReelCompositionV2 })), { ssr: false })
 
@@ -220,7 +218,7 @@ export function ReelEditor({
   const [activeSlide, setActiveSlide]         = useState(0)
   const [cityInput, setCityInput]             = useState('')
   const cityInputRef                          = useRef<HTMLInputElement>(null)
-  const playerRef                             = useRef<PlayerRef>(null)
+  const audioRef                              = useRef<HTMLAudioElement>(null)
   const [audioEnabled, setAudioEnabled]       = useState(false)
   const [downloading, setDownloading]         = useState(false)
   const [downloadStatus, setDownloadStatus]   = useState<string>('')
@@ -241,8 +239,12 @@ export function ReelEditor({
     }
   }, [variation.hookPhoto, variation.ctaPhoto])
 
-  // Reset audio unlock when track changes
+  // Stop audio and reset unlock when track changes
   useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.pause()
+      audioRef.current.currentTime = 0
+    }
     setAudioEnabled(false)
   }, [editedVariation.musicUrl, activeVariationIdx])
 
@@ -440,6 +442,16 @@ export function ReelEditor({
           </div>
         )}
 
+        {/* Hidden audio element for preview — separate from Remotion render */}
+        {editedVariation.musicUrl && (
+          <audio
+            ref={audioRef}
+            src={editedVariation.musicUrl}
+            loop
+            style={{ display: 'none' }}
+          />
+        )}
+
         {/* Phone frame */}
         <div style={{ position: 'relative', width: PREVIEW_W }}>
           <div
@@ -447,7 +459,6 @@ export function ReelEditor({
             style={{ width: PREVIEW_W, boxShadow: '0 32px 80px rgba(0,0,0,0.3), 0 0 0 1px rgba(0,0,0,0.08)' }}
           >
             <Player
-              ref={playerRef}
               key={`${activeVariationIdx}-${editedVariation.musicUrl ?? 'none'}`}
               component={ReelCompositionModule as never}
               inputProps={playerProps}
@@ -467,8 +478,10 @@ export function ReelEditor({
             <button
               onClick={() => {
                 setAudioEnabled(true)
-                playerRef.current?.unmute()
-                playerRef.current?.play()
+                if (audioRef.current) {
+                  audioRef.current.volume = 0.28
+                  audioRef.current.play()
+                }
               }}
               style={{
                 position: 'absolute',
