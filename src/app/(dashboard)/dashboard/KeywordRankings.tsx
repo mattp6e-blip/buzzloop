@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 
 interface KeywordRanking {
   keyword: string
@@ -47,6 +47,18 @@ export function KeywordRankings({ isSetup }: { isSetup: boolean }) {
   const [loading, setLoading] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [upgrading, setUpgrading] = useState(false)
+
+  const handleUpgrade = useCallback(async () => {
+    setUpgrading(true)
+    try {
+      const res = await fetch('/api/stripe/checkout', { method: 'POST' })
+      const data = await res.json()
+      if (data.url) window.location.href = data.url
+    } finally {
+      setUpgrading(false)
+    }
+  }, [])
 
   useEffect(() => {
     if (!isSetup) return
@@ -151,10 +163,12 @@ export function KeywordRankings({ isSetup }: { isSetup: boolean }) {
             }}>
               <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink2)' }}>Track more keywords</p>
               <button
-                className="text-xs font-bold px-3 py-1.5 rounded-lg hover:opacity-80 transition-opacity"
+                onClick={handleUpgrade}
+                disabled={upgrading}
+                className="text-xs font-bold px-3 py-1.5 rounded-lg hover:opacity-80 transition-opacity disabled:opacity-60"
                 style={{ background: 'var(--accent)', color: 'white' }}
               >
-                Upgrade →
+                {upgrading ? 'Redirecting...' : 'Upgrade →'}
               </button>
             </div>
           </div>
