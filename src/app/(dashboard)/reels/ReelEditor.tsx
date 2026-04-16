@@ -218,7 +218,7 @@ export function ReelEditor({
   const [activeSlide, setActiveSlide]         = useState(0)
   const [cityInput, setCityInput]             = useState('')
   const cityInputRef                          = useRef<HTMLInputElement>(null)
-  const audioRef                              = useRef<HTMLAudioElement>(null)
+  const audioRef                              = useRef<HTMLAudioElement | null>(null)
   const [audioEnabled, setAudioEnabled]       = useState(false)
   const [downloading, setDownloading]         = useState(false)
   const [downloadStatus, setDownloadStatus]   = useState<string>('')
@@ -239,13 +239,20 @@ export function ReelEditor({
     }
   }, [variation.hookPhoto, variation.ctaPhoto])
 
-  // Stop audio and reset unlock when track changes
+  // Rebuild Audio instance whenever track or variation changes
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.pause()
-      audioRef.current.currentTime = 0
+      audioRef.current.src = ''
+      audioRef.current = null
     }
     setAudioEnabled(false)
+    if (editedVariation.musicUrl) {
+      const a = new Audio(editedVariation.musicUrl)
+      a.volume = 0.28
+      a.loop = true
+      audioRef.current = a
+    }
   }, [editedVariation.musicUrl, activeVariationIdx])
 
   async function handleDownloadUpgrade() {
@@ -442,15 +449,6 @@ export function ReelEditor({
           </div>
         )}
 
-        {/* Hidden audio element for preview — separate from Remotion render */}
-        {editedVariation.musicUrl && (
-          <audio
-            ref={audioRef}
-            src={editedVariation.musicUrl}
-            loop
-            style={{ display: 'none' }}
-          />
-        )}
 
         {/* Phone frame */}
         <div style={{ position: 'relative', width: PREVIEW_W }}>
@@ -752,8 +750,9 @@ export function ReelEditor({
                       setAudioEnabled(false)
                       if (audioRef.current) { audioRef.current.pause(); audioRef.current.currentTime = 0 }
                     } else {
-                      setAudioEnabled(true)
-                      if (audioRef.current) { audioRef.current.volume = 0.28; audioRef.current.play() }
+                      if (audioRef.current) {
+                        audioRef.current.play().then(() => setAudioEnabled(true)).catch(() => {})
+                      }
                     }
                   }}
                   className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all"

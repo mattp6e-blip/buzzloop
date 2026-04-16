@@ -142,7 +142,7 @@ function getVarietyReelPrompt(
 
   const insightCount = tone === 'bold' ? 1 : theme.contentType === 'behind_scenes' ? 4 : 3
   const ctaDuration = tone === 'bold' ? 5 : 6
-  const totalDuration = 4 + (insightCount * 4) + (hasQuote ? 4 : 0) + ctaDuration
+  const totalDuration = 4 + (insightCount * 4) + (hasQuote ? 6 : 0) + ctaDuration
 
   const insightLines = tone === 'bold'
     ? `- insight: 4s — the single most surprising or counterintuitive fact about the topic`
@@ -158,7 +158,7 @@ function getVarietyReelPrompt(
   const slideStructure = `SLIDE STRUCTURE:
 - hook: 4s — already written above
 ${insightLines}${hasQuote ? `
-- quote: 4s — closing validation (verbatim from the review below)` : ''}
+- quote: 6s — closing validation (verbatim from the review below)` : ''}
 - cta: ${ctaDuration}s — call to action`
 
   const closingReviewBlock = hasQuote
@@ -628,10 +628,12 @@ async function generateVariation(
     }
 
     const config = TONE_CONFIGS[tone]
+    const slides = parsed.slides as ReelScript['slides']
     const rawScript: ReelScript = {
       themeTitle: parsed.themeTitle as string,
-      totalDuration: parsed.totalDuration as number,
-      slides: parsed.slides as ReelScript['slides'],
+      // Compute from actual slide durations — AI hints are unreliable after duration changes
+      totalDuration: slides.reduce((sum: number, s: { duration: number }) => sum + s.duration, 0),
+      slides,
       template: config.template,
     }
 

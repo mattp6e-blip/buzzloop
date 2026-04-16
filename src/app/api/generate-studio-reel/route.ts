@@ -502,7 +502,10 @@ export async function POST(req: NextRequest) {
 
   const [paletteKey] = suggestPalettes(tone, false)
   const palette = PALETTE_REGISTRY[paletteKey]
-  const scriptWithPalette = applyPaletteToScript(parsed.script, palette)
+  const rawScript = parsed.script
+  // Compute totalDuration from actual slide durations — AI hints are unreliable
+  rawScript.totalDuration = rawScript.slides.reduce((sum: number, s: { duration: number }) => sum + s.duration, 0)
+  const scriptWithPalette = applyPaletteToScript(rawScript, palette)
   const { motif, motifValue } = selectStudioMotif(business.industry, tone, parsed.hookHeadline)
 
   const variation: ReelVariation = {
