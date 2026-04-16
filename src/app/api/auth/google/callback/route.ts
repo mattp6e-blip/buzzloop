@@ -65,7 +65,5 @@ export async function GET(req: NextRequest) {
     // Never block the OAuth redirect if sync fails
   }
 
-  // If coming from onboarding, go straight to dashboard with reviews already loaded
-  const destination = returnTo === '/onboarding' ? '/dashboard' : returnTo
-  return NextResponse.redirect(`${appUrl}${destination}?google_connected=true`)
+  return NextResponse.redirect(`${appUrl}${returnTo}?google_connected=true`)
 }

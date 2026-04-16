@@ -169,7 +169,7 @@ async function extractColorFromImage(file: File): Promise<string> {
 function OnboardingInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [step, setStep] = useState(1)
+  const [step, setStep] = useState(() => searchParams.get('google_connected') === 'true' ? 4 : 1)
   const [businessName, setBusinessName] = useState('')
 
   const [industry, setIndustry] = useState<Industry | null>(null)
@@ -205,7 +205,30 @@ function OnboardingInner() {
     if (file) handleLogoFile(file)
   }
 
-  function handleConnectGoogle() {
+  async function handleConnectGoogle() {
+    if (!industry) return
+    // Save a stub business row so the OAuth callback can store tokens against it
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) { router.push('/login'); return }
+
+    const { data: existing } = await supabase.from('businesses').select('id').eq('user_id', user.id).single()
+    const slug = slugify(businessName) + '-' + Math.random().toString(36).slice(2, 7)
+    const cleanWebsite = websiteUrl.trim()
+      ? (websiteUrl.trim().startsWith('http') ? websiteUrl.trim() : `https://${websiteUrl.trim()}`)
+      : null
+
+    if (!existing) {
+      await supabase.from('businesses').insert({
+        user_id: user.id,
+        name: businessName,
+        industry,
+        brand_color: brandColor,
+        website_url: cleanWebsite,
+        slug,
+      })
+    }
+
     window.location.href = '/api/auth/google?returnTo=/onboarding'
   }
 
