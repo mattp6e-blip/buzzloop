@@ -240,20 +240,13 @@ export function ReelEditor({
     }
   }, [variation.hookPhoto, variation.ctaPhoto])
 
-  // Rebuild Audio instance whenever track or variation changes
+  // Stop audio when track or variation changes
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.pause()
-      audioRef.current.src = ''
       audioRef.current = null
     }
     setAudioEnabled(false)
-    if (editedVariation.musicUrl) {
-      const a = new Audio(editedVariation.musicUrl)
-      a.volume = 0.28
-      a.loop = true
-      audioRef.current = a
-    }
   }, [editedVariation.musicUrl, activeVariationIdx])
 
   async function handleDownloadUpgrade() {
@@ -749,11 +742,13 @@ export function ReelEditor({
                 onClick={() => {
                   if (audioEnabled) {
                     setAudioEnabled(false)
-                    if (audioRef.current) { audioRef.current.pause(); audioRef.current.currentTime = 0 }
-                  } else {
-                    if (audioRef.current) {
-                      audioRef.current.play().then(() => setAudioEnabled(true)).catch(() => {})
-                    }
+                    if (audioRef.current) { audioRef.current.pause(); audioRef.current = null }
+                  } else if (editedVariation.musicUrl) {
+                    const a = new Audio(editedVariation.musicUrl)
+                    a.volume = 0.35
+                    a.loop = true
+                    audioRef.current = a
+                    a.play().then(() => setAudioEnabled(true)).catch(e => console.error('Audio play error:', e))
                   }
                 }}
                 className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all"
