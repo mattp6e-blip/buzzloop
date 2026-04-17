@@ -142,7 +142,7 @@ function getVarietyReelPrompt(
 
   const insightCount = tone === 'bold' ? 1 : theme.contentType === 'behind_scenes' ? 4 : 3
   const ctaDuration = tone === 'bold' ? 5 : 6
-  const totalDuration = 4 + (insightCount * 4) + (hasQuote ? 6 : 0) + ctaDuration
+  const totalDuration = 5 + (insightCount * 4) + (hasQuote ? 7 : 0) + ctaDuration
 
   const insightLines = tone === 'bold'
     ? `- insight: 4s — the single most surprising or counterintuitive fact about the topic`
@@ -169,7 +169,7 @@ Use a verbatim excerpt (max 18 words) that emotionally validates what the insigh
     : ''
 
   const quoteSlideJson = hasQuote
-    ? `\n    { "type": "quote", "duration": 6, "content": { "quote": "Verbatim excerpt from the review above (max 18 words)", "highlightWords": ["word1"], "author": ${closingReview!.author ? `"${closingReview!.author}"` : 'null'} } },`
+    ? `\n    { "type": "quote", "duration": 7, "content": { "quote": "Verbatim excerpt from the review above (max 18 words)", "highlightWords": ["word1"], "author": ${closingReview!.author ? `"${closingReview!.author}"` : 'null'} } },`
     : ''
 
   return `You are completing an Instagram Reel about ${theme.contentType?.replace('_', ' ')} content. The hook has been written. Build the educational content around it.
@@ -218,7 +218,7 @@ Return ONLY valid JSON:
   "ctaHeadline": "Topic callback — specific",
   "ctaText": "Friction reduction",
   "slides": [
-    { "type": "hook", "duration": 4, "content": { "headline": "${hookHeadline}", "subline": ${hookSubline ? `"${hookSubline}"` : 'null'} } },
+    { "type": "hook", "duration": 5, "content": { "headline": "${hookHeadline}", "subline": ${hookSubline ? `"${hookSubline}"` : 'null'} } },
     ${insightCount === 1
       ? `{ "type": "insight", "duration": 4, "content": { "headline": "The sharpest insight (max 10 words)", "highlightWords": ["word1"] } },`
       : insightCount === 4
@@ -399,9 +399,9 @@ Return ONLY valid JSON:
   "ctaHeadline": "Story callback — specific, not generic",
   "ctaText": "Friction reduction — makes next step feel small",
   "slides": [
-    { "type": "hook", "duration": 4, "content": { "headline": "${hookHeadline}", "subline": ${hookSubline ? `"${hookSubline}"` : 'null'} } },
-    { "type": "quote", "duration": 6, "content": { "quote": "Verbatim sentence from review (max 18 words)", "highlightWords": ["word1", "word2"], "author": "First name or null" } },
-    { "type": "quote", "duration": 6, "content": { "quote": "Verbatim sentence from second review (max 18 words)", "highlightWords": ["word1"], "author": "First name or null" } },
+    { "type": "hook", "duration": 5, "content": { "headline": "${hookHeadline}", "subline": ${hookSubline ? `"${hookSubline}"` : 'null'} } },
+    { "type": "quote", "duration": 7, "content": { "quote": "Verbatim sentence from review (max 18 words)", "highlightWords": ["word1", "word2"], "author": "First name or null" } },
+    { "type": "quote", "duration": 7, "content": { "quote": "Verbatim sentence from second review (max 18 words)", "highlightWords": ["word1"], "author": "First name or null" } },
     { "type": "proof", "duration": 5, "content": { "stat": "Logical fact from this specific story (max 8 words)", "subline": "Short reinforcing line (max 5 words)" } },
     { "type": "cta", "duration": 6, "content": { "headline": "Story callback headline", "cta": "Friction reduction action" } }
   ]
