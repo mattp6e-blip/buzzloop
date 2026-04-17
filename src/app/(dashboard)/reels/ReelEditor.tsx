@@ -744,6 +744,7 @@ export function ReelEditor({
                     setAudioEnabled(false)
                     if (audioRef.current) { audioRef.current.pause(); audioRef.current = null }
                   } else if (editedVariation.musicUrl) {
+                    console.log('Attempting audio URL:', editedVariation.musicUrl)
                     const a = new Audio(editedVariation.musicUrl)
                     a.volume = 0.35
                     a.loop = true
